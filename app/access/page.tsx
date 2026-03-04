@@ -1,48 +1,27 @@
-"use client";
-
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { Suspense } from "react";
+import AccessClient from "./AccessClient";
 
 export default function AccessPage() {
-  const sp = useSearchParams();
-  const ok = sp.get("ok");
-  const msg = sp.get("msg") || "";
-  const invite = sp.get("invite") || "";
-
   return (
-    <div className="max-w-3xl mx-auto px-5 py-14">
-      <h1 className="text-3xl font-semibold">Access</h1>
+    <main className="min-h-screen flex items-center justify-center px-6 py-16">
+      <div className="w-full max-w-xl">
+        <h1 className="text-3xl font-semibold tracking-tight">Access</h1>
+        <p className="mt-3 text-sm opacity-80">
+          Deze pagina verwerkt je betaling en koppelt je automatisch aan de juiste Discord toegang.
+        </p>
 
-      {ok === "1" ? (
-        <>
-          <p className="mt-4 text-[rgb(var(--muted))]">
-            Access granted. Your Discord role has been assigned.
-          </p>
-          {invite ? (
-            <a
-              className="mt-6 inline-block px-5 py-3 rounded-xl bg-[rgb(var(--brand))] text-black font-medium hover:opacity-90"
-              href={invite}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Open Discord
-            </a>
-          ) : (
-            <p className="mt-6 text-sm text-[rgb(var(--muted))]">
-              Open Discord to see your private channels.
-            </p>
-          )}
-        </>
-      ) : (
-        <>
-          <p className="mt-4 text-red-300">
-            Could not grant access. {msg}
-          </p>
-          <Link className="mt-6 inline-block underline text-[rgb(var(--brand))]" href="/pricing">
-            Back to pricing
-          </Link>
-        </>
-      )}
-    </div>
+        <div className="mt-10">
+          <Suspense
+            fallback={
+              <div className="rounded-xl border p-5">
+                <p className="text-sm opacity-80">Even laden…</p>
+              </div>
+            }
+          >
+            <AccessClient />
+          </Suspense>
+        </div>
+      </div>
+    </main>
   );
 }
