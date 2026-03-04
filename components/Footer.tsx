@@ -7,12 +7,17 @@ export default function Footer() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>© {new Date().getFullYear()} VolatilityForge</div>
           <div className="flex gap-4">
-            <Link className="hover:text-white" href="/legal/privacy">Privacy</Link>
-            <Link className="hover:text-white" href="/legal/terms">Terms</Link>
+            <Link className="hover:text-white" href="/legal/privacy">
+              Privacy
+            </Link>
+            <Link className="hover:text-white" href="/legal/terms">
+              Terms
+            </Link>
           </div>
         </div>
+
         <div className="opacity-80">
-          Disclaimer: geen financieel advies. Handel is risicovol. Jij blijft verantwoordelijk voor je beslissingen.
+          Disclaimer: Not financial advice. Trading is risky. You remain fully responsible for your own decisions.
         </div>
       </div>
     </footer>
