@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const NAV = [
   { href: "/how-it-works", label: "How it works" },
@@ -13,14 +12,8 @@ const NAV = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
 
-  // close menu on route change
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
-  // lock body scroll when menu open
+  // ✅ prevent background scroll when menu is open
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -30,86 +23,120 @@ export default function Navbar() {
     };
   }, [open]);
 
-  const active = useMemo(() => pathname || "/", [pathname]);
-
   return (
-    <header className="sticky top-0 z-50">
-      {/* Apple-style blur bar */}
-      <div className="vf-nav">
-        <div className="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="font-semibold tracking-wide select-none">
-            <span className="text-[rgb(var(--brand))]">Volatility</span>Forge
-          </Link>
+    <header className="sticky top-0 z-50 vf-blurbar border-b vf-hairline">
+      <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+        {/* Brand */}
+        <Link
+          href="/"
+          className="font-semibold tracking-wide text-lg flex items-baseline gap-0.5"
+          onClick={() => setOpen(false)}
+        >
+          <span className="text-[rgb(var(--brand))]">Volatility</span>
+          <span>Forge</span>
+        </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-7 text-sm text-[rgb(var(--muted))]">
-            {NAV.map((it) => (
-              <Link
-                key={it.href}
-                href={it.href}
-                className={`vf-link ${active === it.href ? "vf-link-active" : ""}`}
-              >
-                {it.label}
-              </Link>
-            ))}
-          </nav>
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-8 text-sm text-[rgb(var(--muted))]">
+          {NAV.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="vf-gold-underline hover:text-white transition-colors"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Mobile button */}
+        <button
+          type="button"
+          aria-label="Open menu"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          className="md:hidden inline-flex items-center justify-center w-11 h-11 rounded-xl border border-[rgb(var(--stroke))] hover:border-white/20 transition"
+        >
+          <span className="sr-only">Menu</span>
 
           {/* Animated hamburger */}
-          <button
-            aria-label={open ? "Close menu" : "Open menu"}
-            className="md:hidden vf-burger"
-            onClick={() => setOpen((v) => !v)}
-          >
-            <span className={`vf-burger-line ${open ? "is-open" : ""}`} />
-            <span className={`vf-burger-line ${open ? "is-open" : ""}`} />
-          </button>
-        </div>
+          <span className="relative w-5 h-4">
+            <span
+              className={[
+                "absolute left-0 top-0 h-[2px] w-5 bg-white/80 rounded-full transition-all duration-200",
+                open ? "translate-y-[7px] rotate-45" : "",
+              ].join(" ")}
+            />
+            <span
+              className={[
+                "absolute left-0 top-[7px] h-[2px] w-5 bg-white/70 rounded-full transition-all duration-200",
+                open ? "opacity-0" : "",
+              ].join(" ")}
+            />
+            <span
+              className={[
+                "absolute left-0 top-[14px] h-[2px] w-5 bg-white/80 rounded-full transition-all duration-200",
+                open ? "translate-y-[-7px] -rotate-45" : "",
+              ].join(" ")}
+            />
+          </span>
+        </button>
       </div>
 
-      {/* Premium mobile menu */}
-      <div className={`vf-mobile ${open ? "open" : ""}`}>
+      {/* Mobile menu (premium sheet) */}
+      <div
+        className={[
+          "md:hidden fixed inset-0 z-[60] transition",
+          open ? "pointer-events-auto" : "pointer-events-none",
+        ].join(" ")}
+      >
         {/* Backdrop */}
-        <div className="vf-mobile-backdrop" onClick={() => setOpen(false)} />
+        <div
+          onClick={() => setOpen(false)}
+          className={[
+            "absolute inset-0 bg-black/60 transition-opacity duration-200",
+            open ? "opacity-100" : "opacity-0",
+          ].join(" ")}
+        />
 
-        {/* Panel */}
-        <div className="vf-mobile-panel">
-          <div className="vf-mobile-top">
-            <div className="text-sm text-[rgb(var(--muted))] tracking-widest uppercase">
-              Menu
-            </div>
+        {/* Sheet */}
+        <div
+          className={[
+            "absolute left-0 right-0 top-0 mx-3 mt-3 rounded-2xl vf-sheet vf-soft-shadow overflow-hidden",
+            "transform transition-transform duration-200",
+            open ? "translate-y-0" : "-translate-y-4",
+          ].join(" ")}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="px-4 py-4 flex items-center justify-between border-b vf-hairline">
+            <div className="font-medium text-white/90">Menu</div>
             <button
-              className="vf-close"
-              aria-label="Close menu"
               onClick={() => setOpen(false)}
+              className="w-10 h-10 rounded-xl border border-[rgb(var(--stroke))] hover:border-white/20 transition grid place-items-center"
+              aria-label="Close menu"
             >
-              ✕
+              <span className="text-white/80 text-lg">×</span>
             </button>
           </div>
 
-          <div className="vf-mobile-links">
-            {NAV.map((it, idx) => (
+          <div className="p-2">
+            {NAV.map((item) => (
               <Link
-                key={it.href}
-                href={it.href}
-                className={`vf-mobile-link ${active === it.href ? "active" : ""}`}
-                style={{ transitionDelay: open ? `${80 + idx * 60}ms` : "0ms" }}
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className="block px-4 py-4 rounded-xl text-[15px] text-white/90 hover:bg-white/5 transition"
               >
-                {it.label}
+                <div className="flex items-center justify-between">
+                  <span>{item.label}</span>
+                  <span className="text-[rgb(var(--brand))] opacity-90">›</span>
+                </div>
               </Link>
             ))}
-          </div>
 
-          <div className="vf-mobile-cta">
-            <Link
-              href="/pricing"
-              className="vf-mobile-primary"
-              onClick={() => setOpen(false)}
-            >
-              View Pricing
-            </Link>
-            <div className="vf-mobile-hint">
-              Discord-first delivery. No public dashboard.
+            <div className="px-4 pb-4 pt-2 text-xs text-[rgb(var(--muted))]">
+              Access is delivered via private Discord roles — no public dashboard.
             </div>
           </div>
         </div>
