@@ -1,29 +1,64 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 export default function Navbar() {
+  const [open, setOpen] = useState(false);
+
   return (
     <header className="sticky top-0 z-40 backdrop-blur border-b border-[rgb(var(--stroke))] bg-black/30">
-      <div className="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between gap-6">
-        <Link href="/" className="font-semibold tracking-wide shrink-0">
+      <div className="max-w-6xl mx-auto px-5 py-4 flex items-center justify-between">
+
+        {/* Logo */}
+        <Link href="/" className="font-semibold tracking-wide">
           <span className="text-[rgb(var(--brand))]">Volatility</span>Forge
         </Link>
 
-        {/* Right-aligned, single-line nav */}
-        <nav className="flex items-center justify-end gap-6 text-sm text-[rgb(var(--muted))]">
-          <Link className="hover:text-white whitespace-nowrap" href="/how-it-works">
+        {/* Desktop menu */}
+        <nav className="hidden md:flex items-center gap-6 text-sm text-[rgb(var(--muted))]">
+          <Link className="hover:text-white" href="/how-it-works">
             How it works
           </Link>
-          <Link className="hover:text-white whitespace-nowrap" href="/pricing">
+          <Link className="hover:text-white" href="/pricing">
             Pricing
           </Link>
-          <Link className="hover:text-white whitespace-nowrap" href="/faq">
+          <Link className="hover:text-white" href="/faq">
             FAQ
           </Link>
-          <Link className="hover:text-white whitespace-nowrap" href="/legal/terms">
+          <Link className="hover:text-white" href="/legal/terms">
             Terms
           </Link>
         </nav>
+
+        {/* Mobile hamburger */}
+        <button
+          onClick={() => setOpen(!open)}
+          className="md:hidden text-[rgb(var(--muted))]"
+        >
+          ☰
+        </button>
       </div>
+
+      {/* Mobile dropdown */}
+      {open && (
+        <div className="md:hidden border-t border-[rgb(var(--stroke))] bg-black/90">
+          <nav className="flex flex-col px-5 py-4 gap-4 text-sm text-[rgb(var(--muted))]">
+            <Link onClick={() => setOpen(false)} href="/how-it-works">
+              How it works
+            </Link>
+            <Link onClick={() => setOpen(false)} href="/pricing">
+              Pricing
+            </Link>
+            <Link onClick={() => setOpen(false)} href="/faq">
+              FAQ
+            </Link>
+            <Link onClick={() => setOpen(false)} href="/legal/terms">
+              Terms
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
