@@ -1,6 +1,6 @@
 # VolatilityForge
 
-Chique, professionele Discord-first signals website.
+Chic, professional Discord-first signals website.
 
 ## Features
 - Next.js App Router + Tailwind
