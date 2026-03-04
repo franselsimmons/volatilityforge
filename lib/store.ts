@@ -1,12 +1,13 @@
 type Json = any;
 
 declare global {
-  // eslint-disable-next-line no-var
   var __VF_MEMSTORE__: Map<string, any> | undefined;
 }
 
 function mem() {
-  if (!globalThis.__VF_MEMSTORE__) globalThis.__VF_MEMSTORE__ = new Map();
+  if (!globalThis.__VF_MEMSTORE__) {
+    globalThis.__VF_MEMSTORE__ = new Map();
+  }
   return globalThis.__VF_MEMSTORE__;
 }
 
@@ -15,32 +16,40 @@ function hasVercelKv(): boolean {
 }
 
 async function kvClient() {
+  if (!hasVercelKv()) return null;
+
   const mod = await import("@vercel/kv");
   return mod.kv;
 }
 
 export async function get(key: string): Promise<Json | null> {
-  if (hasVercelKv()) {
-    const kv = await kvClient();
+  const kv = await kvClient();
+
+  if (kv) {
     return (await kv.get(key)) as any;
   }
+
   return mem().get(key) ?? null;
 }
 
 export async function set(key: string, value: Json, opts?: { ex?: number }): Promise<void> {
-  if (hasVercelKv()) {
-    const kv = await kvClient();
+  const kv = await kvClient();
+
+  if (kv) {
     await kv.set(key, value, opts as any);
     return;
   }
+
   mem().set(key, value);
 }
 
 export async function del(key: string): Promise<void> {
-  if (hasVercelKv()) {
-    const kv = await kvClient();
+  const kv = await kvClient();
+
+  if (kv) {
     await kv.del(key);
     return;
   }
+
   mem().delete(key);
 }
