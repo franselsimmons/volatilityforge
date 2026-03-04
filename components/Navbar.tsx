@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const NAV = [
   { href: "/how-it-works", label: "How it works" },
@@ -12,8 +13,14 @@ const NAV = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
-  // ✅ prevent background scroll when menu is open
+  // ✅ Close menu on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // ✅ Lock body scroll when open
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -21,6 +28,16 @@ export default function Navbar() {
     return () => {
       document.body.style.overflow = prev;
     };
+  }, [open]);
+
+  // ✅ Close on ESC
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
   return (
@@ -52,7 +69,7 @@ export default function Navbar() {
         {/* Mobile button */}
         <button
           type="button"
-          aria-label="Open menu"
+          aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           className="md:hidden inline-flex items-center justify-center w-11 h-11 rounded-xl border border-[rgb(var(--stroke))] hover:border-white/20 transition"
@@ -83,64 +100,73 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile menu (premium sheet) */}
-      <div
-        className={[
-          "md:hidden fixed inset-0 z-[60] transition",
-          open ? "pointer-events-auto" : "pointer-events-none",
-        ].join(" ")}
-      >
-        {/* Backdrop */}
-        <div
-          onClick={() => setOpen(false)}
-          className={[
-            "absolute inset-0 bg-black/60 transition-opacity duration-200",
-            open ? "opacity-100" : "opacity-0",
-          ].join(" ")}
-        />
+      {/* ✅ Render overlay ONLY when open */}
+      {open && (
+        <div className="md:hidden fixed inset-0 z-[60]">
+          {/* Backdrop */}
+          <button
+            aria-label="Close menu backdrop"
+            onClick={() => setOpen(false)}
+            className="absolute inset-0 bg-black/60"
+          />
 
-        {/* Sheet */}
-        <div
-          className={[
-            "absolute left-0 right-0 top-0 mx-3 mt-3 rounded-2xl vf-sheet vf-soft-shadow overflow-hidden",
-            "transform transition-transform duration-200",
-            open ? "translate-y-0" : "-translate-y-4",
-          ].join(" ")}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="px-4 py-4 flex items-center justify-between border-b vf-hairline">
-            <div className="font-medium text-white/90">Menu</div>
-            <button
-              onClick={() => setOpen(false)}
-              className="w-10 h-10 rounded-xl border border-[rgb(var(--stroke))] hover:border-white/20 transition grid place-items-center"
-              aria-label="Close menu"
-            >
-              <span className="text-white/80 text-lg">×</span>
-            </button>
-          </div>
+          {/* Sheet */}
+          <div
+            className={[
+              "absolute left-0 right-0 top-0 mx-3 mt-3 rounded-2xl vf-sheet vf-soft-shadow overflow-hidden",
+              "animate-[vfSheetIn_.18s_ease-out]",
+            ].join(" ")}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="px-4 py-4 flex items-center justify-between border-b vf-hairline">
+              <div className="font-medium text-white/90">Menu</div>
 
-          <div className="p-2">
-            {NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
+              <button
                 onClick={() => setOpen(false)}
-                className="block px-4 py-4 rounded-xl text-[15px] text-white/90 hover:bg-white/5 transition"
+                className="w-10 h-10 rounded-xl border border-[rgb(var(--stroke))] hover:border-white/20 transition grid place-items-center"
+                aria-label="Close menu"
               >
-                <div className="flex items-center justify-between">
-                  <span>{item.label}</span>
-                  <span className="text-[rgb(var(--brand))] opacity-90">›</span>
-                </div>
-              </Link>
-            ))}
+                <span className="text-white/80 text-lg">×</span>
+              </button>
+            </div>
 
-            <div className="px-4 pb-4 pt-2 text-xs text-[rgb(var(--muted))]">
-              Access is delivered via private Discord roles — no public dashboard.
+            <div className="p-2">
+              {NAV.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="block px-4 py-4 rounded-xl text-[15px] text-white/90 hover:bg-white/5 transition"
+                >
+                  <div className="flex items-center justify-between">
+                    <span>{item.label}</span>
+                    <span className="text-[rgb(var(--brand))] opacity-90">›</span>
+                  </div>
+                </Link>
+              ))}
+
+              <div className="px-4 pb-4 pt-2 text-xs text-[rgb(var(--muted))]">
+                Access is delivered via private Discord roles — no public dashboard.
+              </div>
             </div>
           </div>
+
+          {/* tiny animation keyframes */}
+          <style jsx global>{`
+            @keyframes vfSheetIn {
+              from {
+                transform: translateY(-8px);
+                opacity: 0.8;
+              }
+              to {
+                transform: translateY(0);
+                opacity: 1;
+              }
+            }
+          `}</style>
         </div>
-      </div>
+      )}
     </header>
   );
 }
