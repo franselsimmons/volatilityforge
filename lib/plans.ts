@@ -17,56 +17,56 @@ export const PLANS: Plan[] = [
     name: "BUILDUP Signals",
     subtitle: "Early momentum building — high quality watchlist alerts",
     bullets: [
-      "BULL + BEAR inbegrepen",
-      "Focus op momentum-opbouw (minder noise)",
-      "Discord alerts, geen dashboard nodig",
-      "Ideaal voor voorbereiding & planning"
+      "Includes both BULL + BEAR signals",
+      "Focused on momentum build-up (less noise)",
+      "Discord alerts — no dashboard required",
+      "Ideal for preparation and planning",
     ],
     price: { EUR: 39, USDT: 45 },
-    discordRoleEnv: "DISCORD_ROLE_BUILDUP"
+    discordRoleEnv: "DISCORD_ROLE_BUILDUP",
   },
   {
     id: "almost",
     name: "ALMOST Signals",
     subtitle: "Pre-breakout / pre-breakdown — close to execution",
     bullets: [
-      "BULL + BEAR inbegrepen",
-      "Strakkere filters dan BUILDUP",
-      "Meer ‘near-entry’ meldingen",
-      "Voor actieve traders"
+      "Includes both BULL + BEAR signals",
+      "Tighter filtering than BUILDUP",
+      "More “near-entry” alerts",
+      "Built for active traders",
     ],
     price: { EUR: 79, USDT: 90 },
     discordRoleEnv: "DISCORD_ROLE_ALMOST",
-    featured: true
+    featured: true,
   },
   {
     id: "entry",
     name: "ENTRY Signals",
     subtitle: "Execution-grade alerts — highest conviction",
     bullets: [
-      "BULL + BEAR inbegrepen",
-      "Maximale filtering & quality gates",
-      "Sneller beslissen, minder twijfel",
-      "Voor serieuze executie"
+      "Includes both BULL + BEAR signals",
+      "Maximum filtering & quality gates",
+      "Faster decisions, less hesitation",
+      "Designed for serious execution",
     ],
     price: { EUR: 149, USDT: 170 },
-    discordRoleEnv: "DISCORD_ROLE_ENTRY"
+    discordRoleEnv: "DISCORD_ROLE_ENTRY",
   },
   {
     id: "all",
     name: "ALL-ACCESS",
-    subtitle: "Alles (BUILDUP + ALMOST + ENTRY) — complete coverage",
+    subtitle: "Everything (BUILDUP + ALMOST + ENTRY) — complete coverage",
     bullets: [
-      "BULL + BEAR inbegrepen",
-      "Alle tiers in één",
-      "Beste value voor power users",
-      "Eén betaling, alles open"
+      "Includes both BULL + BEAR signals",
+      "All tiers in one plan",
+      "Best value for power users",
+      "One payment unlocks everything",
     ],
     price: { EUR: 219, USDT: 250 },
-    discordRoleEnv: "DISCORD_ROLE_ALL"
-  }
+    discordRoleEnv: "DISCORD_ROLE_ALL",
+  },
 ];
 
 export function getPlan(planId: string): Plan | null {
-  return PLANS.find(p => p.id === planId) ?? null;
+  return PLANS.find((p) => p.id === planId) ?? null;
 }
