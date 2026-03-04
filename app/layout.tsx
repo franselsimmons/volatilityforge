@@ -4,12 +4,12 @@ import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "VolatilityForge — Premium Discord Signals",
-  description: "Chique, professionele volatility signalen. Alleen executieklare alerts."
+  description: "Chic, professional volatility signals. Execution-ready alerts delivered via Discord.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="nl">
+    <html lang="en">
       <body className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1">{children}</main>
