@@ -1,26 +1,65 @@
-import GlowCard from "@/components/GlowCard";
-import { HOW_IT_WORKS } from "@/lib/sitecopy";
+// app/how-it-works/page.tsx
 
-export default function HowItWorks() {
+import Link from "next/link";
+import { siteCopy } from "@/lib/sitecopy";
+
+export default function HowItWorksPage() {
   return (
-    <div className="max-w-6xl mx-auto px-5 py-14">
-      <h1 className="text-3xl font-semibold">How it works</h1>
-      <p className="mt-3 text-[rgb(var(--muted))] max-w-2xl">
-        We explain the workflow without exposing proprietary details. The engine stays private — the delivery stays clear.
-      </p>
+    <main className="min-h-screen bg-black text-white">
+      <section className="mx-auto max-w-6xl px-6 pb-10 pt-14">
+        <div className="mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center rounded-2xl border border-[#20284a] px-5 py-3 text-sm text-zinc-300 hover:bg-white/5"
+          >
+            ← Back
+          </Link>
+        </div>
 
-      <div className="mt-10 grid md:grid-cols-2 gap-6">
-        {HOW_IT_WORKS.map(s => (
-          <GlowCard key={s.title}>
-            <div className="text-lg font-semibold">{s.title}</div>
-            <div className="mt-2 text-[rgb(var(--muted))]">{s.text}</div>
-          </GlowCard>
+        <h1 className="text-5xl font-semibold md:text-7xl">
+          {siteCopy.howItWorksTitle}
+        </h1>
+
+        <p className="mt-8 max-w-4xl text-xl leading-10 text-zinc-400 md:text-2xl">
+          {siteCopy.howItWorksIntro}
+        </p>
+      </section>
+
+      <section className="mx-auto grid max-w-6xl gap-6 px-6 pb-10 md:grid-cols-2">
+        {siteCopy.howItWorksCards.map((card) => (
+          <div
+            key={card.title}
+            className="rounded-[32px] border border-[#20284a] bg-[radial-gradient(circle_at_top,rgba(38,45,92,.45),rgba(10,10,16,.92))] p-8"
+          >
+            <h2 className="text-3xl font-semibold">{card.title}</h2>
+            <p className="mt-5 text-xl leading-10 text-zinc-400">{card.body}</p>
+          </div>
         ))}
-      </div>
+      </section>
 
-      <div className="mt-10 text-sm text-[rgb(var(--muted))]">
-        Signals are delivered via Discord roles to private channels. No public pages. No leaking.
-      </div>
-    </div>
+      <section className="mx-auto max-w-6xl px-6 pb-16">
+        <p className="max-w-4xl text-xl leading-10 text-zinc-300">
+          {siteCopy.footerNote}
+        </p>
+      </section>
+
+      <footer className="border-t border-white/10">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10 text-zinc-400 md:flex-row md:items-start md:justify-between">
+          <div>
+            <div className="text-2xl text-zinc-300">© 2026 {siteCopy.brand}</div>
+            <p className="mt-4 max-w-3xl text-lg leading-9">{siteCopy.disclaimer}</p>
+          </div>
+
+          <div className="flex gap-8 text-lg">
+            <Link href="/legal/privacy" className="hover:text-white">
+              Privacy
+            </Link>
+            <Link href="/legal/terms" className="hover:text-white">
+              Terms
+            </Link>
+          </div>
+        </div>
+      </footer>
+    </main>
   );
 }
