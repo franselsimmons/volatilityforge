@@ -1,72 +1,53 @@
 // lib/plans.ts
 
-export type Plan = {
-  slug: string;
-  name: string;
-  subtitle: string;
-  eur: number;
-  usdt: number;
-  badge?: string;
-  bullets: string[];
-  note: string;
+export type PlanKey = "buildup" | "almost" | "entry" | "all_access";
+
+export type PlanDef = {
+  key: PlanKey;
+  label: string;
+  priceEur: number;
+  priceUsdt: number;
+  discordRoleEnv: string;
 };
 
-export const plans: Plan[] = [
-  {
-    slug: "buildup",
-    name: "BUILDUP Signals",
-    subtitle: "Early momentum building — high quality watchlist alerts",
-    eur: 39,
-    usdt: 45,
-    bullets: [
-      "Includes both BULL + BEAR signals",
-      "Focused on structured setup development",
-      "Cleaner early-stage alerts with less noise",
-      "Built for preparation and planning",
-    ],
-    note: "Access is delivered via Discord role-based private channels.",
+export const PLANS: Record<PlanKey, PlanDef> = {
+  buildup: {
+    key: "buildup",
+    label: "BUILDUP Signals",
+    priceEur: 39,
+    priceUsdt: 45,
+    discordRoleEnv: "DISCORD_ROLE_BUILDUP",
   },
-  {
-    slug: "almost",
-    name: "ALMOST Signals",
-    subtitle: "Pre-breakout / pre-breakdown — closer to execution",
-    eur: 89,
-    usdt: 99,
-    badge: "Most Popular",
-    bullets: [
-      "Includes both BULL + BEAR signals",
-      "Tighter filtering than BUILDUP",
-      "More near-entry alerts",
-      "May include selective volatility-event alerts when conditions justify it",
-    ],
-    note: "Access is delivered via Discord role-based private channels.",
+  almost: {
+    key: "almost",
+    label: "ALMOST Signals",
+    priceEur: 79,
+    priceUsdt: 90,
+    discordRoleEnv: "DISCORD_ROLE_ALMOST",
   },
-  {
-    slug: "entry",
-    name: "ENTRY Signals",
-    subtitle: "Execution-grade alerts — highest conviction",
-    eur: 159,
-    usdt: 179,
-    bullets: [
-      "Includes both BULL + BEAR signals",
-      "Maximum filtering and quality gates",
-      "Faster decisions, less hesitation",
-      "Includes high-conviction structured alerts plus rare volatility-event alerts when triggered",
-    ],
-    note: "Access is delivered via Discord role-based private channels.",
+  entry: {
+    key: "entry",
+    label: "ENTRY Signals",
+    priceEur: 149,
+    priceUsdt: 170,
+    discordRoleEnv: "DISCORD_ROLE_ENTRY",
   },
-  {
-    slug: "all-access",
-    name: "ALL-ACCESS",
-    subtitle: "Complete coverage across structured signals and volatility events",
-    eur: 249,
-    usdt: 279,
-    bullets: [
-      "Includes both BULL + BEAR signals",
-      "All structured tiers in one plan",
-      "Best access to both internal signal layers",
-      "Best value for serious users who want full coverage",
-    ],
-    note: "Access is delivered via Discord role-based private channels.",
+  all_access: {
+    key: "all_access",
+    label: "ALL-ACCESS",
+    priceEur: 219,
+    priceUsdt: 250,
+    discordRoleEnv: "DISCORD_ROLE_ALL_ACCESS",
   },
-];
+};
+
+export function getPlan(plan: string) {
+  const key = String(plan || "").toLowerCase() as PlanKey;
+  return PLANS[key] || null;
+}
+
+export function getDiscordRoleIdForPlan(plan: string): string | null {
+  const p = getPlan(plan);
+  if (!p) return null;
+  return process.env[p.discordRoleEnv] || null;
+}
