@@ -1,72 +1,72 @@
-export type Currency = "EUR" | "USDT";
-export type PlanId = "buildup" | "almost" | "entry" | "all";
+// lib/plans.ts
 
 export type Plan = {
-  id: PlanId;
+  slug: string;
   name: string;
   subtitle: string;
+  eur: number;
+  usdt: number;
+  badge?: string;
   bullets: string[];
-  price: { EUR: number; USDT: number };
-  discordRoleEnv: string;
-  featured?: boolean;
+  note: string;
 };
 
-export const PLANS: Plan[] = [
+export const plans: Plan[] = [
   {
-    id: "buildup",
+    slug: "buildup",
     name: "BUILDUP Signals",
     subtitle: "Early momentum building — high quality watchlist alerts",
+    eur: 39,
+    usdt: 45,
     bullets: [
       "Includes both BULL + BEAR signals",
-      "Focused on momentum build-up (less noise)",
-      "Discord alerts — no dashboard required",
-      "Ideal for preparation and planning",
+      "Focused on structured setup development",
+      "Cleaner early-stage alerts with less noise",
+      "Built for preparation and planning",
     ],
-    price: { EUR: 39, USDT: 45 },
-    discordRoleEnv: "DISCORD_ROLE_BUILDUP",
+    note: "Access is delivered via Discord role-based private channels.",
   },
   {
-    id: "almost",
+    slug: "almost",
     name: "ALMOST Signals",
-    subtitle: "Pre-breakout / pre-breakdown — close to execution",
+    subtitle: "Pre-breakout / pre-breakdown — closer to execution",
+    eur: 89,
+    usdt: 99,
+    badge: "Most Popular",
     bullets: [
       "Includes both BULL + BEAR signals",
       "Tighter filtering than BUILDUP",
-      "More “near-entry” alerts",
-      "Built for active traders",
+      "More near-entry alerts",
+      "May include selective volatility-event alerts when conditions justify it",
     ],
-    price: { EUR: 79, USDT: 90 },
-    discordRoleEnv: "DISCORD_ROLE_ALMOST",
-    featured: true,
+    note: "Access is delivered via Discord role-based private channels.",
   },
   {
-    id: "entry",
+    slug: "entry",
     name: "ENTRY Signals",
     subtitle: "Execution-grade alerts — highest conviction",
+    eur: 159,
+    usdt: 179,
     bullets: [
       "Includes both BULL + BEAR signals",
-      "Maximum filtering & quality gates",
+      "Maximum filtering and quality gates",
       "Faster decisions, less hesitation",
-      "Designed for serious execution",
+      "Includes high-conviction structured alerts plus rare volatility-event alerts when triggered",
     ],
-    price: { EUR: 149, USDT: 170 },
-    discordRoleEnv: "DISCORD_ROLE_ENTRY",
+    note: "Access is delivered via Discord role-based private channels.",
   },
   {
-    id: "all",
+    slug: "all-access",
     name: "ALL-ACCESS",
-    subtitle: "Everything (BUILDUP + ALMOST + ENTRY) — complete coverage",
+    subtitle: "Complete coverage across structured signals and volatility events",
+    eur: 249,
+    usdt: 279,
     bullets: [
       "Includes both BULL + BEAR signals",
-      "All tiers in one plan",
-      "Best value for power users",
-      "One payment unlocks everything",
+      "All structured tiers in one plan",
+      "Best access to both internal signal layers",
+      "Best value for serious users who want full coverage",
     ],
-    price: { EUR: 219, USDT: 250 },
-    discordRoleEnv: "DISCORD_ROLE_ALL",
+    note: "Access is delivered via Discord role-based private channels.",
   },
 ];
-
-export function getPlan(planId: string): Plan | null {
-  return PLANS.find((p) => p.id === planId) ?? null;
-}
