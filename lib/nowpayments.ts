@@ -1,70 +1,71 @@
-import { uid } from "@/lib/crypto";
-import { Currency, getPlan } from "@/lib/plans";
+// lib/nowpayments.ts
 
-type CreatePaymentArgs = {
-  planId: string;
-  currency: Currency;
-  customerEmail?: string;
-  successUrl: string;
-  ipnCallbackUrl: string;
-};
+const NP_BASE = "https://api.nowpayments.io/v1";
 
-export async function nowCreatePayment(args: CreatePaymentArgs) {
-  const plan = getPlan(args.planId);
-  if (!plan) throw new Error("invalid_plan");
+function npHeaders() {
+  const apiKey = process.env.NOWPAYMENTS_API_KEY;
+  if (!apiKey) throw new Error("Missing NOWPAYMENTS_API_KEY");
 
-  const apiKey = process.env.NOWPAYMENTS_API_KEY || "";
-  if (!apiKey) throw new Error("missing_NOWPAYMENTS_API_KEY");
-
-  const priceCurrency = args.currency === "EUR" ? "eur" : "usdt";
-  const priceAmount = args.currency === "EUR" ? plan.price.EUR : plan.price.USDT;
-
-  const orderId = uid(`order_${plan.id}`);
-  const orderDescription = `${plan.name} — monthly access`;
-
-  const body = {
-    price_amount: priceAmount,
-    price_currency: priceCurrency,
-    order_id: orderId,
-    order_description: orderDescription,
-    ipn_callback_url: args.ipnCallbackUrl,
-    success_url: args.successUrl,
-    cancel_url: args.successUrl,
-    is_fixed_rate: true
+  return {
+    "x-api-key": apiKey,
+    "content-type": "application/json",
   };
-
-  const r = await fetch("https://api.nowpayments.io/v1/payment", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": apiKey
-    },
-    body: JSON.stringify(body)
-  });
-
-  const t = await r.text();
-  let j: any = null;
-  try { j = JSON.parse(t); } catch {}
-
-  if (!r.ok) {
-    throw new Error(`nowpayments_create_failed:${r.status}:${(j?.message || t || "").slice(0,200)}`);
-  }
-
-  return { plan, currency: args.currency, priceAmount, priceCurrency, orderId, now: j };
 }
 
-export async function nowGetStatus(paymentId: string) {
-  const apiKey = process.env.NOWPAYMENTS_API_KEY || "";
-  if (!apiKey) throw new Error("missing_NOWPAYMENTS_API_KEY");
+export type CreatePaymentInput = {
+  price_amount: number;
+  price_currency: string;
+  pay_currency?: string;
+  order_id: string;
+  order_description: string;
+  ipn_callback_url: string;
+  success_url?: string;
+  cancel_url?: string;
+};
 
-  const r = await fetch(`https://api.nowpayments.io/v1/payment/${encodeURIComponent(paymentId)}`, {
-    headers: { "x-api-key": apiKey, "accept": "application/json" }
+export async function createNowPayment(input: CreatePaymentInput) {
+  const res = await fetch(`${NP_BASE}/payment`, {
+    method: "POST",
+    headers: npHeaders(),
+    body: JSON.stringify(input),
+    cache: "no-store",
   });
 
-  const t = await r.text();
-  let j: any = null;
-  try { j = JSON.parse(t); } catch {}
+  const text = await res.text();
+  let json: any = null;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    throw new Error(`NOWPayments invalid JSON: ${text.slice(0, 300)}`);
+  }
 
-  if (!r.ok) throw new Error(`nowpayments_status_failed:${r.status}:${(j?.message || t || "").slice(0,200)}`);
-  return j;
+  if (!res.ok) {
+    throw new Error(json?.message || `NOWPayments ${res.status}`);
+  }
+
+  return json;
+}
+
+export async function getNowPaymentStatus(paymentId: string) {
+  const res = await fetch(`${NP_BASE}/payment/${encodeURIComponent(paymentId)}`, {
+    method: "GET",
+    headers: {
+      "x-api-key": process.env.NOWPAYMENTS_API_KEY || "",
+    },
+    cache: "no-store",
+  });
+
+  const text = await res.text();
+  let json: any = null;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    throw new Error(`NOWPayments invalid JSON: ${text.slice(0, 300)}`);
+  }
+
+  if (!res.ok) {
+    throw new Error(json?.message || `NOWPayments ${res.status}`);
+  }
+
+  return json;
 }
