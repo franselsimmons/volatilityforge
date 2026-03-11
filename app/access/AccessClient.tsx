@@ -1,101 +1,98 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-type GrantResult =
-  | { ok: true; message?: string; inviteUrl?: string }
-  | { ok: false; error: string; inviteUrl?: string };
+type AccessStatus = {
+  ok: boolean;
+  order?: {
+    orderId: string;
+    plan: string;
+    paymentStatus: string;
+    discordUserId: string | null;
+    discordUsername: string | null;
+    guildMemberAdded: boolean;
+    roleGranted: boolean;
+    payAddress: string | null;
+    payAmount: number | null;
+    payCurrency: string | null;
+  };
+  error?: string;
+};
 
-export default function AccessClient() {
-  const sp = useSearchParams();
+export default function AccessClient({ orderId }: { orderId: string }) {
+  const [data, setData] = useState<AccessStatus | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const payload = useMemo(() => {
-    // Pas deze keys aan aan wat jij gebruikt in je payment flow:
-    // bv: ?plan=buildup_bull&email=...&token=...&tx=...
-    return {
-      plan: sp.get("plan") || "",
-      tx: sp.get("tx") || sp.get("payment_id") || "",
-      token: sp.get("token") || "",
-      email: sp.get("email") || "",
-    };
-  }, [sp]);
-
-  const [state, setState] = useState<"idle" | "loading" | "ok" | "err">("idle");
-  const [result, setResult] = useState<GrantResult | null>(null);
+  async function load() {
+    setLoading(true);
+    try {
+      const r = await fetch(`/app/api/access/status?orderId=${encodeURIComponent(orderId)}`, {
+        cache: "no-store",
+      });
+      const j = await r.json();
+      setData(j);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    let cancelled = false;
+    load();
+    const t = setInterval(load, 5000);
+    return () => clearInterval(t);
+  }, [orderId]);
 
-    async function run() {
-      setState("loading");
+  if (loading && !data) return <div className="text-white">Loading access…</div>;
+  if (!data?.ok || !data.order) return <div className="text-red-400">Order not found.</div>;
 
-      try {
-        const r = await fetch("/api/discord/grant", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        const j = (await r.json()) as GrantResult;
-
-        if (cancelled) return;
-
-        setResult(j);
-        setState(j.ok ? "ok" : "err");
-
-        // Als je automatisch wil doorsturen naar Discord invite:
-        if (j.ok && j.inviteUrl) {
-          window.location.href = j.inviteUrl;
-        }
-      } catch (e: any) {
-        if (cancelled) return;
-        setResult({ ok: false, error: String(e?.message || e) });
-        setState("err");
-      }
-    }
-
-    // alleen runnen als er echt iets staat om te verwerken
-    const hasSomething = payload.plan || payload.tx || payload.token;
-    if (hasSomething) run();
-    else {
-      setState("err");
-      setResult({ ok: false, error: "Missing parameters in URL (plan/tx/token)." });
-    }
-
-    return () => {
-      cancelled = true;
-    };
-  }, [payload]);
-
-  if (state === "loading") {
-    return (
-      <div className="rounded-xl border p-5">
-        <p className="text-sm opacity-80">Bezig met verwerken…</p>
-      </div>
-    );
-  }
-
-  if (state === "ok" && result?.ok) {
-    return (
-      <div className="rounded-xl border p-5">
-        <p className="text-sm">
-          ✅ Gelukt{result.message ? ` — ${result.message}` : ""}. Je wordt doorgestuurd naar Discord.
-        </p>
-        {result.inviteUrl ? (
-          <a className="mt-4 inline-block underline" href={result.inviteUrl}>
-            Klik hier als je niet automatisch wordt doorgestuurd
-          </a>
-        ) : null}
-      </div>
-    );
-  }
+  const o = data.order;
+  const canConnectDiscord =
+    o.paymentStatus === "waiting_discord" ||
+    o.paymentStatus === "paid" ||
+    o.paymentStatus === "finished";
 
   return (
-    <div className="rounded-xl border p-5">
-      <p className="text-sm">
-        ❌ {result && !result.ok ? result.error : "Onbekende fout."}
-      </p>
+    <div className="mx-auto max-w-2xl p-6 text-white">
+      <h1 className="mb-6 text-4xl font-semibold">Access</h1>
+
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-3">
+        <div><b>Order:</b> {o.orderId}</div>
+        <div><b>Plan:</b> {o.plan}</div>
+        <div><b>Status:</b> {o.paymentStatus}</div>
+
+        {o.payAddress && (
+          <>
+            <div><b>Pay currency:</b> {o.payCurrency}</div>
+            <div><b>Pay amount:</b> {o.payAmount}</div>
+            <div className="break-all"><b>Pay address:</b> {o.payAddress}</div>
+          </>
+        )}
+
+        {o.discordUsername && (
+          <div><b>Discord:</b> {o.discordUsername}</div>
+        )}
+
+        {o.paymentStatus === "pending" && (
+          <div className="text-amber-300">
+            Waiting for payment confirmation.
+          </div>
+        )}
+
+        {canConnectDiscord && (
+          <a
+            href={`/app/api/discord/login?orderId=${encodeURIComponent(o.orderId)}`}
+            className="inline-flex rounded-xl bg-yellow-300 px-5 py-3 font-medium text-black"
+          >
+            Connect Discord
+          </a>
+        )}
+
+        {o.paymentStatus === "access_granted" && o.roleGranted && (
+          <div className="text-green-400">
+            Access granted. Open Discord.
+          </div>
+        )}
+      </div>
     </div>
   );
 }
