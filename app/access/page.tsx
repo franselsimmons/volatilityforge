@@ -1,27 +1,20 @@
-import { Suspense } from "react";
+// app/access/page.tsx
 import AccessClient from "./AccessClient";
 
-export default function AccessPage() {
-  return (
-    <main className="min-h-screen flex items-center justify-center px-6 py-16">
-      <div className="w-full max-w-xl">
-        <h1 className="text-3xl font-semibold tracking-tight">Access</h1>
-        <p className="mt-3 text-sm opacity-80">
-          Deze pagina verwerkt je betaling en koppelt je automatisch aan de juiste Discord toegang.
-        </p>
+export default function AccessPage({
+  searchParams,
+}: {
+  searchParams: { orderId?: string };
+}) {
+  const orderId = searchParams?.orderId || "";
 
-        <div className="mt-10">
-          <Suspense
-            fallback={
-              <div className="rounded-xl border p-5">
-                <p className="text-sm opacity-80">Even laden…</p>
-              </div>
-            }
-          >
-            <AccessClient />
-          </Suspense>
-        </div>
+  if (!orderId) {
+    return (
+      <div className="mx-auto max-w-2xl p-6 text-white">
+        Missing orderId.
       </div>
-    </main>
-  );
+    );
+  }
+
+  return <AccessClient orderId={orderId} />;
 }
