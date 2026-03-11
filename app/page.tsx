@@ -1,42 +1,76 @@
-import GlowCard from "@/components/GlowCard";
-import Link from "next/link";
-import { BRAND, VALUE_POINTS } from "@/lib/sitecopy";
+// app/page.tsx
 
-export default function Home() {
+import Link from "next/link";
+import { siteCopy } from "@/lib/sitecopy";
+
+export default function HomePage() {
   return (
-    <div className="max-w-6xl mx-auto px-5 py-14">
-      <div className="max-w-2xl">
-        <div className="text-[rgb(var(--brand))] text-sm tracking-widest uppercase">Premium Discord Signals</div>
-        <h1 className="mt-3 text-4xl md:text-5xl font-semibold leading-tight">
-          {BRAND.tagline}
+    <main className="min-h-screen bg-black text-white">
+      <section className="mx-auto max-w-6xl px-6 pb-12 pt-14">
+        <div className="mb-6 text-sm uppercase tracking-[0.22em] text-[#d7bd70]">
+          {siteCopy.heroEyebrow}
+        </div>
+
+        <h1 className="max-w-4xl text-5xl font-semibold leading-tight md:text-7xl">
+          {siteCopy.heroTitle}
         </h1>
-        <p className="mt-5 text-[rgb(var(--muted))] text-lg">
-          VolatilityForge delivers tiered, execution-minded alerts. We show <i>how we operate</i> — not the proprietary engine.
+
+        <p className="mt-8 max-w-3xl text-xl leading-10 text-zinc-400 md:text-2xl">
+          {siteCopy.heroDescription}
         </p>
-        <div className="mt-7 flex gap-3">
-          <Link href="/pricing" className="px-5 py-3 rounded-xl bg-[rgb(var(--brand))] text-black font-medium hover:opacity-90">
+
+        <div className="mt-10 flex flex-wrap gap-4">
+          <Link
+            href="/pricing"
+            className="rounded-3xl bg-[#d7bd70] px-8 py-5 text-lg font-medium text-black transition hover:opacity-90"
+          >
             View Pricing
           </Link>
-          <Link href="/how-it-works" className="px-5 py-3 rounded-xl border border-[rgb(var(--stroke))] hover:border-white/30">
+
+          <Link
+            href="/how-it-works"
+            className="rounded-3xl border border-[#20284a] px-8 py-5 text-lg font-medium text-white transition hover:bg-white/5"
+          >
             How it works
           </Link>
         </div>
-      </div>
+      </section>
 
-      <div className="mt-12 grid md:grid-cols-2 gap-6">
-        {VALUE_POINTS.map(v => (
-          <GlowCard key={v.title}>
-            <div className="text-lg font-semibold">{v.title}</div>
-            <div className="mt-2 text-[rgb(var(--muted))]">{v.text}</div>
-          </GlowCard>
+      <section className="mx-auto grid max-w-6xl gap-6 px-6 pb-10 md:grid-cols-2">
+        {siteCopy.homeCards.map((card) => (
+          <div
+            key={card.title}
+            className="rounded-[32px] border border-[#20284a] bg-[radial-gradient(circle_at_top,rgba(38,45,92,.45),rgba(10,10,16,.92))] p-8"
+          >
+            <h2 className="text-3xl font-semibold">{card.title}</h2>
+            <p className="mt-5 text-xl leading-10 text-zinc-400">{card.body}</p>
+          </div>
         ))}
-      </div>
+      </section>
 
-      <div className="mt-12 border border-[rgb(var(--stroke))] rounded-2xl p-6 bg-black/20">
-        <div className="text-sm text-[rgb(var(--muted))]">
-          We keep the methodology private by design. Customers pay for outcomes: cleaner alerts, tighter structure, less noise.
+      <section className="mx-auto max-w-6xl px-6 pb-16">
+        <div className="rounded-[32px] border border-[#20284a] bg-[#090b12] p-8 text-xl leading-10 text-zinc-300">
+          {siteCopy.methodologyNote}
         </div>
-      </div>
-    </div>
+      </section>
+
+      <footer className="border-t border-white/10">
+        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10 text-zinc-400 md:flex-row md:items-start md:justify-between">
+          <div>
+            <div className="text-2xl text-zinc-300">© 2026 {siteCopy.brand}</div>
+            <p className="mt-4 max-w-3xl text-lg leading-9">{siteCopy.disclaimer}</p>
+          </div>
+
+          <div className="flex gap-8 text-lg">
+            <Link href="/legal/privacy" className="hover:text-white">
+              Privacy
+            </Link>
+            <Link href="/legal/terms" className="hover:text-white">
+              Terms
+            </Link>
+          </div>
+        </div>
+      </footer>
+    </main>
   );
 }
