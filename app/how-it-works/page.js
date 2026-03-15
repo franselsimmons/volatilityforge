@@ -1,41 +1,53 @@
-import SiteShell from "../../components/SiteShell";
+import { SITE } from "@/lib/siteData";
 
 export default function HowItWorksPage() {
   return (
-    <SiteShell>
-      <section className="page-hero">
-        <div className="container">
+    <main className="page">
+      <section className="section">
+        <div className="card cardHighlight">
           <h1>How it works</h1>
+          <p>{SITE.howItWorks.intro}</p>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="grid2">
+          {SITE.howItWorks.cards.map((card) => (
+            <div key={card.title} className="card">
+              <h2>{card.title}</h2>
+              <p>{card.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="card">
+          <h2>Scanner → Trade Desk</h2>
           <p>
-            We explain the workflow without exposing proprietary details. The engine stays private — the delivery stays clear.
+            The workflow starts with market detection, moves through staged setup
+            filtering, and only the strongest candidates reach the execution-ready
+            Trade Desk layer.
           </p>
         </div>
       </section>
 
       <section className="section">
-        <div className="container info-grid" style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
-          <div className="card info-card">
-            <h3>Market selection</h3>
-            <p>We track liquid markets and volatility candidates where signals actually matter.</p>
-          </div>
-          <div className="card info-card">
-            <h3>Multi-layer filtering</h3>
-            <p>Momentum plus structure checks. We keep the methodology private — results are what matter.</p>
-          </div>
-          <div className="card info-card">
-            <h3>Tiered signals</h3>
-            <p>BUILDUP is earlier, ALMOST is near-entry, ENTRY is the highest-conviction execution layer.</p>
-          </div>
-          <div className="card info-card">
-            <h3>Delivery</h3>
-            <p>Signals are delivered via private Discord roles and channels based on the member’s plan.</p>
-          </div>
-        </div>
-
-        <div className="note-box" style={{ marginTop: 22 }}>
-          Signals are delivered via Discord roles to private channels. No public signal pages. No methodology leakage.
+        <div className="pipelineGrid">
+          {SITE.pipeline.map((item) => (
+            <div key={item.stage} className="card pipelineCard">
+              <h3>{item.stage}</h3>
+              <p>{item.text}</p>
+            </div>
+          ))}
         </div>
       </section>
-    </SiteShell>
+
+      <section className="section">
+        <div className="callout">
+          {SITE.howItWorks.footer}
+        </div>
+      </section>
+    </main>
   );
 }
