@@ -1,17 +1,19 @@
-import "./globals.css";
-import SiteShell from "../components/SiteShell";
+// app/layout.js
+import './globals.css';
 
 export const metadata = {
-  title: "VolatilityForge",
-  description: "Private Discord signal delivery for volatility traders.",
-};
+  title: 'VolatilityForge | Precision Intelligence',
+  description: 'Institutional-grade signal intelligence platform.',
+}
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <SiteShell>{children}</SiteShell>
+        <div className="min-h-screen bg-[#06090F] text-white">
+          {children}
+        </div>
       </body>
     </html>
-  );
+  )
 }
