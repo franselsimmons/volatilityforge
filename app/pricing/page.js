@@ -1,54 +1,45 @@
-import Link from "next/link";
-import { plans } from "../../lib/siteData";
+import { siteData } from '@/lib/siteData';
+import Link from 'next/link';
 
 export default function PricingPage() {
   return (
-    <section className="stack">
-      <div className="card">
-        <h1>Pricing</h1>
-        <p className="lead">
-          Choose your tier. All plans include both BULL and BEAR direction where
-          applicable. Payment is manual in crypto. Access is delivered through
-          private Discord roles.
-        </p>
+    <div className="py-20 px-6 max-w-7xl mx-auto">
+      <div className="text-center mb-16">
+        <h1 className="text-4xl font-bold mb-4">Choose Your Execution Tier</h1>
+        <p className="text-slate-400">All plans include Entry, Take Profit, and Stop Loss parameters.</p>
       </div>
 
-      <div className="planGrid">
-        {plans.map((plan) => (
-          <div key={plan.key} className="planCard">
-            <div className="badgePill">{plan.badge}</div>
-            <div className="smallCaps">{plan.tier}</div>
-            <h2>{plan.name}</h2>
-            <p className="muted">{plan.description}</p>
-
-            <div className="priceRow">
-              <div>
-                <div className="priceBig">€{plan.euro}</div>
-                <div className="muted">per month</div>
+      <div className="grid lg:grid-cols-3 gap-8">
+        {siteData.tiers.map((tier) => (
+          <div key={tier.id} className={`relative flex flex-col p-8 rounded-3xl card-glass ${tier.popular ? 'ring-2 ring-blue-500' : ''}`}>
+            {tier.popular && (
+              <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-500 text-xs font-bold px-3 py-1 rounded-full">
+                MOST POPULAR
+              </span>
+            )}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold">{tier.name}</h2>
+              <div className="mt-4 flex items-baseline gap-1">
+                <span className="text-4xl font-bold">€{tier.price}</span>
+                <span className="text-slate-500">/mo</span>
               </div>
-              <div>
-                <div className="priceBig">{plan.usdt} USDT</div>
-                <div className="muted">per month</div>
-              </div>
+              <p className="text-sm text-slate-500 mt-1">or {tier.usdt} USDT</p>
             </div>
-
-            <ul className="list">
-              {plan.bullets.map((b) => (
-                <li key={b}>{b}</li>
+            
+            <ul className="space-y-4 mb-10 flex-grow">
+              {tier.features.map((feat, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-slate-300">
+                  <span className="text-blue-500">✓</span> {feat}
+                </li>
               ))}
             </ul>
 
-            <div className="scoreLine">Signal quality: {plan.score}</div>
-
-            <Link
-              href={plan.key === "free" ? "/how-it-works" : `/pay?plan=${plan.key}`}
-              className="btn btnPrimary"
-            >
-              {plan.key === "free" ? `View ${plan.name}` : `Choose ${plan.name}`}
+            <Link href="/pay" className="w-full py-4 rounded-xl font-bold text-center bg-white text-black hover:bg-slate-200 transition">
+              Select {tier.name}
             </Link>
           </div>
         ))}
       </div>
-    </section>
+    </div>
   );
 }
