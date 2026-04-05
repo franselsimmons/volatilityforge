@@ -3,25 +3,32 @@
 @tailwind utilities;
 
 :root {
-  --background: #0B101B; /* Deep Space Blue */
-  --foreground: #F8FAFC;
-  --accent: #D4AF37;     /* Gold Dust */
+  --background: #06090F; /* Ultra Deep Blue */
+  --card-bg: rgba(13, 18, 28, 0.7);
+  --accent: #D4AF37;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background-color: var(--background);
+  color: #F8FAFC;
   font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
 }
 
-.gold-gradient-text {
-  background: linear-gradient(to right, #D4AF37, #F3E5AB);
+.gold-text {
+  background: linear-gradient(135deg, #D4AF37 0%, #F3E5AB 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.card-glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px);
 }
