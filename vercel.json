@@ -1,0 +1,6 @@
+{
+  "__file": "vercel.json",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "nextjs"
+}
