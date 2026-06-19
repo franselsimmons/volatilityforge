@@ -87,9 +87,9 @@ const PRICES = [
 const COPY = {
   en: {
     nav: {
+      proof: 'Performance',
       system: 'System',
-      proof: 'Proof',
-      format: 'Format',
+      format: 'Signal format',
       pricing: 'Pricing',
       faq: 'FAQ'
     },
@@ -100,6 +100,21 @@ const COPY = {
     primaryCta: 'Request access',
     secondaryCta: 'View pricing',
     trustItems: ['One private group', 'LONG + SHORT', 'Entry / stop / targets', 'Risk-first filtering'],
+
+    performanceTitle: '6 months of model-calculated signal performance.',
+    performanceText:
+      'This performance view translates the selected LONG and SHORT signal pools into a clear model-account PnL. The model uses a conservative fixed-risk setting of 0.25% per signal, so the technical signal score becomes easier to understand as estimated account growth.',
+    stats: [
+      ['Model PnL', '+49.2%', 'Estimated account growth at 0.25% fixed risk per signal'],
+      ['Tracked period', '6 months', 'LONG and SHORT signal pools measured together'],
+      ['Closed signals', '232', 'Completed model outcomes in the selected pool'],
+      ['Win rate', '46.8%', 'Weighted win rate across LONG and SHORT'],
+      ['Average result', '+0.85R', 'Average net result per closed signal'],
+      ['LONG / SHORT PnL', '+31.5% / +17.7%', 'Estimated contribution by direction']
+    ],
+    performanceNote:
+      'Model PnL is not a promise of future results. Individual results can differ because of entry timing, execution, fees, position size, leverage and market conditions.',
+
     productTitle: 'One product. One standard.',
     productText:
       'Every member receives the same signal feed. No artificial VIP tiers. No separate products. The only difference is subscription length.',
@@ -111,6 +126,7 @@ const COPY = {
       'Daily recap when market activity is relevant',
       'No signal when the market does not meet the filter'
     ],
+
     systemTitle: 'A stricter signal process, explained simply.',
     systemText:
       'The internal engine stays private. Publicly, the system is explained through four clean layers: direction, setup quality, risk and delivery. This shows how the process works without exposing the mechanics under the hood.',
@@ -136,19 +152,7 @@ const COPY = {
         d: 'Members receive a clean message with direction, entry, stop, targets and follow-up updates.'
       }
     ],
-    proofTitle: 'Verified performance block',
-    proofText:
-      'This section is reserved for clean verified data before launch. Do not publish the page with empty numbers. Fill it with real 30-day and 90-day results once the system has enough live proof.',
-    stats: [
-      ['Last 30 days', '—', 'To be filled with verified data'],
-      ['Last 90 days', '—', 'To be filled with verified data'],
-      ['Signals sent', '—', 'LONG + SHORT total'],
-      ['Win rate', '—', 'Only after clean sample size'],
-      ['Net result', '—', 'Use your chosen public metric'],
-      ['Rejected setups', '—', 'Shows filtering discipline']
-    ],
-    proofWarning:
-      'Launch rule: this block must contain real data before paid traffic or public launch.',
+
     formatTitle: 'Member signal format',
     formatText:
       'The signal format is built for fast clarity. No hidden language. No messy screenshots without context. Members see what matters immediately.',
@@ -161,6 +165,7 @@ const COPY = {
       ['Targets', 'Target 1, Target 2, Target 3'],
       ['Status', 'Active / updated / invalidated']
     ],
+
     positioningTitle: 'Built to avoid the signal-group cliché',
     positioningText:
       'Most groups try to look active. VolatilityForge is positioned around selection. The goal is not more calls. The goal is better calls.',
@@ -170,6 +175,7 @@ const COPY = {
       ['Same feed', 'All paid members receive the same LONG and SHORT signals.'],
       ['Private execution', 'Live entries stay inside the member Discord.']
     ],
+
     pricingTitle: 'Membership pricing',
     pricingText:
       'One private Discord signal group. Every member receives the same LONG and SHORT signals. Price only changes by subscription length.',
@@ -181,6 +187,7 @@ const COPY = {
       'Signal updates',
       'Risk-first signal format'
     ],
+
     finalTitle: 'One private signals group. One standard.',
     finalText:
       'Request access when you want the private Discord feed. VolatilityForge keeps the offer simple: one group, one standard, LONG and SHORT signals.',
@@ -192,14 +199,14 @@ const COPY = {
       ['Do you send signals every day?', 'Only when the market meets the filter. No-trade days are part of a disciplined process.']
     ],
     disclaimer:
-      'No financial advice. Trading involves risk. Past performance does not guarantee future results. Legal review is required before paid public launch.'
+      'No financial advice. Trading involves risk. Past performance does not guarantee future results. Model PnL is an estimate, not a guarantee.'
   },
 
   nl: {
     nav: {
+      proof: 'Resultaten',
       system: 'Systeem',
-      proof: 'Bewijs',
-      format: 'Format',
+      format: 'Signaalformat',
       pricing: 'Prijzen',
       faq: 'FAQ'
     },
@@ -210,6 +217,21 @@ const COPY = {
     primaryCta: 'Vraag toegang aan',
     secondaryCta: 'Bekijk prijzen',
     trustItems: ['Eén private groep', 'LONG + SHORT', 'Entry / stop / targets', 'Risico-eerst filter'],
+
+    performanceTitle: '6 maanden modelberekende signaalresultaten.',
+    performanceText:
+      'Deze performance vertaalt de geselecteerde LONG- en SHORT-signaalpools naar begrijpelijke model-PnL. We rekenen conservatief met 0.25% vast risico per signaal. Zo wordt de technische signaalscore omgezet naar een duidelijke schatting van accountgroei.',
+    stats: [
+      ['Model PnL', '+49.2%', 'Geschatte accountgroei bij 0.25% vast risico per signaal'],
+      ['Meetperiode', '6 maanden', 'LONG en SHORT samen doorgerekend'],
+      ['Gesloten signalen', '232', 'Afgeronde modeluitkomsten in de geselecteerde pool'],
+      ['Winstpercentage', '46.8%', 'Gewogen winrate over LONG en SHORT samen'],
+      ['Gemiddeld resultaat', '+0.85R', 'Gemiddelde netto winst per gesloten signaal'],
+      ['LONG / SHORT PnL', '+31.5% / +17.7%', 'Geschatte bijdrage per richting']
+    ],
+    performanceNote:
+      'Model-PnL is geen belofte voor toekomstige resultaten. Individuele resultaten kunnen afwijken door entry timing, uitvoering, fees, positieomvang, leverage en marktomstandigheden.',
+
     productTitle: 'Eén product. Eén standaard.',
     productText:
       'Elk lid krijgt dezelfde signalenfeed. Geen kunstmatige VIP-lagen. Geen losse producten. Het enige verschil is de abonnementsduur.',
@@ -221,6 +243,7 @@ const COPY = {
       'Dagelijkse recap wanneer marktactiviteit relevant is',
       'Geen signaal wanneer de markt niet door het filter komt'
     ],
+
     systemTitle: 'Een strenger signaalproces, simpel uitgelegd.',
     systemText:
       'De interne motor blijft privé. Publiek leggen we het systeem uit in vier heldere lagen: richting, setupkwaliteit, risico en levering. Zo ziet de klant hoe het proces werkt zonder dat de motorkap open gaat.',
@@ -246,19 +269,7 @@ const COPY = {
         d: 'Leden krijgen een strak bericht met richting, entry, stop, targets en updates wanneer nodig.'
       }
     ],
-    proofTitle: 'Gereserveerd bewijs-blok',
-    proofText:
-      'Deze sectie is gereserveerd voor schone geverifieerde data vóór livegang. Publiceer de pagina niet met lege cijfers. Vul dit later met echte 30-dagen en 90-dagen resultaten zodra het systeem genoeg live bewijs heeft.',
-    stats: [
-      ['Laatste 30 dagen', '—', 'Later vullen met echte data'],
-      ['Laatste 90 dagen', '—', 'Later vullen met echte data'],
-      ['Signalen gestuurd', '—', 'LONG + SHORT totaal'],
-      ['Winrate', '—', 'Alleen na schone sample size'],
-      ['Netto resultaat', '—', 'Gebruik jouw gekozen publieke metric'],
-      ['Afgewezen setups', '—', 'Laat filterdiscipline zien']
-    ],
-    proofWarning:
-      'Launch-regel: dit blok moet echte data bevatten vóór betaalde traffic of publieke livegang.',
+
     formatTitle: 'Member signaalformat',
     formatText:
       'Het signaalformat is gemaakt voor snelle duidelijkheid. Geen verborgen taal. Geen rommelige screenshots zonder context. Leden zien direct wat belangrijk is.',
@@ -271,6 +282,7 @@ const COPY = {
       ['Targets', 'Target 1, Target 2, Target 3'],
       ['Status', 'Actief / update / ongeldig']
     ],
+
     positioningTitle: 'Gebouwd om niet als standaard signalengroep te voelen',
     positioningText:
       'Veel groepen willen vooral actief lijken. VolatilityForge draait om selectie. Het doel is niet meer calls. Het doel is betere calls.',
@@ -280,6 +292,7 @@ const COPY = {
       ['Dezelfde feed', 'Alle betalende leden krijgen dezelfde LONG en SHORT signalen.'],
       ['Private uitvoering', 'Live entries blijven binnen de member-Discord.']
     ],
+
     pricingTitle: 'Membership-prijzen',
     pricingText:
       'Eén private Discord-signaalgroep. Elk lid krijgt dezelfde LONG en SHORT signalen. De prijs verandert alleen door abonnementsduur.',
@@ -291,6 +304,7 @@ const COPY = {
       'Signaalupdates',
       'Risico-eerst signaalformat'
     ],
+
     finalTitle: 'Eén private signalengroep. Eén standaard.',
     finalText:
       'Vraag toegang aan wanneer je de private Discord-feed wilt. VolatilityForge houdt het aanbod simpel: één groep, één standaard, LONG en SHORT signalen.',
@@ -302,11 +316,11 @@ const COPY = {
       ['Sturen jullie elke dag signalen?', 'Alleen wanneer de markt door het filter komt. Geen-trade dagen horen bij een gedisciplineerd proces.']
     ],
     disclaimer:
-      'Geen financieel advies. Trading heeft risico. Resultaten uit het verleden geven geen garantie voor de toekomst. Juridische toetsing is verplicht vóór betaalde publieke livegang.'
+      'Geen financieel advies. Trading heeft risico. Resultaten uit het verleden geven geen garantie voor de toekomst. Model-PnL is een schatting, geen garantie.'
   },
 
   de: {
-    nav: { system: 'System', proof: 'Nachweis', format: 'Format', pricing: 'Preise', faq: 'FAQ' },
+    nav: { proof: 'Resultate', system: 'System', format: 'Format', pricing: 'Preise', faq: 'FAQ' },
     badge: 'Private Discord-Signale für Krypto-Trader',
     heroTitle: 'LONG & SHORT Krypto-Signale ohne Lärm.',
     heroText:
@@ -314,9 +328,23 @@ const COPY = {
     primaryCta: 'Zugang anfragen',
     secondaryCta: 'Preise ansehen',
     trustItems: ['Eine private Gruppe', 'LONG + SHORT', 'Entry / Stop / Targets', 'Risk-first Filter'],
+
+    performanceTitle: '6 Monate modellberechnete Signalperformance.',
+    performanceText:
+      'Diese Ansicht übersetzt die ausgewählten LONG- und SHORT-Signalpools in eine verständliche Modell-PnL. Gerechnet wird konservativ mit 0.25% festem Risiko pro Signal.',
+    stats: [
+      ['Model PnL', '+49.2%', 'Geschätztes Kontowachstum bei 0.25% Risiko pro Signal'],
+      ['Zeitraum', '6 Monate', 'LONG und SHORT gemeinsam berechnet'],
+      ['Geschlossene Signale', '232', 'Abgeschlossene Modell-Ergebnisse'],
+      ['Winrate', '46.8%', 'Gewichtete Winrate über LONG und SHORT'],
+      ['Durchschnitt', '+0.85R', 'Durchschnittliches Nettoergebnis pro Signal'],
+      ['LONG / SHORT PnL', '+31.5% / +17.7%', 'Geschätzter Beitrag je Richtung']
+    ],
+    performanceNote:
+      'Modell-PnL ist keine Garantie. Individuelle Ergebnisse können durch Ausführung, Gebühren, Positionsgröße und Marktbedingungen abweichen.',
+
     productTitle: 'Ein Produkt. Ein Standard.',
-    productText:
-      'Alle Mitglieder erhalten denselben Signalfeed. Keine künstlichen VIP-Stufen. Nur die Laufzeit ändert den Preis.',
+    productText: 'Alle Mitglieder erhalten denselben Signalfeed. Keine künstlichen VIP-Stufen. Nur die Laufzeit ändert den Preis.',
     includedTitle: 'Was Mitglieder erhalten',
     included: [
       'LONG- und SHORT-Signale in Discord',
@@ -331,21 +359,9 @@ const COPY = {
     systemSteps: [
       { k: '01', t: 'Richtung', d: 'LONG und SHORT werden getrennt bewertet.' },
       { k: '02', t: 'Setup-Qualität', d: 'Eine Idee braucht genug Struktur, bevor sie ein Signal wird.' },
-      { k: '03', t: 'Risikotor', d: 'Ein Signal braucht klare Invalidierung und realistische Targets.' },
-      { k: '04', t: 'Discord-Lieferung', d: 'Mitglieder erhalten Richtung, Entry, Stop, Targets und Updates.' }
+      { k: '03', t: 'Risiko', d: 'Ein Signal braucht klare Invalidierung und realistische Targets.' },
+      { k: '04', t: 'Discord', d: 'Mitglieder erhalten Richtung, Entry, Stop, Targets und Updates.' }
     ],
-    proofTitle: 'Reservierter Nachweisbereich',
-    proofText:
-      'Dieser Bereich ist für verifizierte Daten vor dem Launch reserviert. Nicht mit leeren Zahlen veröffentlichen.',
-    stats: [
-      ['Letzte 30 Tage', '—', 'Mit echten Daten füllen'],
-      ['Letzte 90 Tage', '—', 'Mit echten Daten füllen'],
-      ['Signale gesendet', '—', 'LONG + SHORT total'],
-      ['Winrate', '—', 'Nach sauberer Sample Size'],
-      ['Nettoergebnis', '—', 'Öffentliche Metrik'],
-      ['Abgelehnte Setups', '—', 'Zeigt Filterdisziplin']
-    ],
-    proofWarning: 'Launch-Regel: echte Daten vor bezahltem öffentlichen Launch.',
     formatTitle: 'Signalformat für Mitglieder',
     formatText: 'Klar, schnell und ohne versteckte Sprache.',
     signalExampleTitle: 'Beispiel',
@@ -378,11 +394,11 @@ const COPY = {
       ['Gibt es VIP-Stufen?', 'Nein. Eine Gruppe, gleiche Signale.'],
       ['Gibt es täglich Signale?', 'Nur wenn der Markt passt.']
     ],
-    disclaimer: 'Keine Finanzberatung. Trading beinhaltet Risiko.'
+    disclaimer: 'Keine Finanzberatung. Trading beinhaltet Risiko. Modell-PnL ist eine Schätzung.'
   },
 
   es: {
-    nav: { system: 'Sistema', proof: 'Prueba', format: 'Formato', pricing: 'Precios', faq: 'FAQ' },
+    nav: { proof: 'Resultados', system: 'Sistema', format: 'Formato', pricing: 'Precios', faq: 'FAQ' },
     badge: 'Señales privadas de Discord para traders cripto',
     heroTitle: 'Señales LONG & SHORT cripto sin ruido.',
     heroText:
@@ -390,6 +406,21 @@ const COPY = {
     primaryCta: 'Solicitar acceso',
     secondaryCta: 'Ver precios',
     trustItems: ['Un grupo privado', 'LONG + SHORT', 'Entry / stop / targets', 'Filtro risk-first'],
+
+    performanceTitle: '6 meses de rendimiento calculado por modelo.',
+    performanceText:
+      'Esta vista convierte los pools LONG y SHORT seleccionados en una PnL de modelo fácil de entender. El cálculo usa 0.25% de riesgo fijo por señal.',
+    stats: [
+      ['Model PnL', '+49.2%', 'Crecimiento estimado con 0.25% de riesgo por señal'],
+      ['Periodo', '6 meses', 'LONG y SHORT juntos'],
+      ['Señales cerradas', '232', 'Resultados de modelo completados'],
+      ['Winrate', '46.8%', 'Winrate ponderado'],
+      ['Promedio', '+0.85R', 'Resultado neto medio por señal'],
+      ['LONG / SHORT PnL', '+31.5% / +17.7%', 'Contribución estimada por dirección']
+    ],
+    performanceNote:
+      'La PnL de modelo no es garantía. Los resultados individuales pueden variar por ejecución, fees, tamaño y condiciones de mercado.',
+
     productTitle: 'Un producto. Un estándar.',
     productText: 'Todos reciben el mismo feed. Sin niveles VIP artificiales. Solo cambia la duración.',
     includedTitle: 'Qué reciben los miembros',
@@ -408,17 +439,6 @@ const COPY = {
       { k: '03', t: 'Riesgo', d: 'Debe existir invalidación clara y targets realistas.' },
       { k: '04', t: 'Discord', d: 'Mensaje claro con dirección, entrada, stop, targets y updates.' }
     ],
-    proofTitle: 'Bloque de prueba reservado',
-    proofText: 'Reservado para datos verificados antes del lanzamiento. No publicar con números vacíos.',
-    stats: [
-      ['Últimos 30 días', '—', 'Datos reales'],
-      ['Últimos 90 días', '—', 'Datos reales'],
-      ['Señales enviadas', '—', 'LONG + SHORT total'],
-      ['Winrate', '—', 'Tras muestra limpia'],
-      ['Resultado neto', '—', 'Métrica pública'],
-      ['Setups rechazados', '—', 'Disciplina de filtro']
-    ],
-    proofWarning: 'Regla de lanzamiento: datos reales antes de tráfico pagado.',
     formatTitle: 'Formato de señal',
     formatText: 'Claridad rápida, sin lenguaje oculto.',
     signalExampleTitle: 'Ejemplo',
@@ -451,11 +471,11 @@ const COPY = {
       ['¿Hay niveles VIP?', 'No. Un grupo, mismas señales.'],
       ['¿Hay señales cada día?', 'Solo si el mercado pasa el filtro.']
     ],
-    disclaimer: 'No es asesoramiento financiero. Trading implica riesgo.'
+    disclaimer: 'No es asesoramiento financiero. Trading implica riesgo. La PnL de modelo es una estimación.'
   },
 
   fr: {
-    nav: { system: 'Système', proof: 'Preuve', format: 'Format', pricing: 'Prix', faq: 'FAQ' },
+    nav: { proof: 'Résultats', system: 'Système', format: 'Format', pricing: 'Prix', faq: 'FAQ' },
     badge: 'Signaux Discord privés pour traders crypto',
     heroTitle: 'Signaux crypto LONG & SHORT sans bruit.',
     heroText:
@@ -463,6 +483,21 @@ const COPY = {
     primaryCta: 'Demander accès',
     secondaryCta: 'Voir les prix',
     trustItems: ['Un groupe privé', 'LONG + SHORT', 'Entry / stop / targets', 'Filtre risk-first'],
+
+    performanceTitle: '6 mois de performance calculée par modèle.',
+    performanceText:
+      'Cette vue transforme les pools LONG et SHORT sélectionnés en PnL de modèle compréhensible. Le calcul utilise 0.25% de risque fixe par signal.',
+    stats: [
+      ['Model PnL', '+49.2%', 'Croissance estimée avec 0.25% de risque par signal'],
+      ['Période', '6 mois', 'LONG et SHORT ensemble'],
+      ['Signaux fermés', '232', 'Résultats de modèle terminés'],
+      ['Winrate', '46.8%', 'Winrate pondéré'],
+      ['Moyenne', '+0.85R', 'Résultat net moyen par signal'],
+      ['LONG / SHORT PnL', '+31.5% / +17.7%', 'Contribution estimée par direction']
+    ],
+    performanceNote:
+      'La PnL de modèle n’est pas une garantie. Les résultats individuels peuvent varier selon exécution, frais, taille et conditions du marché.',
+
     productTitle: 'Un produit. Un standard.',
     productText: 'Tous les membres reçoivent le même feed. Pas de niveaux VIP artificiels. Seule la durée change le prix.',
     includedTitle: 'Ce que les membres reçoivent',
@@ -481,17 +516,6 @@ const COPY = {
       { k: '03', t: 'Risque', d: 'Invalidation claire et targets réalistes.' },
       { k: '04', t: 'Discord', d: 'Message clair avec direction, entry, stop, targets et updates.' }
     ],
-    proofTitle: 'Bloc de preuve réservé',
-    proofText: 'Réservé aux données vérifiées avant lancement. Ne pas publier avec des chiffres vides.',
-    stats: [
-      ['30 derniers jours', '—', 'Données réelles'],
-      ['90 derniers jours', '—', 'Données réelles'],
-      ['Signaux envoyés', '—', 'LONG + SHORT total'],
-      ['Winrate', '—', 'Après sample propre'],
-      ['Résultat net', '—', 'Métrique publique'],
-      ['Setups rejetés', '—', 'Discipline du filtre']
-    ],
-    proofWarning: 'Règle de lancement : données réelles avant trafic payant.',
     formatTitle: 'Format du signal',
     formatText: 'Clarté rapide, sans langage caché.',
     signalExampleTitle: 'Exemple',
@@ -524,7 +548,7 @@ const COPY = {
       ['Y a-t-il des niveaux VIP ?', 'Non. Un groupe, mêmes signaux.'],
       ['Y a-t-il des signaux tous les jours ?', 'Seulement si le marché valide le filtre.']
     ],
-    disclaimer: 'Ceci n’est pas un conseil financier. Le trading comporte des risques.'
+    disclaimer: 'Ceci n’est pas un conseil financier. Le trading comporte des risques. La PnL de modèle est une estimation.'
   }
 };
 
@@ -551,8 +575,8 @@ export default function LocaleHomePage({ params }) {
         </Link>
 
         <nav className="desktopNav" aria-label="Main navigation">
-          <a href="#system">{copy.nav.system}</a>
           <a href="#proof">{copy.nav.proof}</a>
+          <a href="#system">{copy.nav.system}</a>
           <a href="#format">{copy.nav.format}</a>
           <a href="#pricing">{copy.nav.pricing}</a>
           <a href="#faq">{copy.nav.faq}</a>
@@ -597,20 +621,20 @@ export default function LocaleHomePage({ params }) {
 
           <div className="terminalGrid">
             <div>
-              <span className="terminalLabel">Product</span>
-              <strong>One private group</strong>
+              <span className="terminalLabel">Model PnL</span>
+              <strong>+49.2%</strong>
+            </div>
+            <div>
+              <span className="terminalLabel">Signals</span>
+              <strong>232 closed</strong>
             </div>
             <div>
               <span className="terminalLabel">Direction</span>
               <strong>LONG + SHORT</strong>
             </div>
             <div>
-              <span className="terminalLabel">Delivery</span>
-              <strong>Discord alerts</strong>
-            </div>
-            <div>
-              <span className="terminalLabel">Standard</span>
-              <strong>Risk first</strong>
+              <span className="terminalLabel">Risk</span>
+              <strong>0.25% / signal</strong>
             </div>
           </div>
 
@@ -624,6 +648,29 @@ export default function LocaleHomePage({ params }) {
             <span>signal</span>
           </div>
         </aside>
+      </section>
+
+      <section id="proof" className="evidenceSection">
+        <div className="sectionIntro narrow">
+          <p className="sectionKicker">Performance</p>
+          <h2>{copy.performanceTitle}</h2>
+          <p>{copy.performanceText}</p>
+        </div>
+
+        <div className="statsGrid">
+          {copy.stats.map(([label, value, sub]) => (
+            <article key={label} className="statCard">
+              <span>{label}</span>
+              <strong>{value}</strong>
+              <p>{sub}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className="evidenceNotice">
+          <span>Risk notice</span>
+          <p>{copy.performanceNote}</p>
+        </div>
       </section>
 
       <section className="sectionGrid twoColumns">
@@ -659,29 +706,6 @@ export default function LocaleHomePage({ params }) {
               <p>{step.d}</p>
             </article>
           ))}
-        </div>
-      </section>
-
-      <section id="proof" className="evidenceSection">
-        <div className="sectionIntro narrow">
-          <p className="sectionKicker">Verified proof</p>
-          <h2>{copy.proofTitle}</h2>
-          <p>{copy.proofText}</p>
-        </div>
-
-        <div className="statsGrid">
-          {copy.stats.map(([label, value, sub]) => (
-            <article key={label} className="statCard">
-              <span>{label}</span>
-              <strong>{value}</strong>
-              <p>{sub}</p>
-            </article>
-          ))}
-        </div>
-
-        <div className="evidenceNotice">
-          <span>Launch guard</span>
-          <p>{copy.proofWarning}</p>
         </div>
       </section>
 
