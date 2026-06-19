@@ -310,11 +310,13 @@ export default function LocaleHomePage({ params }) {
   return (
     <main className="siteShell">
       <header className="brandBanner">
-        <Link href={`/${locale}`} className="brandBannerLogo" aria-label="VolatilityForge home">
-          <img src="/volatilityforge-logo.svg" alt="VolatilityForge" />
-        </Link>
+        <div className="brandLogoPanel">
+          <Link href={`/${locale}`} className="brandLogoLink" aria-label="VolatilityForge home">
+            <img src="/volatilityforge-logo.png" alt="VolatilityForge" />
+          </Link>
+        </div>
 
-        <div className="brandBannerControls">
+        <div className="brandControlBar">
           <nav className="bannerMenu" aria-label="Main navigation">
             <a href="#proof">{copy.nav.proof}</a>
             <a href="#system">{copy.nav.system}</a>
