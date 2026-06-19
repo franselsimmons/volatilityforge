@@ -2,17 +2,17 @@
 
 export default function AdminLoginPage() {
   return (
-    <main className="adminShell">
-      <section className="loginCard">
-        <div className="brand center">
+    <main className="centerPage">
+      <section className="smallPanel">
+        <div className="brand brandCenter">
           <span className="brandMark">VF</span>
           <span>VolatilityForge</span>
         </div>
 
-        <h1>Admin login</h1>
+        <h1>Owner login</h1>
         <p>
-          Dit beheer is alleen voor de eigenaar. Publieke bezoekers horen hier
-          niet te komen.
+          Protected area for publishing public notes, screenshots and membership
+          updates. Visitors only need the public site and private Discord access.
         </p>
 
         <form className="formStack" action="/admin">
@@ -20,19 +20,12 @@ export default function AdminLoginPage() {
             Email
             <input name="email" type="email" placeholder="you@example.com" />
           </label>
-
           <label>
             Password
             <input name="password" type="password" placeholder="••••••••••••" />
           </label>
-
-          <button type="submit">Login</button>
+          <button type="submit">Continue</button>
         </form>
-
-        <p className="smallText">
-          Login-verwerking komt via de server-actions. Deze route bestaat nu
-          zodat Vercel geen 404 meer geeft.
-        </p>
       </section>
     </main>
   );
