@@ -75,8 +75,7 @@ const EN = {
 
   metricLabel: 'Model PnL',
   metricValue: '+49.2%',
-  metricText:
-    'Model-calculated account growth using 0.25% fixed risk per signal.',
+  metricText: 'Model-calculated account growth using 0.25% fixed risk per signal.',
 
   performanceTitle: '6 months of model-calculated signal performance.',
   performanceText:
@@ -160,10 +159,22 @@ const EN = {
     'Request access when you want the private Discord feed. VolatilityForge keeps the offer simple: one group, one standard, LONG and SHORT signals.',
   faqTitle: 'FAQ',
   faqs: [
-    ['Is this financial advice?', 'No. VolatilityForge is not financial advice. Trading involves risk and losses are possible.'],
-    ['Do members receive both LONG and SHORT signals?', 'Yes. The private Discord feed can send both LONG and SHORT crypto signals when the filter allows them.'],
-    ['Are there multiple VIP tiers?', 'No. There is one private signal room. Subscription length changes the price, not the quality of signals.'],
-    ['Do signals come every day?', 'Only when the market meets the filter. No-trade days are part of a disciplined process.']
+    [
+      'Is this financial advice?',
+      'No. VolatilityForge is not financial advice. Trading involves risk and losses are possible.'
+    ],
+    [
+      'Do members receive both LONG and SHORT signals?',
+      'Yes. The private Discord feed can send both LONG and SHORT crypto signals when the filter allows them.'
+    ],
+    [
+      'Are there multiple VIP tiers?',
+      'No. There is one private signal room. Subscription length changes the price, not the quality of signals.'
+    ],
+    [
+      'Do signals come every day?',
+      'Only when the market meets the filter. No-trade days are part of a disciplined process.'
+    ]
   ],
   disclaimer:
     'No financial advice. Trading involves risk. Past performance does not guarantee future results. Model PnL is an estimate, not a guarantee.'
@@ -187,8 +198,7 @@ const NL = {
 
   metricLabel: 'Model PnL',
   metricValue: '+49.2%',
-  metricText:
-    'Modelberekende accountgroei met 0.25% vast risico per signaal.',
+  metricText: 'Modelberekende accountgroei met 0.25% vast risico per signaal.',
 
   performanceTitle: '6 maanden modelberekende signaalresultaten.',
   performanceText:
@@ -272,10 +282,22 @@ const NL = {
     'Vraag toegang aan wanneer je de private Discord-feed wilt. VolatilityForge houdt het aanbod simpel: één groep, één standaard, LONG en SHORT signalen.',
   faqTitle: 'FAQ',
   faqs: [
-    ['Is dit financieel advies?', 'Nee. VolatilityForge is geen financieel advies. Trading heeft risico en verliezen zijn mogelijk.'],
-    ['Krijgen leden LONG én SHORT signalen?', 'Ja. De private Discord-feed kan LONG en SHORT crypto-signalen sturen wanneer het filter ze toelaat.'],
-    ['Zijn er meerdere VIP-lagen?', 'Nee. Er is één private signal room. De abonnementsduur verandert de prijs, niet de kwaliteit van de signalen.'],
-    ['Komen er elke dag signalen?', 'Alleen wanneer de markt door het filter komt. Geen-trade dagen horen bij een gedisciplineerd proces.']
+    [
+      'Is dit financieel advies?',
+      'Nee. VolatilityForge is geen financieel advies. Trading heeft risico en verliezen zijn mogelijk.'
+    ],
+    [
+      'Krijgen leden LONG én SHORT signalen?',
+      'Ja. De private Discord-feed kan LONG en SHORT crypto-signalen sturen wanneer het filter ze toelaat.'
+    ],
+    [
+      'Zijn er meerdere VIP-lagen?',
+      'Nee. Er is één private signal room. De abonnementsduur verandert de prijs, niet de kwaliteit van de signalen.'
+    ],
+    [
+      'Komen er elke dag signalen?',
+      'Alleen wanneer de markt door het filter komt. Geen-trade dagen horen bij een gedisciplineerd proces.'
+    ]
   ],
   disclaimer:
     'Geen financieel advies. Trading heeft risico. Resultaten uit het verleden geven geen garantie voor de toekomst. Model-PnL is een schatting, geen garantie.'
@@ -310,10 +332,15 @@ export default function LocaleHomePage({ params }) {
   return (
     <main className="siteShell">
       <header className="brandBanner">
-        <div className="brandLogoPanel">
-          <Link href={`/${locale}`} className="brandLogoLink" aria-label="VolatilityForge home">
-            <img src="/volatilityforge-logo.png" alt="VolatilityForge" />
+        <div className="brandIdentity">
+          <Link href={`/${locale}`} className="brandMark" aria-label="VolatilityForge home">
+            <img src="/volatilityforge-logo.png" alt="" />
           </Link>
+
+          <div className="brandText">
+            <span>VolatilityForge</span>
+            <strong>Private LONG & SHORT Crypto Signals</strong>
+          </div>
         </div>
 
         <div className="brandControlBar">
