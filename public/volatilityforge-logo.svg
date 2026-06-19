@@ -1,0 +1,16 @@
+<!-- ================= FILE FROM ROOT: public/volatilityforge-logo.svg ================= -->
+<svg width="760" height="180" viewBox="0 0 760 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="760" height="180" rx="36" fill="#071018"/>
+  <circle cx="98" cy="90" r="54" fill="url(#a)" stroke="#4DA3FF" stroke-width="2"/>
+  <path d="M68 69H84L98 114L116 69H132L107 126H90L68 69Z" fill="white"/>
+  <path d="M145 120C176 71 219 105 252 64C267 45 289 42 306 56" stroke="#74E4BF" stroke-width="7" stroke-linecap="round"/>
+  <path d="M148 122L148 82M178 112V67M208 97V54M238 77V48M268 68V38" stroke="#4DA3FF" stroke-width="4" stroke-linecap="round" opacity="0.65"/>
+  <text x="335" y="82" fill="white" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800" letter-spacing="-2">VolatilityForge</text>
+  <text x="337" y="119" fill="#98A4B3" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="500">Private LONG &amp; SHORT crypto signals</text>
+  <defs>
+    <linearGradient id="a" x1="44" y1="36" x2="152" y2="144" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#244A70"/>
+      <stop offset="1" stop-color="#0E1724"/>
+    </linearGradient>
+  </defs>
+</svg>
