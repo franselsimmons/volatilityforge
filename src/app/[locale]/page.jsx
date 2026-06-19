@@ -309,28 +309,28 @@ export default function LocaleHomePage({ params }) {
 
   return (
     <main className="siteShell">
-      <header className="topbar">
-        <Link href={`/${locale}`} className="brand" aria-label="VolatilityForge home">
-          <span className="logoFrame">
-            <img className="brandLogo" src="/volatilityforge-logo.svg" alt="VolatilityForge" />
-          </span>
+      <header className="brandBanner">
+        <Link href={`/${locale}`} className="brandBannerLogo" aria-label="VolatilityForge home">
+          <img src="/volatilityforge-logo.svg" alt="VolatilityForge" />
         </Link>
 
-        <nav className="desktopNav" aria-label="Main navigation">
-          <a href="#proof">{copy.nav.proof}</a>
-          <a href="#system">{copy.nav.system}</a>
-          <a href="#format">{copy.nav.format}</a>
-          <a href="#pricing">{copy.nav.pricing}</a>
-          <a href="#faq">{copy.nav.faq}</a>
-        </nav>
+        <div className="brandBannerControls">
+          <nav className="bannerMenu" aria-label="Main navigation">
+            <a href="#proof">{copy.nav.proof}</a>
+            <a href="#system">{copy.nav.system}</a>
+            <a href="#format">{copy.nav.format}</a>
+            <a href="#pricing">{copy.nav.pricing}</a>
+            <a href="#faq">{copy.nav.faq}</a>
+          </nav>
 
-        <nav className="localeNav" aria-label="Language navigation">
-          {LOCALES.map((item) => (
-            <Link key={item} href={`/${item}`} className={item === locale ? 'activeLocale' : ''}>
-              {item.toUpperCase()}
-            </Link>
-          ))}
-        </nav>
+          <nav className="bannerLanguages" aria-label="Language navigation">
+            {LOCALES.map((item) => (
+              <Link key={item} href={`/${item}`} className={item === locale ? 'activeLocale' : ''}>
+                {item.toUpperCase()}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </header>
 
       <section className="heroSection">
