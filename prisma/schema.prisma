@@ -1,0 +1,102 @@
+// ================= FILE FROM ROOT: prisma/schema.prisma =================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         String   @default("OWNER")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lastLoginAt  DateTime?
+}
+
+model DailyUpdate {
+  id                    String   @id @default(cuid())
+  date                  String
+  marketTone             String   @default("neutral")
+  longActions            Int      @default(0)
+  shortActions           Int      @default(0)
+  rejectedOpportunities  Int      @default(0)
+  wins                  Int      @default(0)
+  losses                Int      @default(0)
+  breakevens            Int      @default(0)
+  resultText            String   @default("0.0")
+  status                String   @default("draft")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  translations DailyUpdateTranslation[]
+  screenshots  Screenshot[]
+  contentDrafts ContentDraft[]
+
+  @@index([date])
+  @@index([status])
+}
+
+model DailyUpdateTranslation {
+  id            String   @id @default(cuid())
+  dailyUpdateId String
+  locale        String
+  publicSummary String   @default("")
+  lessonText    String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  dailyUpdate DailyUpdate @relation(fields: [dailyUpdateId], references: [id], onDelete: Cascade)
+
+  @@unique([dailyUpdateId, locale])
+  @@index([locale])
+}
+
+model Screenshot {
+  id            String   @id @default(cuid())
+  dailyUpdateId String
+  imageUrl      String
+  isPublished   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  dailyUpdate  DailyUpdate @relation(fields: [dailyUpdateId], references: [id], onDelete: Cascade)
+  translations ScreenshotTranslation[]
+}
+
+model ScreenshotTranslation {
+  id           String   @id @default(cuid())
+  screenshotId String
+  locale       String
+  caption      String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  screenshot Screenshot @relation(fields: [screenshotId], references: [id], onDelete: Cascade)
+
+  @@unique([screenshotId, locale])
+  @@index([locale])
+}
+
+model ContentDraft {
+  id            String   @id @default(cuid())
+  dailyUpdateId String
+  locale        String
+  platform      String
+  body          String   @default("")
+  status        String   @default("draft")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  dailyUpdate DailyUpdate @relation(fields: [dailyUpdateId], references: [id], onDelete: Cascade)
+
+  @@index([dailyUpdateId])
+  @@index([locale])
+  @@index([platform])
+  @@index([status])
+}
