@@ -1,22 +1,22 @@
 /* ================= FILE FROM ROOT: src/app/globals.css ================= */
 
 :root {
-  --bg: #050a10;
-  --bg2: #08111b;
-  --panel: rgba(255, 255, 255, 0.055);
-  --panel2: rgba(255, 255, 255, 0.085);
-  --line: rgba(255, 255, 255, 0.135);
-  --line2: rgba(77, 163, 255, 0.34);
-  --text: #f4f8ff;
-  --muted: #9aa8b8;
-  --soft: #c7d3df;
+  --bg: #03070d;
+  --bg2: #07111d;
+  --panel: rgba(255, 255, 255, 0.06);
+  --panel2: rgba(255, 255, 255, 0.09);
+  --line: rgba(255, 255, 255, 0.13);
+  --lineStrong: rgba(77, 163, 255, 0.42);
+  --text: #f6f9ff;
+  --muted: #8f9cad;
+  --soft: #c6d2df;
   --blue: #4da3ff;
   --blue2: #176cff;
   --green: #74e4bf;
   --gold: #e9c46a;
-  --danger: #ff6b6b;
-  --shadow: 0 30px 120px rgba(0, 0, 0, 0.42);
-  --radius: 28px;
+  --red: #ff6b6b;
+  --shadow: 0 34px 140px rgba(0, 0, 0, 0.48);
+  --radius: 30px;
 }
 
 * {
@@ -32,9 +32,9 @@ body {
   min-height: 100%;
   margin: 0;
   background:
-    radial-gradient(circle at 18% 0%, rgba(77, 163, 255, 0.18), transparent 34rem),
-    radial-gradient(circle at 82% 16%, rgba(116, 228, 191, 0.1), transparent 30rem),
-    radial-gradient(circle at 50% 100%, rgba(23, 108, 255, 0.12), transparent 40rem),
+    radial-gradient(circle at 18% 0%, rgba(77, 163, 255, 0.19), transparent 34rem),
+    radial-gradient(circle at 78% 12%, rgba(116, 228, 191, 0.11), transparent 32rem),
+    radial-gradient(circle at 50% 100%, rgba(23, 108, 255, 0.14), transparent 44rem),
     linear-gradient(180deg, var(--bg), var(--bg2));
   color: var(--text);
   font-family:
@@ -53,10 +53,18 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.72), transparent 72%);
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.78), transparent 70%);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.28));
 }
 
 a {
@@ -73,9 +81,10 @@ select {
 
 .siteShell {
   position: relative;
-  width: min(1180px, calc(100% - 32px));
+  z-index: 1;
+  width: min(1210px, calc(100% - 34px));
   margin: 0 auto;
-  padding: 26px 0 54px;
+  padding: 24px 0 58px;
 }
 
 .topbar {
@@ -83,38 +92,20 @@ select {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 18px;
-  margin-bottom: 64px;
+  margin-bottom: 58px;
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  font-weight: 850;
-  letter-spacing: -0.04em;
+  min-width: 220px;
 }
 
-.brandCenter {
-  justify-content: center;
-}
-
-.brandMark {
-  display: inline-grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.16), transparent 36%),
-    linear-gradient(145deg, #18293a, #071018);
-  color: #a6d4ff;
-  font-size: 14px;
-  box-shadow: var(--shadow);
-}
-
-.brandText {
-  font-size: 18px;
+.brandLogo {
+  display: block;
+  width: 220px;
+  height: auto;
+  filter: drop-shadow(0 22px 46px rgba(77, 163, 255, 0.2));
 }
 
 .desktopNav {
@@ -134,7 +125,7 @@ select {
   border-radius: 999px;
   color: var(--muted);
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 760;
 }
 
 .desktopNav a:hover {
@@ -144,7 +135,6 @@ select {
 
 .localeNav {
   display: flex;
-  align-items: center;
   justify-content: flex-end;
   gap: 7px;
   flex-wrap: wrap;
@@ -172,29 +162,28 @@ select {
 
 .heroSection {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.72fr);
-  gap: 24px;
+  grid-template-columns: minmax(0, 1.03fr) minmax(365px, 0.72fr);
+  gap: 26px;
   align-items: stretch;
-  margin-bottom: 26px;
 }
 
 .heroCopy {
-  padding: 18px 0;
+  padding: 18px 0 10px;
 }
 
 .eyebrow,
 .sectionKicker {
   display: inline-flex;
   width: fit-content;
-  margin: 0 0 16px;
+  margin: 0 0 18px;
   padding: 8px 12px;
-  border: 1px solid rgba(77, 163, 255, 0.32);
+  border: 1px solid rgba(77, 163, 255, 0.34);
   border-radius: 999px;
   background: rgba(77, 163, 255, 0.08);
   color: #b9dcff;
   font-size: 12px;
-  font-weight: 850;
-  letter-spacing: 0.04em;
+  font-weight: 880;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
 }
 
@@ -206,22 +195,22 @@ p {
 }
 
 h1 {
-  max-width: 850px;
+  max-width: 870px;
   margin-bottom: 0;
-  font-size: clamp(48px, 7.6vw, 92px);
-  line-height: 0.92;
-  letter-spacing: -0.082em;
+  font-size: clamp(50px, 7.2vw, 94px);
+  line-height: 0.91;
+  letter-spacing: -0.087em;
 }
 
 h2 {
-  margin-bottom: 14px;
-  font-size: clamp(30px, 4vw, 52px);
-  line-height: 1;
-  letter-spacing: -0.06em;
+  margin-bottom: 15px;
+  font-size: clamp(32px, 4.1vw, 54px);
+  line-height: 0.98;
+  letter-spacing: -0.065em;
 }
 
 h3 {
-  margin-bottom: 8px;
+  margin-bottom: 9px;
   font-size: 18px;
   letter-spacing: -0.035em;
 }
@@ -232,8 +221,8 @@ p {
 }
 
 .heroText {
-  max-width: 760px;
-  margin: 26px 0 0;
+  max-width: 790px;
+  margin: 28px 0 0;
   color: var(--soft);
   font-size: 19px;
   line-height: 1.6;
@@ -243,7 +232,7 @@ p {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  margin-top: 32px;
+  margin-top: 34px;
 }
 
 .primaryButton,
@@ -252,33 +241,38 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 0 18px;
+  min-height: 50px;
+  padding: 0 20px;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 15px;
-  font-weight: 850;
+  border-radius: 16px;
+  font-weight: 880;
   letter-spacing: -0.02em;
   cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
 }
 
 .primaryButton,
 button {
   color: white;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.18), transparent 34%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 34%),
     linear-gradient(135deg, var(--blue), var(--blue2));
-  box-shadow: 0 18px 50px rgba(23, 108, 255, 0.28);
+  box-shadow: 0 18px 54px rgba(23, 108, 255, 0.3);
 }
 
 .secondaryButton {
   color: var(--text);
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.065);
 }
 
 .primaryButton:hover,
 .secondaryButton:hover,
 button:hover {
   transform: translateY(-1px);
+  border-color: rgba(77, 163, 255, 0.5);
 }
 
 .fullButton {
@@ -289,7 +283,7 @@ button:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 9px;
-  margin-top: 28px;
+  margin-top: 30px;
 }
 
 .trustStrip span {
@@ -299,12 +293,12 @@ button:hover {
   color: var(--soft);
   background: rgba(255, 255, 255, 0.045);
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 760;
 }
 
-.terminalCard,
+.eliteConsole,
 .panel,
-.signalCard,
+.premiumSignalCard,
 .priceCard,
 .includedPanel,
 .finalCta,
@@ -315,30 +309,41 @@ button:hover {
 .smallPanel {
   border: 1px solid var(--line);
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.085), rgba(255,255,255,0.035));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.092), rgba(255, 255, 255, 0.035));
   box-shadow: var(--shadow);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(22px);
 }
 
-.terminalCard {
+.eliteConsole {
   position: relative;
   overflow: hidden;
-  padding: 24px;
-  border-radius: 34px;
+  min-height: 560px;
+  padding: 25px;
+  border-radius: 36px;
 }
 
-.terminalCard::after {
+.eliteConsole::before {
   content: '';
   position: absolute;
-  inset: auto -20% -35% 8%;
-  height: 190px;
+  inset: -1px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top right, rgba(116, 228, 191, 0.18), transparent 23rem),
+    radial-gradient(circle at bottom left, rgba(77, 163, 255, 0.24), transparent 24rem);
+}
+
+.eliteConsole::after {
+  content: '';
+  position: absolute;
+  inset: auto -20% -35% 7%;
+  height: 210px;
   background: radial-gradient(circle, rgba(77, 163, 255, 0.25), transparent 70%);
   pointer-events: none;
 }
 
-.terminalHeader,
-.signalCardHeader,
-.priceTopline {
+.consoleTop {
+  position: relative;
+  z-index: 1;
   display: flex;
   justify-content: space-between;
   gap: 14px;
@@ -346,8 +351,11 @@ button:hover {
   font-weight: 850;
 }
 
-.livePill,
-.priceTopline em {
+.consoleTop span {
+  color: var(--text);
+}
+
+.consoleTop em {
   display: inline-flex;
   padding: 6px 10px;
   border-radius: 999px;
@@ -358,70 +366,114 @@ button:hover {
   font-weight: 850;
 }
 
-.terminalGrid {
+.heroMetric {
+  position: relative;
+  z-index: 1;
+  margin-top: 42px;
+  padding: 24px;
+  border: 1px solid rgba(116, 228, 191, 0.28);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(116, 228, 191, 0.16), transparent 17rem),
+    rgba(0, 0, 0, 0.18);
+}
+
+.heroMetric span {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.heroMetric strong {
+  display: block;
+  color: var(--green);
+  font-size: clamp(64px, 9vw, 98px);
+  line-height: 0.9;
+  letter-spacing: -0.08em;
+}
+
+.heroMetric p {
+  max-width: 360px;
+  margin: 16px 0 0;
+  color: var(--soft);
+}
+
+.consoleMetrics {
   position: relative;
   z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  margin: 26px 0;
+  margin: 18px 0;
 }
 
-.terminalGrid div {
-  min-height: 104px;
+.consoleMetrics div {
+  min-height: 105px;
   padding: 16px;
   border: 1px solid var(--line);
   border-radius: 20px;
   background: rgba(0, 0, 0, 0.22);
 }
 
-.terminalLabel {
+.consoleMetrics span {
   display: block;
   margin-bottom: 18px;
   color: var(--muted);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 850;
   text-transform: uppercase;
 }
 
-.terminalGrid strong {
-  font-size: 19px;
+.consoleMetrics strong {
+  font-size: 18px;
   letter-spacing: -0.035em;
 }
 
-.terminalFlow {
+.flowLine {
   position: relative;
   z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
   padding: 14px;
+  border: 1px solid var(--line);
   border-radius: 18px;
   background: rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--line);
 }
 
-.terminalFlow span {
+.flowLine span {
   color: var(--soft);
   font-size: 12px;
   font-weight: 850;
   text-transform: uppercase;
 }
 
-.terminalFlow i {
+.flowLine i {
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, rgba(77,163,255,0.3), rgba(116,228,191,0.65));
+  background: linear-gradient(90deg, rgba(77, 163, 255, 0.3), rgba(116, 228, 191, 0.65));
 }
 
 .sectionGrid,
 .systemSection,
 .evidenceSection,
-.proofSection,
+.positioningSection,
+.pricingSection,
+.faqSection,
+.signalPreviewSection {
+  margin-top: 28px;
+}
+
+.evidenceSection,
+.systemSection,
+.positioningSection,
 .pricingSection,
 .faqSection {
-  margin-top: 26px;
+  padding-top: 46px;
 }
 
 .twoColumns {
@@ -436,7 +488,7 @@ button:hover {
 
 .panel {
   border-radius: var(--radius);
-  padding: 28px;
+  padding: 30px;
 }
 
 .panelLarge {
@@ -472,12 +524,12 @@ button:hover {
 }
 
 .sectionIntro {
-  max-width: 850px;
-  margin-bottom: 18px;
+  max-width: 870px;
+  margin-bottom: 20px;
 }
 
 .sectionIntro.narrow {
-  max-width: 760px;
+  max-width: 790px;
   text-align: center;
   margin-inline: auto;
 }
@@ -486,61 +538,25 @@ button:hover {
   margin-inline: auto;
 }
 
-.systemSection,
-.evidenceSection,
-.pricingSection,
-.proofSection,
-.faqSection {
-  padding-top: 42px;
-}
-
-.systemSteps {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-}
-
-.stepCard {
-  min-height: 250px;
-  padding: 22px;
-  border: 1px solid var(--line);
-  border-radius: 26px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.028));
-}
-
-.stepCard span {
-  display: inline-flex;
-  margin-bottom: 34px;
-  color: var(--blue);
-  font-weight: 900;
-  font-size: 13px;
-}
-
-.stepCard p {
-  margin-bottom: 0;
-  font-size: 14px;
-}
-
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 12px;
-  margin-top: 24px;
+  margin-top: 26px;
 }
 
 .statCard {
-  min-height: 170px;
+  min-height: 176px;
   padding: 20px;
-  border-radius: 24px;
+  border-radius: 25px;
 }
 
 .statCard span {
   display: block;
-  min-height: 36px;
+  min-height: 38px;
   color: var(--muted);
   font-size: 12px;
-  font-weight: 850;
+  font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -554,10 +570,10 @@ button:hover {
 }
 
 .statCard:first-child {
-  border-color: rgba(116, 228, 191, 0.36);
+  border-color: rgba(116, 228, 191, 0.38);
   background:
-    radial-gradient(circle at top right, rgba(116, 228, 191, 0.16), transparent 18rem),
-    linear-gradient(180deg, rgba(255,255,255,0.095), rgba(255,255,255,0.04));
+    radial-gradient(circle at top right, rgba(116, 228, 191, 0.17), transparent 18rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.04));
 }
 
 .statCard:first-child strong {
@@ -580,7 +596,7 @@ button:hover {
   border-radius: 22px;
   border-color: rgba(233, 196, 106, 0.34);
   background:
-    linear-gradient(180deg, rgba(233,196,106,0.10), rgba(255,255,255,0.035));
+    linear-gradient(180deg, rgba(233, 196, 106, 0.1), rgba(255, 255, 255, 0.035));
 }
 
 .evidenceNotice span {
@@ -597,46 +613,133 @@ button:hover {
   font-size: 14px;
 }
 
-.signalCard {
-  padding: 24px;
-  border-radius: 30px;
+.signalPreviewSection {
+  display: grid;
+  grid-template-columns: 0.78fr 1.22fr;
+  gap: 18px;
+  align-items: stretch;
+  padding-top: 46px;
 }
 
-.signalCardHeader {
-  margin-bottom: 18px;
+.signalIntro {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 30px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at top left, rgba(77, 163, 255, 0.12), transparent 23rem),
+    rgba(255, 255, 255, 0.04);
 }
 
-.signalCardHeader span:last-child {
-  color: var(--green);
+.premiumSignalCard {
+  position: relative;
+  overflow: hidden;
+  padding: 26px;
+  border-radius: 32px;
+}
+
+.premiumSignalCard::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background:
+    radial-gradient(circle at top right, rgba(77, 163, 255, 0.22), transparent 18rem),
+    radial-gradient(circle at bottom left, rgba(116, 228, 191, 0.12), transparent 22rem);
+  pointer-events: none;
+}
+
+.premiumSignalHeader {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+
+.premiumSignalHeader span {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
   font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
 }
 
-.signalRows {
+.premiumSignalHeader strong {
+  display: block;
+  font-size: 24px;
+  letter-spacing: -0.045em;
+}
+
+.premiumSignalHeader em {
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: var(--green);
+  background: rgba(116, 228, 191, 0.11);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.premiumSignalRows {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 9px;
 }
 
-.signalRows div {
+.premiumSignalRows div {
   display: grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 150px 1fr;
   align-items: center;
   gap: 12px;
-  padding: 13px 14px;
+  padding: 14px 15px;
   border: 1px solid var(--line);
-  border-radius: 16px;
-  background: rgba(0, 0, 0, 0.18);
+  border-radius: 17px;
+  background: rgba(0, 0, 0, 0.2);
 }
 
-.signalRows span {
+.premiumSignalRows span {
   color: var(--muted);
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 850;
   text-transform: uppercase;
 }
 
-.signalRows strong {
-  color: var(--text);
+.premiumSignalRows strong {
+  font-size: 15px;
+}
+
+.systemSteps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.stepCard {
+  min-height: 255px;
+  padding: 23px;
+  border: 1px solid var(--line);
+  border-radius: 27px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.028));
+}
+
+.stepCard span {
+  display: inline-flex;
+  margin-bottom: 34px;
+  color: var(--blue);
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.stepCard p {
+  margin-bottom: 0;
   font-size: 14px;
 }
 
@@ -647,8 +750,8 @@ button:hover {
 }
 
 .proofCards article {
-  padding: 22px;
-  border-radius: 24px;
+  padding: 23px;
+  border-radius: 25px;
 }
 
 .proofCards p {
@@ -660,37 +763,56 @@ button:hover {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
-  margin-top: 22px;
+  margin-top: 24px;
 }
 
 .priceCard {
   position: relative;
   overflow: hidden;
-  padding: 24px;
-  border-radius: 28px;
+  padding: 26px;
+  border-radius: 30px;
 }
 
 .highlightedPrice {
-  border-color: rgba(77, 163, 255, 0.6);
+  border-color: rgba(77, 163, 255, 0.62);
   background:
-    radial-gradient(circle at top right, rgba(116,228,191,0.14), transparent 18rem),
-    linear-gradient(180deg, rgba(77,163,255,0.18), rgba(255,255,255,0.04));
+    radial-gradient(circle at top right, rgba(116, 228, 191, 0.14), transparent 18rem),
+    linear-gradient(180deg, rgba(77, 163, 255, 0.18), rgba(255, 255, 255, 0.04));
+}
+
+.priceTopline {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  font-weight: 850;
 }
 
 .priceTopline span {
   font-weight: 900;
 }
 
+.priceTopline em {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: var(--green);
+  background: rgba(116, 228, 191, 0.11);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 850;
+}
+
 .priceValue {
   display: grid;
   gap: 4px;
-  margin: 42px 0 22px;
+  margin: 44px 0 24px;
 }
 
 .priceValue strong {
-  font-size: 54px;
+  font-size: 56px;
   line-height: 1;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.065em;
 }
 
 .priceValue span {
@@ -729,16 +851,16 @@ button:hover {
   grid-template-columns: 1fr auto;
   gap: 24px;
   align-items: center;
-  margin-top: 44px;
-  padding: 34px;
-  border-radius: 34px;
+  margin-top: 48px;
+  padding: 36px;
+  border-radius: 36px;
   background:
     radial-gradient(circle at top right, rgba(116, 228, 191, 0.18), transparent 28rem),
-    linear-gradient(135deg, rgba(77, 163, 255, 0.14), rgba(255,255,255,0.04));
+    linear-gradient(135deg, rgba(77, 163, 255, 0.14), rgba(255, 255, 255, 0.04));
 }
 
 .finalCta h2 {
-  max-width: 760px;
+  max-width: 780px;
 }
 
 .finalCta p:last-child {
@@ -752,8 +874,8 @@ button:hover {
 }
 
 .faqGrid article {
-  padding: 22px;
-  border-radius: 24px;
+  padding: 23px;
+  border-radius: 25px;
 }
 
 .faqGrid p {
@@ -766,7 +888,7 @@ button:hover {
   justify-content: space-between;
   gap: 18px;
   align-items: center;
-  margin-top: 54px;
+  margin-top: 58px;
   padding-top: 22px;
   border-top: 1px solid var(--line);
 }
@@ -776,7 +898,7 @@ button:hover {
 }
 
 .footer p {
-  max-width: 760px;
+  max-width: 800px;
   margin: 0;
   font-size: 12px;
   text-align: right;
@@ -820,7 +942,7 @@ select {
   color: var(--text);
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1120px) {
   .topbar {
     grid-template-columns: 1fr;
   }
@@ -836,7 +958,8 @@ select {
   .heroSection,
   .twoColumns,
   .includedPanel,
-  .finalCta {
+  .finalCta,
+  .signalPreviewSection {
     grid-template-columns: 1fr;
   }
 
@@ -854,11 +977,15 @@ select {
   .includedPanel ul {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .eliteConsole {
+    min-height: auto;
+  }
 }
 
-@media (max-width: 680px) {
+@media (max-width: 700px) {
   .siteShell {
-    width: min(100% - 24px, 1180px);
+    width: min(100% - 24px, 1210px);
     padding-top: 18px;
   }
 
@@ -866,14 +993,14 @@ select {
     margin-bottom: 36px;
   }
 
+  .brandLogo {
+    width: 200px;
+  }
+
   .desktopNav {
     width: 100%;
     justify-content: flex-start;
     overflow-x: auto;
-  }
-
-  .heroSection {
-    grid-template-columns: 1fr;
   }
 
   h1 {
@@ -888,7 +1015,7 @@ select {
     font-size: 16px;
   }
 
-  .terminalGrid,
+  .consoleMetrics,
   .systemSteps,
   .proofCards,
   .faqGrid,
@@ -901,7 +1028,7 @@ select {
     grid-template-columns: 1fr;
   }
 
-  .signalRows div {
+  .premiumSignalRows div {
     grid-template-columns: 1fr;
   }
 
