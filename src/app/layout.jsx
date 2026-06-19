@@ -5,7 +5,7 @@ import './globals.css';
 export const metadata = {
   title: 'VolatilityForge | Private LONG & SHORT Crypto Signals',
   description:
-    'VolatilityForge is one private Discord signals group for LONG and SHORT crypto trades. Strict filtering, clear risk, no hype.',
+    'VolatilityForge is one private Discord signal room for LONG and SHORT crypto trades. Selective signals, clear risk and model-calculated performance.',
   icons: {
     icon: '/favicon.svg'
   }
