@@ -312,7 +312,7 @@ export default function LocaleHomePage({ params }) {
       <header className="topbar">
         <Link href={`/${locale}`} className="brand" aria-label="VolatilityForge home">
           <span className="logoFrame">
-            <img className="brandLogo" src="/volatilityforge-logo.png" alt="VolatilityForge" />
+            <img className="brandLogo" src="/volatilityforge-logo.svg" alt="VolatilityForge" />
           </span>
         </Link>
 
