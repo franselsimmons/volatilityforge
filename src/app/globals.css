@@ -281,6 +281,10 @@ button:hover {
   transform: translateY(-1px);
 }
 
+.fullButton {
+  width: 100%;
+}
+
 .trustStrip {
   display: flex;
   flex-wrap: wrap;
@@ -306,6 +310,8 @@ button:hover {
 .finalCta,
 .faqGrid article,
 .proofCards article,
+.statCard,
+.evidenceNotice,
 .smallPanel {
   border: 1px solid var(--line);
   background:
@@ -411,6 +417,7 @@ button:hover {
 
 .sectionGrid,
 .systemSection,
+.evidenceSection,
 .proofSection,
 .pricingSection,
 .faqSection {
@@ -480,6 +487,7 @@ button:hover {
 }
 
 .systemSection,
+.evidenceSection,
 .pricingSection,
 .proofSection,
 .faqSection {
@@ -511,6 +519,70 @@ button:hover {
 
 .stepCard p {
   margin-bottom: 0;
+  font-size: 14px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.statCard {
+  min-height: 160px;
+  padding: 20px;
+  border-radius: 24px;
+}
+
+.statCard span {
+  display: block;
+  min-height: 36px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.statCard strong {
+  display: block;
+  margin: 18px 0 12px;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+
+.statCard p {
+  margin-bottom: 0;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.evidenceNotice {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 18px;
+  align-items: center;
+  margin-top: 14px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  border-color: rgba(233, 196, 106, 0.34);
+  background:
+    linear-gradient(180deg, rgba(233,196,106,0.10), rgba(255,255,255,0.035));
+}
+
+.evidenceNotice span {
+  color: var(--gold);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
+.evidenceNotice p {
+  margin: 0;
+  color: var(--soft);
   font-size: 14px;
 }
 
@@ -575,7 +647,7 @@ button:hover {
 
 .priceGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
   margin-top: 22px;
 }
@@ -583,13 +655,14 @@ button:hover {
 .priceCard {
   position: relative;
   overflow: hidden;
-  padding: 22px;
+  padding: 24px;
   border-radius: 28px;
 }
 
 .highlightedPrice {
-  border-color: rgba(77, 163, 255, 0.55);
+  border-color: rgba(77, 163, 255, 0.6);
   background:
+    radial-gradient(circle at top right, rgba(116,228,191,0.14), transparent 18rem),
     linear-gradient(180deg, rgba(77,163,255,0.18), rgba(255,255,255,0.04));
 }
 
@@ -600,11 +673,11 @@ button:hover {
 .priceValue {
   display: grid;
   gap: 4px;
-  margin: 36px 0 20px;
+  margin: 42px 0 22px;
 }
 
 .priceValue strong {
-  font-size: 48px;
+  font-size: 54px;
   line-height: 1;
   letter-spacing: -0.06em;
 }
@@ -612,10 +685,6 @@ button:hover {
 .priceValue span {
   color: var(--muted);
   font-weight: 750;
-}
-
-.fullButton {
-  width: 100%;
 }
 
 .includedPanel {
@@ -761,10 +830,14 @@ select {
   }
 
   .systemSteps,
-  .priceGrid,
   .proofCards,
-  .faqGrid {
+  .faqGrid,
+  .statsGrid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .priceGrid {
+    grid-template-columns: 1fr;
   }
 
   .includedPanel ul {
@@ -806,10 +879,14 @@ select {
 
   .terminalGrid,
   .systemSteps,
-  .priceGrid,
   .proofCards,
   .faqGrid,
-  .includedPanel ul {
+  .includedPanel ul,
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .evidenceNotice {
     grid-template-columns: 1fr;
   }
 
