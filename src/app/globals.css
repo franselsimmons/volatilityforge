@@ -73,60 +73,55 @@ a {
 
 .brandBanner {
   position: relative;
-  overflow: hidden;
-  min-height: 190px;
+  display: grid;
+  gap: 14px;
   margin-bottom: 58px;
-  padding: 22px;
-  border: 1px solid var(--line);
+  padding: 16px;
+  border: 1px solid rgba(77, 163, 255, 0.24);
   border-radius: 34px;
   background:
-    radial-gradient(circle at 12% 20%, rgba(77, 163, 255, 0.16), transparent 26rem),
-    radial-gradient(circle at 88% 30%, rgba(116, 228, 191, 0.12), transparent 24rem),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.092), rgba(255, 255, 255, 0.038));
+    radial-gradient(circle at 10% 0%, rgba(77, 163, 255, 0.2), transparent 28rem),
+    radial-gradient(circle at 90% 30%, rgba(116, 228, 191, 0.1), transparent 26rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.095), rgba(255, 255, 255, 0.035));
   box-shadow: var(--shadow);
   backdrop-filter: blur(22px);
 }
 
-.brandBanner::before {
-  content: '';
-  position: absolute;
-  inset: 20px;
+.brandLogoPanel {
+  overflow: hidden;
   border-radius: 26px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(235, 239, 246, 0.97));
+  background: #f8fafc;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 18px 64px rgba(0, 0, 0, 0.32);
-  z-index: 0;
+    0 24px 80px rgba(0, 0, 0, 0.28);
 }
 
-.brandBannerLogo {
-  position: relative;
-  z-index: 1;
+.brandLogoLink {
   display: flex;
-  width: 100%;
-  height: 96px;
   align-items: center;
   justify-content: center;
-  padding: 0 20px;
+  min-height: 168px;
+  padding: 20px 34px;
 }
 
-.brandBannerLogo img {
+.brandLogoLink img {
   display: block;
-  width: min(760px, 100%);
-  height: 100%;
+  width: min(850px, 100%);
+  height: auto;
   object-fit: contain;
-  object-position: center;
 }
 
-.brandBannerControls {
-  position: relative;
-  z-index: 2;
+.brandControlBar {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 14px;
+  gap: 12px;
   align-items: center;
-  margin-top: 18px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(4, 10, 17, 0.78), rgba(4, 10, 17, 0.54));
+  backdrop-filter: blur(18px);
 }
 
 .bannerMenu,
@@ -149,22 +144,23 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
-  padding: 0 15px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 999px;
+  color: var(--soft);
+  background: rgba(255, 255, 255, 0.055);
   font-size: 13px;
   font-weight: 850;
-  border: 1px solid rgba(7, 17, 29, 0.14);
-  background: rgba(7, 17, 29, 0.06);
-  color: #1a2532;
 }
 
 .bannerMenu a:hover,
 .bannerLanguages a:hover,
 .bannerLanguages .activeLocale {
-  border-color: rgba(23, 108, 255, 0.4);
-  background: rgba(23, 108, 255, 0.1);
-  color: #07111d;
+  color: white;
+  border-color: rgba(77, 163, 255, 0.55);
+  background:
+    linear-gradient(135deg, rgba(77, 163, 255, 0.22), rgba(255, 255, 255, 0.065));
 }
 
 /* ================= HERO ================= */
@@ -837,7 +833,7 @@ button {
 /* ================= RESPONSIVE ================= */
 
 @media (max-width: 1120px) {
-  .brandBannerControls {
+  .brandControlBar {
     grid-template-columns: 1fr;
   }
 
@@ -880,44 +876,45 @@ button {
   }
 
   .brandBanner {
-    min-height: auto;
-    padding: 14px;
+    padding: 12px;
     margin-bottom: 42px;
     border-radius: 26px;
   }
 
-  .brandBanner::before {
-    inset: 12px;
-    border-radius: 20px;
+  .brandLogoPanel {
+    border-radius: 22px;
   }
 
-  .brandBannerLogo {
-    height: 82px;
-    padding: 0 10px;
+  .brandLogoLink {
+    min-height: 120px;
+    padding: 14px;
   }
 
-  .brandBannerLogo img {
+  .brandLogoLink img {
     width: 100%;
-    height: 100%;
   }
 
-  .brandBannerControls {
-    margin-top: 14px;
+  .brandControlBar {
     gap: 10px;
+    padding: 10px;
+    border-radius: 22px;
   }
 
-  .bannerMenu {
-    justify-content: flex-start;
+  .bannerMenu,
+  .bannerLanguages {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
   }
 
-  .bannerMenu a {
-    min-height: 38px;
-    padding: 0 12px;
-    font-size: 12px;
+  .bannerMenu::-webkit-scrollbar,
+  .bannerLanguages::-webkit-scrollbar {
+    display: none;
   }
 
+  .bannerMenu a,
   .bannerLanguages a {
-    min-width: 42px;
+    flex: 0 0 auto;
     min-height: 38px;
     padding: 0 12px;
     font-size: 12px;
