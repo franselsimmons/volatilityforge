@@ -530,7 +530,7 @@ button:hover {
 }
 
 .statCard {
-  min-height: 160px;
+  min-height: 170px;
   padding: 20px;
   border-radius: 24px;
 }
@@ -551,6 +551,17 @@ button:hover {
   font-size: 38px;
   line-height: 1;
   letter-spacing: -0.06em;
+}
+
+.statCard:first-child {
+  border-color: rgba(116, 228, 191, 0.36);
+  background:
+    radial-gradient(circle at top right, rgba(116, 228, 191, 0.16), transparent 18rem),
+    linear-gradient(180deg, rgba(255,255,255,0.095), rgba(255,255,255,0.04));
+}
+
+.statCard:first-child strong {
+  color: var(--green);
 }
 
 .statCard p {
