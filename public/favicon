@@ -1,9 +1,12 @@
 <!-- ================= FILE FROM ROOT: public/favicon.svg ================= -->
 <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="18" fill="#071018"/>
+  <path d="M14 18H50L43 46H21L14 18Z" fill="url(#g)" stroke="#89C7FF" stroke-width="2"/>
+  <path d="M23 25L31 42L41 25" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
   <defs>
-    <linearGradient id="s" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F6FAFF"/><stop offset="1" stop-color="#64748B"/></linearGradient>
-    <linearGradient id="b" x1="12" y1="46" x2="52" y2="14"><stop stop-color="#7DD3FC"/><stop offset="1" stop-color="#0D6EFF"/></linearGradient>
+    <linearGradient id="g" x1="14" y1="18" x2="50" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#163A5C"/>
+      <stop offset="1" stop-color="#0E1724"/>
+    </linearGradient>
   </defs>
-  <path d="M32 5L54 15V32C54 45 46 56 32 61C18 56 10 45 10 32V15L32 5Z" fill="#111827" stroke="url(#s)" stroke-width="3"/>
-  <path d="M17 40L26 32L32 36L42 21L51 25" stroke="url(#b)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
