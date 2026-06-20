@@ -138,14 +138,19 @@ export default function SiteShell({ locale = 'nl', children }) {
     <div className="appShell">
       <header className="siteHeader">
         <div className="headerTop">
-          <Link className="brandBannerLink" href={`/${safeLocale}`} aria-label="VolatilityForge home">
+          <Link
+            className="brandBannerLink"
+            href={`/${safeLocale}`}
+            aria-label="VolatilityForge home"
+          >
             <div className="logoBanner">
               <img
                 src="/volatilityforge-logo.svg"
                 alt="VolatilityForge"
-                width="1200"
-                height="320"
-                priority="false"
+                width="1672"
+                height="941"
+                loading="eager"
+                decoding="async"
               />
             </div>
           </Link>
