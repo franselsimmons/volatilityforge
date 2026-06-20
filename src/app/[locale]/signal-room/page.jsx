@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import SiteShell from '@/components/SiteShell';
 
-const LOCALES = ['en', 'nl', 'de', 'es', 'fr'];
+const LOCALES = ['nl', 'en', 'de', 'es', 'fr'];
 
 const COPY = {
   nl: {
@@ -13,6 +13,18 @@ const COPY = {
 
     primaryCta: 'Vraag toegang aan',
     secondaryCta: 'Bekijk pricing',
+
+    privateFeedKicker: 'Private Feed',
+    signalStructureKicker: 'Signal structuur',
+    memberViewKicker: 'Member view',
+    privateKicker: 'Privé',
+    discordFlowKicker: 'Discord flow',
+    disciplineKicker: 'Discipline',
+    accessKicker: 'Toegang',
+
+    exampleSignalLabel: 'Voorbeeldsignaal',
+    exampleSignalTitle: 'Private Discord alert',
+    riskFirstLabel: 'Risk-first',
 
     roomTitle: 'Eén private feed. Eén standaard.',
     roomText:
@@ -77,19 +89,19 @@ const COPY = {
       'Een member ziet eerst de richting en setup, daarna de risicostructuur, en daarna eventuele updates wanneer de markt beweegt.',
     flow: [
       {
-        title: '1. Signal posted',
+        title: '1. Signal geplaatst',
         text: 'De setup wordt geplaatst met market, richting, entry-zone, invalidatie en targets.'
       },
       {
-        title: '2. Member reviews risk',
+        title: '2. Member controleert risico',
         text: 'Het lid bepaalt zelf positieomvang, risico en uitvoering. VolatilityForge geeft geen persoonlijk financieel advies.'
       },
       {
-        title: '3. Setup develops',
+        title: '3. Setup ontwikkelt',
         text: 'Wanneer de markt beweegt, kan de signal room updates of waarschuwingen geven.'
       },
       {
-        title: '4. Signal closed or invalidated',
+        title: '4. Signal gesloten of geïnvalideerd',
         text: 'Een signaal eindigt door target, stop, invalidatie of handmatige update.'
       }
     ],
@@ -131,6 +143,18 @@ const COPY = {
 
     primaryCta: 'Request access',
     secondaryCta: 'View pricing',
+
+    privateFeedKicker: 'Private Feed',
+    signalStructureKicker: 'Signal Structure',
+    memberViewKicker: 'Member View',
+    privateKicker: 'Private',
+    discordFlowKicker: 'Discord Flow',
+    disciplineKicker: 'Discipline',
+    accessKicker: 'Access',
+
+    exampleSignalLabel: 'Example signal',
+    exampleSignalTitle: 'Private Discord alert',
+    riskFirstLabel: 'Risk-first',
 
     roomTitle: 'One private feed. One standard.',
     roomText:
@@ -239,40 +263,432 @@ const COPY = {
       'Start an application or review the memberships first. The payment flow is prepared so Stripe can be connected later.',
     finalPrimary: 'Start application',
     finalSecondary: 'View pricing'
+  },
+
+  de: {
+    badge: 'Signal Room',
+    title: 'Der private Discord-Feed, in dem LONG- und SHORT-Signale eingehen.',
+    intro:
+      'Der VolatilityForge Signalraum ist darauf ausgelegt, Signale klar, schnell und ohne Rauschen zu liefern. Mitglieder erhalten keine zufälligen Hype-Calls, sondern strukturierte Signale mit Richtung, Entry-Zone, Invalidierung, Targets und Updates.',
+
+    primaryCta: 'Zugang anfragen',
+    secondaryCta: 'Preise ansehen',
+
+    privateFeedKicker: 'Privater Feed',
+    signalStructureKicker: 'Signalstruktur',
+    memberViewKicker: 'Member View',
+    privateKicker: 'Privat',
+    discordFlowKicker: 'Discord Flow',
+    disciplineKicker: 'Disziplin',
+    accessKicker: 'Zugang',
+
+    exampleSignalLabel: 'Beispielsignal',
+    exampleSignalTitle: 'Private Discord Alert',
+    riskFirstLabel: 'Risk-first',
+
+    roomTitle: 'Ein privater Feed. Ein Standard.',
+    roomText:
+      'Alle Mitglieder erhalten denselben Signalraum. Es gibt keine versteckten VIP-Stufen, keinen separaten Premium-Feed und kein Upgrade für bessere Signale. Der einzige Unterschied ist die gewählte Laufzeit der Mitgliedschaft.',
+
+    roomCards: [
+      {
+        title: 'Privater Discord',
+        text: 'Zugang zu einer geschlossenen Discord-Umgebung für Mitglieder.'
+      },
+      {
+        title: 'LONG & SHORT',
+        text: 'Signale können mit oder gegen die Marktrichtung arbeiten, wenn das Setup stark genug ist.'
+      },
+      {
+        title: 'Kein Call-Spam',
+        text: 'Keine erzwungene Anzahl von Signalen pro Tag. Schwache Setups werden abgelehnt.'
+      },
+      {
+        title: 'Updates',
+        text: 'Wenn sich ein Setup verändert, kann der Feed Updates, Schließungen oder Invalidierungen teilen.'
+      }
+    ],
+
+    signalTitle: 'Wie ein Signal aufgebaut ist.',
+    signalText:
+      'Ein Signal sollte direkt verständlich und ausführbar sein. Der Feed zeigt deshalb nicht nur die Richtung, sondern auch die Risikostruktur darum herum.',
+    signalRows: [
+      ['Richtung', 'SHORT'],
+      ['Market', 'BTC / USDT'],
+      ['Entry-Zone', '67,850 – 68,120'],
+      ['Invalidierung', '68,740'],
+      ['Targets', '67,100 / 66,420 / 65,800'],
+      ['Risk Mode', 'Festes Risiko pro Signal']
+    ],
+
+    updateTitle: 'Was Mitglieder erwarten können.',
+    updateText:
+      'Der Signalraum ist für praktische Ausführung gedacht. Die Struktur bleibt konsistent, damit Mitglieder nicht nach dem Kern eines Signals suchen müssen.',
+    updateItems: [
+      'Neue Signale mit klarer Richtung',
+      'Entry-Zone statt vager Preisangabe',
+      'Invalidierungsniveau für Risikomanagement',
+      'Mehrere Targetzonen',
+      'Updates, wenn sich der Markt verändert',
+      'Kein Signal, wenn das Setup nicht stark genug ist'
+    ],
+
+    privateTitle: 'Was innerhalb des Raums privat bleibt.',
+    privateText:
+      'Live-Signale, Updates und Ausführungskontext bleiben innerhalb der Member-Umgebung. Die öffentliche Website zeigt nur eine Beispielstruktur.',
+    privateItems: [
+      'Live Entries',
+      'Aktive Signal-Updates',
+      'Setupänderungen',
+      'Trade Management',
+      'Member-only Kontext'
+    ],
+
+    exampleTitle: 'Beispiel-Flow in Discord.',
+    exampleText:
+      'Ein Mitglied sieht zuerst Richtung und Setup, danach die Risikostruktur und anschließend mögliche Updates, wenn sich der Markt bewegt.',
+    flow: [
+      {
+        title: '1. Signal gepostet',
+        text: 'Das Setup wird mit Market, Richtung, Entry-Zone, Invalidierung und Targets gepostet.'
+      },
+      {
+        title: '2. Mitglied prüft Risiko',
+        text: 'Das Mitglied entscheidet selbst über Positionsgröße, Risiko und Ausführung. VolatilityForge bietet keine persönliche Finanzberatung.'
+      },
+      {
+        title: '3. Setup entwickelt sich',
+        text: 'Wenn sich der Markt bewegt, kann der Signalraum Updates oder Warnungen geben.'
+      },
+      {
+        title: '4. Signal geschlossen oder invalidiert',
+        text: 'Ein Signal endet durch Target, Stop, Invalidierung oder manuelles Update.'
+      }
+    ],
+
+    disciplineTitle: 'Warum der Raum selektiv bleibt.',
+    disciplineText:
+      'Die Stärke eines Signalraums liegt nicht im Volumen. Einen schwachen Call zu vermeiden ist oft wertvoller, als nur Aktivität zu zeigen.',
+    disciplineCards: [
+      {
+        title: 'Keine Forced Trades',
+        text: 'Wenn der Markt nicht gut genug ist, sollte es kein Signal geben.'
+      },
+      {
+        title: 'Risk-first',
+        text: 'Ein Setup ohne klare Invalidierung gehört nicht in den Feed.'
+      },
+      {
+        title: 'Derselbe Feed für alle',
+        text: 'Alle Mitglieder erhalten dieselben Informationen auf demselben Niveau.'
+      }
+    ],
+
+    riskTitle: 'Wichtige Risikoerklärung',
+    riskText:
+      'VolatilityForge ist keine Finanzberatung. Mitglieder bleiben selbst verantwortlich für Positionsgröße, Ausführung, Leverage, Timing und Risikomanagement. Trading beinhaltet Risiko und Verluste sind möglich.',
+
+    finalTitle: 'Möchtest du Zugang zum privaten Signalraum?',
+    finalText:
+      'Starte eine Anfrage oder sieh dir zuerst die Mitgliedschaften an. Der Zahlungsflow ist vorbereitet, damit Stripe später verbunden werden kann.',
+    finalPrimary: 'Anfrage starten',
+    finalSecondary: 'Preise ansehen'
+  },
+
+  es: {
+    badge: 'Sala de señales',
+    title: 'El feed privado de Discord donde llegan señales LONG & SHORT.',
+    intro:
+      'La sala de señales de VolatilityForge está creada para entregar señales de forma clara, rápida y sin ruido. Los miembros no reciben llamadas de hype aleatorias, sino señales estructuradas con dirección, zona de entrada, invalidación, objetivos y actualizaciones.',
+
+    primaryCta: 'Solicitar acceso',
+    secondaryCta: 'Ver precios',
+
+    privateFeedKicker: 'Feed privado',
+    signalStructureKicker: 'Estructura de señal',
+    memberViewKicker: 'Vista del miembro',
+    privateKicker: 'Privado',
+    discordFlowKicker: 'Flujo Discord',
+    disciplineKicker: 'Disciplina',
+    accessKicker: 'Acceso',
+
+    exampleSignalLabel: 'Señal de ejemplo',
+    exampleSignalTitle: 'Alerta privada de Discord',
+    riskFirstLabel: 'Risk-first',
+
+    roomTitle: 'Un feed privado. Un estándar.',
+    roomText:
+      'Todos los miembros reciben la misma sala de señales. No hay niveles VIP ocultos, no hay feed premium separado y no hay upgrade para mejores señales. La única diferencia es la duración elegida de la membresía.',
+
+    roomCards: [
+      {
+        title: 'Discord privado',
+        text: 'Acceso a un entorno cerrado de Discord para miembros.'
+      },
+      {
+        title: 'LONG & SHORT',
+        text: 'Las señales pueden trabajar a favor o en contra de la dirección del mercado cuando el setup es suficientemente fuerte.'
+      },
+      {
+        title: 'Sin spam de calls',
+        text: 'No hay número forzado de señales por día. Los setups débiles se rechazan.'
+      },
+      {
+        title: 'Actualizaciones',
+        text: 'Cuando un setup cambia, el feed puede compartir actualizaciones, cierres o invalidación.'
+      }
+    ],
+
+    signalTitle: 'Cómo se estructura una señal.',
+    signalText:
+      'Una señal debe ser directamente comprensible y ejecutable. Por eso el feed muestra no solo dirección, sino también la estructura de riesgo alrededor.',
+    signalRows: [
+      ['Dirección', 'SHORT'],
+      ['Market', 'BTC / USDT'],
+      ['Zona de entrada', '67,850 – 68,120'],
+      ['Invalidación', '68,740'],
+      ['Objetivos', '67,100 / 66,420 / 65,800'],
+      ['Modo de riesgo', 'Riesgo fijo por señal']
+    ],
+
+    updateTitle: 'Qué pueden esperar los miembros.',
+    updateText:
+      'La sala de señales está diseñada para ejecución práctica. La estructura se mantiene consistente para que los miembros no tengan que buscar el núcleo de una señal.',
+    updateItems: [
+      'Nuevas señales con dirección clara',
+      'Zona de entrada en lugar de indicación vaga de precio',
+      'Nivel de invalidación para gestión de riesgo',
+      'Múltiples zonas objetivo',
+      'Actualizaciones cuando cambia el mercado',
+      'Sin señal cuando el setup no es suficientemente fuerte'
+    ],
+
+    privateTitle: 'Qué permanece privado dentro de la sala.',
+    privateText:
+      'Las señales live, actualizaciones y contexto de ejecución permanecen dentro del entorno de miembros. El sitio público solo muestra estructura de ejemplo.',
+    privateItems: [
+      'Entradas live',
+      'Actualizaciones activas de señales',
+      'Cambios de setup',
+      'Trade management',
+      'Contexto solo para miembros'
+    ],
+
+    exampleTitle: 'Flujo de ejemplo en Discord.',
+    exampleText:
+      'Un miembro ve primero la dirección y el setup, luego la estructura de riesgo y después posibles actualizaciones cuando el mercado se mueve.',
+    flow: [
+      {
+        title: '1. Señal publicada',
+        text: 'El setup se publica con mercado, dirección, zona de entrada, invalidación y objetivos.'
+      },
+      {
+        title: '2. El miembro revisa el riesgo',
+        text: 'El miembro decide tamaño de posición, riesgo y ejecución. VolatilityForge no ofrece asesoramiento financiero personal.'
+      },
+      {
+        title: '3. El setup se desarrolla',
+        text: 'Cuando el mercado se mueve, la sala de señales puede proporcionar actualizaciones o advertencias.'
+      },
+      {
+        title: '4. Señal cerrada o invalidada',
+        text: 'Una señal termina por objetivo, stop, invalidación o actualización manual.'
+      }
+    ],
+
+    disciplineTitle: 'Por qué la sala sigue siendo selectiva.',
+    disciplineText:
+      'La fuerza de una sala de señales no está en el volumen. Evitar una call débil suele ser más valioso que publicar una señal solo para mostrar actividad.',
+    disciplineCards: [
+      {
+        title: 'Sin trades forzados',
+        text: 'Cuando el mercado no es suficientemente bueno, no debería haber señal.'
+      },
+      {
+        title: 'Risk-first',
+        text: 'Un setup sin invalidación clara no pertenece al feed.'
+      },
+      {
+        title: 'El mismo feed para todos',
+        text: 'Todos los miembros reciben la misma información al mismo nivel.'
+      }
+    ],
+
+    riskTitle: 'Explicación importante de riesgo',
+    riskText:
+      'VolatilityForge no es asesoramiento financiero. Los miembros siguen siendo responsables del tamaño de posición, ejecución, apalancamiento, timing y gestión de riesgo. El trading implica riesgo y las pérdidas son posibles.',
+
+    finalTitle: '¿Quieres acceso a la sala privada de señales?',
+    finalText:
+      'Inicia una solicitud o revisa primero las membresías. El flujo de pago está preparado para que Stripe pueda conectarse más adelante.',
+    finalPrimary: 'Iniciar solicitud',
+    finalSecondary: 'Ver precios'
+  },
+
+  fr: {
+    badge: 'Salle de signaux',
+    title: 'Le feed Discord privé où arrivent les signaux LONG & SHORT.',
+    intro:
+      'La salle de signaux VolatilityForge est conçue pour livrer des signaux clairement, rapidement et sans bruit. Les membres ne reçoivent pas des calls de hype aléatoires, mais des signaux structurés avec direction, zone d’entrée, invalidation, objectifs et mises à jour.',
+
+    primaryCta: 'Demander l’accès',
+    secondaryCta: 'Voir les tarifs',
+
+    privateFeedKicker: 'Feed privé',
+    signalStructureKicker: 'Structure du signal',
+    memberViewKicker: 'Vue membre',
+    privateKicker: 'Privé',
+    discordFlowKicker: 'Flow Discord',
+    disciplineKicker: 'Discipline',
+    accessKicker: 'Accès',
+
+    exampleSignalLabel: 'Signal exemple',
+    exampleSignalTitle: 'Alerte Discord privée',
+    riskFirstLabel: 'Risk-first',
+
+    roomTitle: 'Un feed privé. Un standard.',
+    roomText:
+      'Tous les membres reçoivent la même salle de signaux. Il n’y a pas de niveaux VIP cachés, pas de feed premium séparé et pas d’upgrade pour de meilleurs signaux. La seule différence est la durée choisie de l’abonnement.',
+
+    roomCards: [
+      {
+        title: 'Discord privé',
+        text: 'Accès à un environnement Discord fermé pour les membres.'
+      },
+      {
+        title: 'LONG & SHORT',
+        text: 'Les signaux peuvent travailler avec ou contre la direction du marché lorsque le setup est assez fort.'
+      },
+      {
+        title: 'Pas de spam de calls',
+        text: 'Aucun nombre forcé de signaux par jour. Les setups faibles sont rejetés.'
+      },
+      {
+        title: 'Mises à jour',
+        text: 'Lorsqu’un setup change, le feed peut partager des mises à jour, clôtures ou invalidations.'
+      }
+    ],
+
+    signalTitle: 'Comment un signal est structuré.',
+    signalText:
+      'Un signal doit être directement compréhensible et exécutable. Le feed montre donc non seulement la direction, mais aussi la structure de risque autour.',
+    signalRows: [
+      ['Direction', 'SHORT'],
+      ['Market', 'BTC / USDT'],
+      ['Zone d’entrée', '67,850 – 68,120'],
+      ['Invalidation', '68,740'],
+      ['Objectifs', '67,100 / 66,420 / 65,800'],
+      ['Mode risque', 'Risque fixe par signal']
+    ],
+
+    updateTitle: 'Ce que les membres peuvent attendre.',
+    updateText:
+      'La salle de signaux est conçue pour une exécution pratique. La structure reste cohérente afin que les membres n’aient pas à chercher le cœur d’un signal.',
+    updateItems: [
+      'Nouveaux signaux avec direction claire',
+      'Zone d’entrée au lieu d’une indication de prix vague',
+      'Niveau d’invalidation pour la gestion du risque',
+      'Plusieurs zones d’objectifs',
+      'Mises à jour lorsque le marché change',
+      'Aucun signal lorsque le setup n’est pas assez fort'
+    ],
+
+    privateTitle: 'Ce qui reste privé dans la salle.',
+    privateText:
+      'Les signaux live, les mises à jour et le contexte d’exécution restent dans l’environnement membre. Le site public montre seulement une structure d’exemple.',
+    privateItems: [
+      'Entrées live',
+      'Mises à jour actives des signaux',
+      'Changements de setup',
+      'Trade management',
+      'Contexte réservé aux membres'
+    ],
+
+    exampleTitle: 'Flow exemple dans Discord.',
+    exampleText:
+      'Un membre voit d’abord la direction et le setup, puis la structure de risque, puis les éventuelles mises à jour lorsque le marché bouge.',
+    flow: [
+      {
+        title: '1. Signal publié',
+        text: 'Le setup est publié avec marché, direction, zone d’entrée, invalidation et objectifs.'
+      },
+      {
+        title: '2. Le membre vérifie le risque',
+        text: 'Le membre décide lui-même de la taille de position, du risque et de l’exécution. VolatilityForge ne fournit pas de conseil financier personnel.'
+      },
+      {
+        title: '3. Le setup évolue',
+        text: 'Lorsque le marché bouge, la salle de signaux peut fournir des mises à jour ou avertissements.'
+      },
+      {
+        title: '4. Signal clôturé ou invalidé',
+        text: 'Un signal se termine par objectif, stop, invalidation ou mise à jour manuelle.'
+      }
+    ],
+
+    disciplineTitle: 'Pourquoi la salle reste sélective.',
+    disciplineText:
+      'La force d’une salle de signaux n’est pas le volume. Éviter un call faible est souvent plus précieux que publier un signal juste pour montrer de l’activité.',
+    disciplineCards: [
+      {
+        title: 'Pas de trades forcés',
+        text: 'Lorsque le marché n’est pas assez bon, il ne devrait pas y avoir de signal.'
+      },
+      {
+        title: 'Risk-first',
+        text: 'Un setup sans invalidation claire n’a pas sa place dans le feed.'
+      },
+      {
+        title: 'Même feed pour tous',
+        text: 'Tous les membres reçoivent la même information au même niveau.'
+      }
+    ],
+
+    riskTitle: 'Explication importante du risque',
+    riskText:
+      'VolatilityForge ne constitue pas un conseil financier. Les membres restent responsables de la taille de position, de l’exécution, du levier, du timing et de la gestion du risque. Le trading comporte des risques et des pertes sont possibles.',
+
+    finalTitle: 'Tu veux accéder à la salle privée de signaux ?',
+    finalText:
+      'Démarre une demande ou consulte d’abord les abonnements. Le flow de paiement est préparé afin que Stripe puisse être connecté plus tard.',
+    finalPrimary: 'Démarrer la demande',
+    finalSecondary: 'Voir les tarifs'
   }
 };
 
-COPY.de = COPY.en;
-COPY.es = COPY.en;
-COPY.fr = COPY.en;
+function getCopy(locale) {
+  return COPY[locale] || COPY.nl;
+}
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
 
-export function generateMetadata({ params }) {
-  const locale = params.locale;
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale;
 
   if (!LOCALES.includes(locale)) {
     return {};
   }
 
-  const copy = COPY[locale] || COPY.en;
+  const copy = getCopy(locale);
 
   return {
-    title: locale === 'nl' ? 'Signal Room' : 'Signal Room',
+    title: locale === 'nl' ? 'Signal Room' : copy.badge,
     description: copy.intro
   };
 }
 
-export default function SignalRoomPage({ params }) {
-  const locale = params.locale;
+export default async function SignalRoomPage({ params }) {
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale;
 
   if (!LOCALES.includes(locale)) {
     notFound();
   }
 
-  const copy = COPY[locale] || COPY.en;
+  const copy = getCopy(locale);
 
   return (
     <SiteShell locale={locale}>
@@ -293,7 +709,7 @@ export default function SignalRoomPage({ params }) {
         </div>
 
         <article className="panel">
-          <p className="kicker">Private Feed</p>
+          <p className="kicker">{copy.privateFeedKicker}</p>
           <h2>{copy.roomTitle}</h2>
           <p className="lead">{copy.roomText}</p>
         </article>
@@ -312,7 +728,7 @@ export default function SignalRoomPage({ params }) {
 
       <section className="section twoColumnGrid">
         <article className="panel">
-          <p className="kicker">Signal Structure</p>
+          <p className="kicker">{copy.signalStructureKicker}</p>
           <h2>{copy.signalTitle}</h2>
           <p className="lead">{copy.signalText}</p>
         </article>
@@ -320,10 +736,10 @@ export default function SignalRoomPage({ params }) {
         <article className="signalCard">
           <div className="signalHeader">
             <div>
-              <span>Example signal</span>
-              <strong>Private Discord alert</strong>
+              <span>{copy.exampleSignalLabel}</span>
+              <strong>{copy.exampleSignalTitle}</strong>
             </div>
-            <em>Risk-first</em>
+            <em>{copy.riskFirstLabel}</em>
           </div>
 
           <div className="signalRows">
@@ -339,7 +755,7 @@ export default function SignalRoomPage({ params }) {
 
       <section className="section twoColumnGrid">
         <article className="panel">
-          <p className="kicker">Member View</p>
+          <p className="kicker">{copy.memberViewKicker}</p>
           <h2>{copy.updateTitle}</h2>
           <p className="lead">{copy.updateText}</p>
 
@@ -351,7 +767,7 @@ export default function SignalRoomPage({ params }) {
         </article>
 
         <article className="panel">
-          <p className="kicker">Private</p>
+          <p className="kicker">{copy.privateKicker}</p>
           <h2>{copy.privateTitle}</h2>
           <p className="lead">{copy.privateText}</p>
 
@@ -365,7 +781,7 @@ export default function SignalRoomPage({ params }) {
 
       <section className="section">
         <div className="center narrow">
-          <p className="kicker">Discord Flow</p>
+          <p className="kicker">{copy.discordFlowKicker}</p>
           <h2>{copy.exampleTitle}</h2>
           <p>{copy.exampleText}</p>
         </div>
@@ -382,7 +798,7 @@ export default function SignalRoomPage({ params }) {
 
       <section className="section twoColumnGrid">
         <article className="panel">
-          <p className="kicker">Discipline</p>
+          <p className="kicker">{copy.disciplineKicker}</p>
           <h2>{copy.disciplineTitle}</h2>
           <p className="lead">{copy.disciplineText}</p>
         </article>
@@ -406,7 +822,7 @@ export default function SignalRoomPage({ params }) {
 
       <section className="section">
         <article className="panel">
-          <p className="kicker">Access</p>
+          <p className="kicker">{copy.accessKicker}</p>
           <h2>{copy.finalTitle}</h2>
           <p className="lead">{copy.finalText}</p>
 
