@@ -1,7 +1,4 @@
-'use client';
-
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 
 const LOCALES = ['nl', 'en', 'de', 'es', 'fr'];
 
@@ -11,8 +8,8 @@ const NAV_ITEMS = [
     labels: {
       nl: 'Home',
       en: 'Home',
-      de: 'Start',
-      es: 'Inicio',
+      de: 'Home',
+      es: 'Home',
       fr: 'Accueil'
     }
   },
@@ -39,17 +36,17 @@ const NAV_ITEMS = [
   {
     slug: 'signal-room',
     labels: {
-      nl: 'Signal Room',
-      en: 'Signal Room',
+      nl: 'Signal room',
+      en: 'Signal room',
       de: 'Signal Room',
-      es: 'Sala de señales',
-      fr: 'Salle de signaux'
+      es: 'Signal Room',
+      fr: 'Signal room'
     }
   },
   {
     slug: 'pricing',
     labels: {
-      nl: 'Pricing',
+      nl: 'Prijzen',
       en: 'Pricing',
       de: 'Preise',
       es: 'Precios',
@@ -91,12 +88,12 @@ const TEXT = {
   },
   de: {
     menu: 'Menü',
-    privateFeed: 'Private Feed',
+    privateFeed: 'Privater Feed',
     language: 'Sprache',
-    apply: 'Zugang beantragen',
-    footerTagline: 'Private LONG & SHORT Krypto-Signalgruppe.',
+    apply: 'Zugang anfragen',
+    footerTagline: 'Private LONG & SHORT Crypto Signal Room.',
     risk:
-      'Keine Finanzberatung. Trading ist mit Risiken verbunden. Vergangene Ergebnisse, Modellberechnungen und Beispielsignale garantieren keine zukünftigen Resultate.',
+      'Keine Finanzberatung. Trading beinhaltet Risiko. Frühere Ergebnisse, Modellberechnungen und Beispielsignale garantieren keine zukünftigen Resultate.',
     riskLink: 'Risikohinweis'
   },
   es: {
@@ -104,20 +101,20 @@ const TEXT = {
     privateFeed: 'Feed privado',
     language: 'Idioma',
     apply: 'Solicitar acceso',
-    footerTagline: 'Sala privada de señales cripto LONG & SHORT.',
+    footerTagline: 'Sala privada de señales LONG & SHORT.',
     risk:
-      'No es asesoramiento financiero. El trading implica riesgo. Los resultados pasados, cálculos de modelo y señales de ejemplo no garantizan resultados futuros.',
+      'No es asesoramiento financiero. El trading implica riesgo. El rendimiento pasado, los cálculos del modelo y las señales de ejemplo no garantizan resultados futuros.',
     riskLink: 'Aviso de riesgo'
   },
   fr: {
     menu: 'Menu',
     privateFeed: 'Flux privé',
     language: 'Langue',
-    apply: 'Demander l’accès',
-    footerTagline: 'Salle privée de signaux crypto LONG & SHORT.',
+    apply: "Demander l'accès",
+    footerTagline: 'Salon privé de signaux crypto LONG & SHORT.',
     risk:
-      'Aucun conseil financier. Le trading comporte des risques. Les performances passées, calculs de modèle et exemples de signaux ne garantissent pas les résultats futurs.',
-    riskLink: 'Avertissement sur les risques'
+      "Ceci ne constitue pas un conseil financier. Le trading comporte des risques. Les performances passées, les calculs du modèle et les signaux d'exemple ne garantissent pas les résultats futurs.",
+    riskLink: 'Avertissement de risque'
   }
 };
 
@@ -133,24 +130,7 @@ function getHref(locale, slug = '') {
   return slug ? `/${locale}/${slug}` : `/${locale}`;
 }
 
-function getLocaleSwitchHref(targetLocale, currentPathname) {
-  if (!currentPathname || currentPathname === '/') {
-    return `/${targetLocale}`;
-  }
-
-  const parts = currentPathname.split('/').filter(Boolean);
-  const firstPart = parts[0];
-
-  if (LOCALES.includes(firstPart)) {
-    parts[0] = targetLocale;
-    return `/${parts.join('/')}`;
-  }
-
-  return `/${targetLocale}`;
-}
-
 export default function SiteShell({ locale = 'nl', children }) {
-  const pathname = usePathname();
   const safeLocale = LOCALES.includes(locale) ? locale : 'nl';
   const copy = getCopy(safeLocale);
 
@@ -158,78 +138,78 @@ export default function SiteShell({ locale = 'nl', children }) {
     <div className="appShell">
       <header className="siteHeader">
         <div className="headerTop">
-          <Link
-            className="brandBannerLink"
-            href={`/${safeLocale}`}
-            aria-label="VolatilityForge home"
-          >
-            <div className="logoBanner">
-              <img
-                src="/volatilityforge-logo.svg"
-                alt="VolatilityForge"
-                width="1551"
-                height="455"
-                loading="eager"
-                decoding="async"
-              />
-            </div>
-          </Link>
+          <div className="bannerShell">
+            <Link
+              className="brandBannerLink"
+              href={`/${safeLocale}`}
+              aria-label="VolatilityForge home"
+            >
+              <div className="logoBanner">
+                <img
+                  src="/volatilityforge-logo.svg"
+                  alt="VolatilityForge"
+                  width="1600"
+                  height="260"
+                />
+              </div>
+            </Link>
 
-          <div className="headerActions">
-            <nav className="langSwitch" aria-label={copy.language}>
-              {LOCALES.map((item) => (
-                <Link
-                  key={item}
-                  href={getLocaleSwitchHref(item, pathname)}
-                  className={item === safeLocale ? 'active' : undefined}
-                  hrefLang={item}
-                >
-                  {item.toUpperCase()}
-                </Link>
-              ))}
-            </nav>
+            <div className="headerActions">
+              <nav className="langSwitch" aria-label={copy.language}>
+                {LOCALES.map((item) => (
+                  <Link
+                    key={item}
+                    href={`/${item}`}
+                    className={item === safeLocale ? 'active' : undefined}
+                    hrefLang={item}
+                  >
+                    {item.toUpperCase()}
+                  </Link>
+                ))}
+              </nav>
 
-            <details className="menuDrawer">
-              <summary className="menuButton" aria-label={copy.menu}>
-                <span className="menuIcon" aria-hidden="true">
-                  <span />
-                </span>
-              </summary>
+              <details className="menuDrawer">
+                <summary className="menuButton" aria-label={copy.menu}>
+                  <span className="menuIcon" aria-hidden="true">
+                    <span />
+                  </span>
+                </summary>
 
-              <div className="drawerPanel">
-                <div className="drawerTitle">
-                  <span>VolatilityForge</span>
-                  <em>{copy.privateFeed}</em>
-                </div>
+                <div className="drawerPanel">
+                  <div className="drawerTitle">
+                    <span>VolatilityForge</span>
+                    <em>{copy.privateFeed}</em>
+                  </div>
 
-                <nav className="drawerNav" aria-label="Main navigation">
-                  {NAV_ITEMS.map((item) => (
-                    <Link key={item.slug || 'home'} href={getHref(safeLocale, item.slug)}>
-                      {getNavLabel(item, safeLocale)}
-                    </Link>
-                  ))}
-
-                  <Link href={`/${safeLocale}/apply`}>{copy.apply}</Link>
-                </nav>
-
-                <div className="drawerLanguages">
-                  <span>{copy.language}</span>
-
-                  <div className="drawerLanguageGrid">
-                    {LOCALES.map((item) => (
-                      <Link
-                        key={item}
-                        href={getLocaleSwitchHref(item, pathname)}
-                        className={item === safeLocale ? 'active' : undefined}
-                        hrefLang={item}
-                      >
-                        {item.toUpperCase()}
+                  <nav className="drawerNav" aria-label="Main navigation">
+                    {NAV_ITEMS.map((item) => (
+                      <Link key={item.slug || 'home'} href={getHref(safeLocale, item.slug)}>
+                        {getNavLabel(item, safeLocale)}
                       </Link>
                     ))}
+
+                    <Link href={`/${safeLocale}/apply`}>{copy.apply}</Link>
+                  </nav>
+
+                  <div className="drawerLanguages">
+                    <span>{copy.language}</span>
+
+                    <div className="drawerLanguageGrid">
+                      {LOCALES.map((item) => (
+                        <Link
+                          key={item}
+                          href={`/${item}`}
+                          className={item === safeLocale ? 'active' : undefined}
+                          hrefLang={item}
+                        >
+                          {item.toUpperCase()}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </details>
+              </details>
+            </div>
           </div>
         </div>
       </header>
