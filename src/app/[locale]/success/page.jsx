@@ -9,47 +9,48 @@ const COPY = {
     badge: 'Aanvraag ontvangen',
     title: 'Je aanvraag is ontvangen.',
     intro:
-      'Dank je. Je aanvraag voor VolatilityForge is succesvol doorgestuurd. De volgende stap is controle, betaling of handmatige toegang, afhankelijk van hoe je de workflow straks koppelt.',
+      'Dank je. Je aanvraag voor VolatilityForge is succesvol ontvangen. De volgende stap is handmatige controle en daarna ontvang je crypto-betaalinstructies.',
 
     homeCta: 'Terug naar homepage',
     pricingCta: 'Bekijk pricing',
 
     statusKicker: 'Status',
-    checkoutKicker: 'Checkout',
+    cryptoKicker: 'Crypto betaling',
     nextKicker: 'Volgende stap',
 
     statusTitle: 'Wat gebeurt er nu?',
     statusText:
-      'Deze pagina is voorbereid als succesvolle eindpagina voor aanvragen en later ook voor betalingen via Stripe Checkout.',
+      'Je aanvraag is ontvangen. VolatilityForge controleert de aanvraag handmatig. Daarna ontvang je betaalinstructies voor crypto. Na bevestigde betaling kan toegang tot de private Discord signal room worden gegeven.',
 
     steps: [
       {
-        title: '1. Aanvraag opgeslagen',
+        title: '1. Aanvraag ontvangen',
         text: 'Je gegevens zijn ontvangen door de aanvraagroute van de site.'
       },
       {
-        title: '2. Controle of betaling',
-        text: 'VolatilityForge kan de aanvraag handmatig beoordelen of later automatisch koppelen aan Stripe Checkout.'
+        title: '2. Handmatige controle',
+        text: 'De aanvraag wordt gecontroleerd voordat betaalinstructies worden gestuurd.'
       },
       {
-        title: '3. Discord-toegang',
-        text: 'Na goedkeuring of betaling kan toegang tot de private signal room worden verstrekt.'
+        title: '3. Crypto-betaling',
+        text: 'Je ontvangt handmatig crypto-betaalinstructies. Plaats geen betaling voordat je de juiste instructies hebt ontvangen.'
       },
       {
-        title: '4. Private feed',
-        text: 'Na toegang ontvang je dezelfde LONG en SHORT signal feed als alle andere leden.'
+        title: '4. Discord-toegang',
+        text: 'Na bevestigde betaling kan toegang tot de private Discord signal room worden verstrekt.'
       }
     ],
 
-    paymentTitle: 'Betaalflow voorbereid',
+    paymentTitle: 'Handmatige crypto-betaling',
     paymentText:
-      'Wanneer Stripe later wordt gekoppeld, kan deze pagina ook worden gebruikt als success URL na een afgeronde betaling.',
+      'Voor nu werkt VolatilityForge met handmatige crypto-betaling. Er wordt geen wallet-adres openbaar op deze pagina getoond. Je ontvangt de betaalinstructies handmatig, zodat elke aanvraag eerst gecontroleerd kan worden.',
 
     paymentItems: [
-      'Stripe success redirect voorbereid',
-      'Aanvraagflow voorbereid',
-      'Discord-toegang later te automatiseren',
-      'Environment variables voorbereid in de root'
+      'Aanvraag ontvangen',
+      'Plan handmatig gecontroleerd',
+      'Crypto-betaalinstructies worden handmatig verzonden',
+      'Betaling wordt handmatig bevestigd',
+      'Discord-toegang wordt pas na bevestiging gegeven'
     ],
 
     nextTitle: 'Bekijk ondertussen de belangrijkste pagina’s.',
@@ -72,47 +73,48 @@ const COPY = {
     badge: 'Application received',
     title: 'Your application has been received.',
     intro:
-      'Thank you. Your VolatilityForge application has been submitted successfully. The next step is review, payment or manual access, depending on how you connect the workflow later.',
+      'Thank you. Your VolatilityForge application has been received successfully. The next step is manual review, after which you will receive crypto payment instructions.',
 
     homeCta: 'Back to homepage',
     pricingCta: 'View pricing',
 
     statusKicker: 'Status',
-    checkoutKicker: 'Checkout',
+    cryptoKicker: 'Crypto payment',
     nextKicker: 'Next',
 
     statusTitle: 'What happens now?',
     statusText:
-      'This page is prepared as the success page for applications and later also for Stripe Checkout payments.',
+      'Your application has been received. VolatilityForge will review the application manually. After that, you will receive crypto payment instructions. Once payment is confirmed, access to the private Discord signal room can be granted.',
 
     steps: [
       {
-        title: '1. Application stored',
+        title: '1. Application received',
         text: 'Your details have been received by the site’s application route.'
       },
       {
-        title: '2. Review or payment',
-        text: 'VolatilityForge can review the application manually or later connect it directly to Stripe Checkout.'
+        title: '2. Manual review',
+        text: 'The application is reviewed before payment instructions are sent.'
       },
       {
-        title: '3. Discord access',
-        text: 'After approval or payment, access to the private signal room can be provided.'
+        title: '3. Crypto payment',
+        text: 'You will receive crypto payment instructions manually. Do not send payment before receiving the correct instructions.'
       },
       {
-        title: '4. Private feed',
-        text: 'After access, you receive the same LONG and SHORT signal feed as every other member.'
+        title: '4. Discord access',
+        text: 'After confirmed payment, access to the private Discord signal room can be provided.'
       }
     ],
 
-    paymentTitle: 'Payment flow prepared',
+    paymentTitle: 'Manual crypto payment',
     paymentText:
-      'When Stripe is connected later, this page can also be used as the success URL after a completed payment.',
+      'For now, VolatilityForge uses manual crypto payment. No wallet address is shown publicly on this page. You will receive payment instructions manually so every application can be reviewed first.',
 
     paymentItems: [
-      'Stripe success redirect prepared',
-      'Application flow prepared',
-      'Discord access can be automated later',
-      'Environment variables prepared in the root'
+      'Application received',
+      'Selected plan manually reviewed',
+      'Crypto payment instructions sent manually',
+      'Payment confirmed manually',
+      'Discord access granted only after confirmation'
     ],
 
     nextTitle: 'Review the key pages meanwhile.',
@@ -135,47 +137,48 @@ const COPY = {
     badge: 'Anfrage erhalten',
     title: 'Deine Anfrage wurde empfangen.',
     intro:
-      'Danke. Deine Anfrage für VolatilityForge wurde erfolgreich übermittelt. Der nächste Schritt ist Prüfung, Zahlung oder manueller Zugang, abhängig davon, wie du den Workflow später verbindest.',
+      'Danke. Deine Anfrage für VolatilityForge wurde erfolgreich empfangen. Der nächste Schritt ist eine manuelle Prüfung. Danach erhältst du Krypto-Zahlungsanweisungen.',
 
     homeCta: 'Zurück zur Homepage',
     pricingCta: 'Preise ansehen',
 
     statusKicker: 'Status',
-    checkoutKicker: 'Checkout',
+    cryptoKicker: 'Krypto-Zahlung',
     nextKicker: 'Nächster Schritt',
 
     statusTitle: 'Was passiert jetzt?',
     statusText:
-      'Diese Seite ist als Erfolgsseite für Anfragen vorbereitet und später auch für Zahlungen über Stripe Checkout nutzbar.',
+      'Deine Anfrage wurde empfangen. VolatilityForge prüft die Anfrage manuell. Danach erhältst du Krypto-Zahlungsanweisungen. Nach bestätigter Zahlung kann Zugang zum privaten Discord-Signalraum gewährt werden.',
 
     steps: [
       {
-        title: '1. Anfrage gespeichert',
+        title: '1. Anfrage erhalten',
         text: 'Deine Daten wurden von der Anfrageroute der Website empfangen.'
       },
       {
-        title: '2. Prüfung oder Zahlung',
-        text: 'VolatilityForge kann die Anfrage manuell prüfen oder später direkt mit Stripe Checkout verbinden.'
+        title: '2. Manuelle Prüfung',
+        text: 'Die Anfrage wird geprüft, bevor Zahlungsanweisungen gesendet werden.'
       },
       {
-        title: '3. Discord-Zugang',
-        text: 'Nach Freigabe oder Zahlung kann Zugang zum privaten Signalraum bereitgestellt werden.'
+        title: '3. Krypto-Zahlung',
+        text: 'Du erhältst die Krypto-Zahlungsanweisungen manuell. Sende keine Zahlung, bevor du die korrekten Anweisungen erhalten hast.'
       },
       {
-        title: '4. Privater Feed',
-        text: 'Nach dem Zugang erhältst du denselben LONG- und SHORT-Signalfeed wie alle anderen Mitglieder.'
+        title: '4. Discord-Zugang',
+        text: 'Nach bestätigter Zahlung kann Zugang zum privaten Discord-Signalraum bereitgestellt werden.'
       }
     ],
 
-    paymentTitle: 'Zahlungsflow vorbereitet',
+    paymentTitle: 'Manuelle Krypto-Zahlung',
     paymentText:
-      'Wenn Stripe später verbunden wird, kann diese Seite auch als Success URL nach einer abgeschlossenen Zahlung verwendet werden.',
+      'VolatilityForge arbeitet vorerst mit manueller Krypto-Zahlung. Auf dieser Seite wird keine Wallet-Adresse öffentlich angezeigt. Du erhältst die Zahlungsanweisungen manuell, damit jede Anfrage zuerst geprüft werden kann.',
 
     paymentItems: [
-      'Stripe Success Redirect vorbereitet',
-      'Anfrageflow vorbereitet',
-      'Discord-Zugang später automatisierbar',
-      'Environment Variables in der Root vorbereitet'
+      'Anfrage erhalten',
+      'Gewählter Plan manuell geprüft',
+      'Krypto-Zahlungsanweisungen werden manuell gesendet',
+      'Zahlung wird manuell bestätigt',
+      'Discord-Zugang erst nach Bestätigung'
     ],
 
     nextTitle: 'Sieh dir währenddessen die wichtigsten Seiten an.',
@@ -198,47 +201,48 @@ const COPY = {
     badge: 'Solicitud recibida',
     title: 'Tu solicitud ha sido recibida.',
     intro:
-      'Gracias. Tu solicitud para VolatilityForge se ha enviado correctamente. El siguiente paso es revisión, pago o acceso manual, dependiendo de cómo conectes el flujo más adelante.',
+      'Gracias. Tu solicitud para VolatilityForge se ha recibido correctamente. El siguiente paso es una revisión manual y después recibirás instrucciones de pago cripto.',
 
     homeCta: 'Volver a la homepage',
     pricingCta: 'Ver precios',
 
     statusKicker: 'Estado',
-    checkoutKicker: 'Checkout',
+    cryptoKicker: 'Pago cripto',
     nextKicker: 'Siguiente',
 
     statusTitle: '¿Qué ocurre ahora?',
     statusText:
-      'Esta página está preparada como página de éxito para solicitudes y más adelante también para pagos mediante Stripe Checkout.',
+      'Tu solicitud ha sido recibida. VolatilityForge revisará la solicitud manualmente. Después recibirás instrucciones de pago cripto. Una vez confirmado el pago, se puede conceder acceso a la sala privada de señales en Discord.',
 
     steps: [
       {
-        title: '1. Solicitud guardada',
+        title: '1. Solicitud recibida',
         text: 'Tus datos han sido recibidos por la ruta de solicitud del sitio.'
       },
       {
-        title: '2. Revisión o pago',
-        text: 'VolatilityForge puede revisar la solicitud manualmente o conectarla más adelante directamente a Stripe Checkout.'
+        title: '2. Revisión manual',
+        text: 'La solicitud se revisa antes de enviar instrucciones de pago.'
       },
       {
-        title: '3. Acceso a Discord',
-        text: 'Después de la aprobación o el pago, se puede proporcionar acceso a la sala privada de señales.'
+        title: '3. Pago cripto',
+        text: 'Recibirás las instrucciones de pago cripto manualmente. No envíes ningún pago antes de recibir las instrucciones correctas.'
       },
       {
-        title: '4. Feed privado',
-        text: 'Después del acceso, recibes el mismo feed de señales LONG y SHORT que todos los demás miembros.'
+        title: '4. Acceso a Discord',
+        text: 'Después de confirmar el pago, se puede proporcionar acceso a la sala privada de señales en Discord.'
       }
     ],
 
-    paymentTitle: 'Flujo de pago preparado',
+    paymentTitle: 'Pago cripto manual',
     paymentText:
-      'Cuando Stripe se conecte más adelante, esta página también puede usarse como success URL después de un pago completado.',
+      'Por ahora, VolatilityForge usa pago cripto manual. No se muestra ninguna dirección de wallet públicamente en esta página. Recibirás las instrucciones de pago manualmente para que cada solicitud pueda revisarse primero.',
 
     paymentItems: [
-      'Redirect de éxito de Stripe preparado',
-      'Flujo de solicitud preparado',
-      'Acceso a Discord automatizable más adelante',
-      'Environment variables preparadas en la root'
+      'Solicitud recibida',
+      'Plan seleccionado revisado manualmente',
+      'Instrucciones de pago cripto enviadas manualmente',
+      'Pago confirmado manualmente',
+      'Acceso a Discord solo después de confirmación'
     ],
 
     nextTitle: 'Mientras tanto, revisa las páginas principales.',
@@ -261,47 +265,48 @@ const COPY = {
     badge: 'Demande reçue',
     title: 'Ta demande a été reçue.',
     intro:
-      'Merci. Ta demande VolatilityForge a été envoyée avec succès. La prochaine étape est la vérification, le paiement ou l’accès manuel, selon la façon dont tu connectes le workflow plus tard.',
+      'Merci. Ta demande VolatilityForge a été reçue avec succès. La prochaine étape est une vérification manuelle, puis tu recevras les instructions de paiement crypto.',
 
     homeCta: 'Retour à la homepage',
     pricingCta: 'Voir les tarifs',
 
     statusKicker: 'Statut',
-    checkoutKicker: 'Checkout',
+    cryptoKicker: 'Paiement crypto',
     nextKicker: 'Suite',
 
     statusTitle: 'Que se passe-t-il maintenant ?',
     statusText:
-      'Cette page est préparée comme page de succès pour les demandes et plus tard aussi pour les paiements via Stripe Checkout.',
+      'Ta demande a été reçue. VolatilityForge vérifiera la demande manuellement. Ensuite, tu recevras les instructions de paiement crypto. Une fois le paiement confirmé, l’accès à la salle privée de signaux Discord peut être accordé.',
 
     steps: [
       {
-        title: '1. Demande enregistrée',
+        title: '1. Demande reçue',
         text: 'Tes informations ont été reçues par la route de demande du site.'
       },
       {
-        title: '2. Vérification ou paiement',
-        text: 'VolatilityForge peut vérifier la demande manuellement ou la connecter plus tard directement à Stripe Checkout.'
+        title: '2. Vérification manuelle',
+        text: 'La demande est vérifiée avant l’envoi des instructions de paiement.'
       },
       {
-        title: '3. Accès Discord',
-        text: 'Après approbation ou paiement, l’accès à la salle privée de signaux peut être fourni.'
+        title: '3. Paiement crypto',
+        text: 'Tu recevras les instructions de paiement crypto manuellement. N’envoie aucun paiement avant d’avoir reçu les instructions correctes.'
       },
       {
-        title: '4. Feed privé',
-        text: 'Après l’accès, tu reçois le même feed de signaux LONG et SHORT que tous les autres membres.'
+        title: '4. Accès Discord',
+        text: 'Après confirmation du paiement, l’accès à la salle privée de signaux Discord peut être fourni.'
       }
     ],
 
-    paymentTitle: 'Flux de paiement préparé',
+    paymentTitle: 'Paiement crypto manuel',
     paymentText:
-      'Lorsque Stripe sera connecté plus tard, cette page pourra aussi être utilisée comme success URL après un paiement terminé.',
+      'Pour le moment, VolatilityForge utilise un paiement crypto manuel. Aucune adresse wallet n’est affichée publiquement sur cette page. Tu recevras les instructions de paiement manuellement afin que chaque demande puisse être vérifiée d’abord.',
 
     paymentItems: [
-      'Redirect success Stripe préparé',
-      'Flux de demande préparé',
-      'Accès Discord automatisable plus tard',
-      'Environment variables préparées dans la root'
+      'Demande reçue',
+      'Plan sélectionné vérifié manuellement',
+      'Instructions de paiement crypto envoyées manuellement',
+      'Paiement confirmé manuellement',
+      'Accès Discord uniquement après confirmation'
     ],
 
     nextTitle: 'Consulte les pages principales en attendant.',
@@ -393,7 +398,7 @@ export default async function SuccessPage({ params }) {
 
       <section className="section twoColumnGrid">
         <article className="panel">
-          <p className="kicker">{copy.checkoutKicker}</p>
+          <p className="kicker">{copy.cryptoKicker}</p>
           <h2>{copy.paymentTitle}</h2>
           <p className="lead">{copy.paymentText}</p>
 
