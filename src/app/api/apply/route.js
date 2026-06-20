@@ -1,5 +1,30 @@
 import { NextResponse } from 'next/server';
 
+const ALLOWED_LOCALES = ['nl', 'en', 'de', 'es', 'fr'];
+
+const ALLOWED_EXPERIENCE = ['beginner', 'intermediate', 'advanced', 'professional'];
+
+const PLANS = {
+  monthly: {
+    id: 'monthly',
+    label: 'Monthly',
+    priceEUR: 99,
+    duration: '1 month'
+  },
+  six_months: {
+    id: 'six_months',
+    label: '6 months',
+    priceEUR: 449,
+    duration: '6 months'
+  },
+  annual: {
+    id: 'annual',
+    label: 'Annual',
+    priceEUR: 799,
+    duration: '12 months'
+  }
+};
+
 function cleanString(value) {
   if (typeof value !== 'string') {
     return '';
@@ -13,8 +38,19 @@ function isValidEmail(email) {
 }
 
 function getSafeLocale(locale) {
-  const allowedLocales = ['nl', 'en', 'de', 'es', 'fr'];
-  return allowedLocales.includes(locale) ? locale : 'nl';
+  return ALLOWED_LOCALES.includes(locale) ? locale : 'nl';
+}
+
+function getSafeExperience(value) {
+  return ALLOWED_EXPERIENCE.includes(value) ? value : 'intermediate';
+}
+
+function getSafePlan(value) {
+  if (PLANS[value]) {
+    return PLANS[value];
+  }
+
+  return PLANS.six_months;
 }
 
 function getSafeRedirectPath(value, locale) {
@@ -29,6 +65,10 @@ function getSafeRedirectPath(value, locale) {
   }
 
   if (value.startsWith('//')) {
+    return fallback;
+  }
+
+  if (value.includes('\\')) {
     return fallback;
   }
 
@@ -100,8 +140,11 @@ async function sendWebhook(payload) {
 export async function POST(request) {
   try {
     const data = await parseRequest(request);
+
     const locale = getSafeLocale(data.locale);
     const redirectPath = getSafeRedirectPath(data.redirectTo, locale);
+    const plan = getSafePlan(data.plan);
+    const experience = getSafeExperience(data.experience);
 
     if (!data.name || !data.email || !data.goal) {
       return NextResponse.json(
@@ -133,15 +176,43 @@ export async function POST(request) {
       );
     }
 
+    const applicationId = `vf_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
     const payload = {
       source: 'volatilityforge-application',
+      applicationId,
       submittedAt: new Date().toISOString(),
-      name: data.name,
-      email: data.email,
-      telegram: data.telegram,
-      experience: data.experience,
-      plan: data.plan,
-      goal: data.goal,
+
+      applicant: {
+        name: data.name,
+        email: data.email,
+        telegram: data.telegram || null,
+        experience
+      },
+
+      selectedPlan: {
+        id: plan.id,
+        label: plan.label,
+        priceEUR: plan.priceEUR,
+        duration: plan.duration
+      },
+
+      payment: {
+        method: 'manual_crypto',
+        status: 'pending_manual_payment',
+        instructions:
+          'Send crypto payment instructions manually. Confirm payment manually before granting Discord access.'
+      },
+
+      access: {
+        status: 'pending_manual_review',
+        discordAccess: 'not_granted'
+      },
+
+      message: {
+        goal: data.goal
+      },
+
       riskAccepted: true,
       locale
     };
@@ -165,7 +236,10 @@ export async function POST(request) {
 
     if (acceptsHtml) {
       const redirectUrl = new URL(redirectPath, request.url);
+
       redirectUrl.searchParams.set('application', 'received');
+      redirectUrl.searchParams.set('payment', 'manual_crypto');
+      redirectUrl.searchParams.set('plan', plan.id);
 
       return NextResponse.redirect(redirectUrl, {
         status: 303
@@ -194,8 +268,9 @@ export async function GET() {
   return NextResponse.json(
     {
       ok: true,
-      route: 'VolatilityForge application endpoint',
-      method: 'POST'
+      route: 'VolatilityForge manual crypto application endpoint',
+      method: 'POST',
+      paymentMode: 'manual_crypto'
     },
     { status: 200 }
   );
