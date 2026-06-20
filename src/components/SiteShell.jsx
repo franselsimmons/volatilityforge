@@ -165,7 +165,7 @@ export default function SiteShell({ locale = 'nl', children }) {
             <div className="logoBanner">
               <img
                 className="logoBannerImage"
-                src="/volatilityforge-logo.svg"
+                src="/volatilityforge-logo-clean.svg"
                 alt="VolatilityForge"
                 width="1400"
                 height="220"
