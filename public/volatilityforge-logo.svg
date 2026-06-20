@@ -1,113 +1,78 @@
-<svg width="1200" height="320" viewBox="0 0 1200 320" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="320" rx="42" fill="url(#bg)"/>
+// VolatilityForge logo — stalen schild met "V" en stijgende pijl.
+// Pure SVG (schaalt scherp, transparante achtergrond, geen losse afbeelding
+// nodig). Vlakke vullingen zonder gradient-id's, zodat het logo veilig
+// meerdere keren op één pagina kan staan zonder conflicten.
+//
+// Wil je de pijl in ember (warm) in plaats van blauw? Vervang #4DA3FF door
+// var(--ember) en #74E4BF door var(--ember-bright).
 
-  <g filter="url(#shadow)">
-    <rect x="38" y="38" width="1124" height="244" rx="34" fill="url(#panel)" stroke="url(#panelStroke)" stroke-width="2"/>
-  </g>
-
-  <g transform="translate(84 66)">
-    <path d="M88 0L176 36V102C176 157 139 204 88 220C37 204 0 157 0 102V36L88 0Z" fill="url(#shieldOuter)"/>
-    <path d="M88 18L156 46V103C156 146 128 183 88 198C48 183 20 146 20 103V46L88 18Z" fill="url(#shieldInner)"/>
-    <path d="M50 61H72L87 143L109 79H129L150 159H130L116 108L97 159H78L64 83L50 159H30L50 61Z" fill="url(#metal)"/>
-    <path d="M34 150C60 119 84 106 113 106C137 106 150 117 166 88" stroke="#4DA3FF" stroke-width="9" stroke-linecap="round"/>
-    <circle cx="166" cy="88" r="9" fill="#74E4BF"/>
-  </g>
-
-  <g transform="translate(310 82)">
-    <text x="0" y="74" font-family="Inter, Arial, Helvetica, sans-serif" font-size="72" font-weight="900" letter-spacing="-4" fill="url(#textMetal)">
-      VolatilityForge
-    </text>
-
-    <text x="3" y="126" font-family="Inter, Arial, Helvetica, sans-serif" font-size="22" font-weight="800" letter-spacing="5" fill="#4DA3FF">
-      PRIVATE LONG &amp; SHORT CRYPTO SIGNALS
-    </text>
-
-    <rect x="3" y="158" width="690" height="2" rx="1" fill="url(#line)"/>
-
-    <g transform="translate(3 184)">
-      <rect width="154" height="38" rx="19" fill="rgba(77,163,255,0.10)" stroke="rgba(77,163,255,0.42)"/>
-      <text x="24" y="25" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="800" fill="#D8EAFF">
-        Private Discord
-      </text>
-
-      <rect x="170" width="150" height="38" rx="19" fill="rgba(116,228,191,0.10)" stroke="rgba(116,228,191,0.38)"/>
-      <text x="198" y="25" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="800" fill="#DFFCF2">
-        LONG + SHORT
-      </text>
-
-      <rect x="336" width="180" height="38" rx="19" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.16)"/>
-      <text x="363" y="25" font-family="Inter, Arial, Helvetica, sans-serif" font-size="13" font-weight="800" fill="#DCE6F2">
-        Risk-first signals
-      </text>
-    </g>
-  </g>
-
-  <g opacity="0.55">
-    <path d="M850 236C905 181 954 205 1002 151C1041 107 1074 119 1131 70" stroke="url(#chart)" stroke-width="5" stroke-linecap="round"/>
-    <circle cx="1131" cy="70" r="7" fill="#74E4BF"/>
-  </g>
-
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="320" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#050A12"/>
-      <stop offset="0.45" stop-color="#07111D"/>
-      <stop offset="1" stop-color="#020617"/>
-    </linearGradient>
-
-    <linearGradient id="panel" x1="38" y1="38" x2="1162" y2="282" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#101B2A"/>
-      <stop offset="0.5" stop-color="#091321"/>
-      <stop offset="1" stop-color="#050B13"/>
-    </linearGradient>
-
-    <linearGradient id="panelStroke" x1="38" y1="38" x2="1162" y2="282" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#4DA3FF"/>
-      <stop offset="0.5" stop-color="rgba(255,255,255,0.12)"/>
-      <stop offset="1" stop-color="#74E4BF"/>
-    </linearGradient>
-
-    <linearGradient id="shieldOuter" x1="0" y1="0" x2="176" y2="220" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#F8FAFC"/>
-      <stop offset="0.25" stop-color="#94A3B8"/>
-      <stop offset="0.55" stop-color="#E2E8F0"/>
-      <stop offset="0.8" stop-color="#64748B"/>
-      <stop offset="1" stop-color="#F8FAFC"/>
-    </linearGradient>
-
-    <linearGradient id="shieldInner" x1="20" y1="18" x2="156" y2="198" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0F172A"/>
-      <stop offset="0.5" stop-color="#111827"/>
-      <stop offset="1" stop-color="#020617"/>
-    </linearGradient>
-
-    <linearGradient id="metal" x1="30" y1="61" x2="150" y2="159" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFFFFF"/>
-      <stop offset="0.35" stop-color="#94A3B8"/>
-      <stop offset="0.65" stop-color="#E2E8F0"/>
-      <stop offset="1" stop-color="#64748B"/>
-    </linearGradient>
-
-    <linearGradient id="textMetal" x1="0" y1="0" x2="650" y2="100" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFFFFF"/>
-      <stop offset="0.32" stop-color="#CBD5E1"/>
-      <stop offset="0.55" stop-color="#F8FAFC"/>
-      <stop offset="0.78" stop-color="#94A3B8"/>
-      <stop offset="1" stop-color="#FFFFFF"/>
-    </linearGradient>
-
-    <linearGradient id="line" x1="0" y1="0" x2="690" y2="0" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#4DA3FF"/>
-      <stop offset="0.55" stop-color="rgba(255,255,255,0.24)"/>
-      <stop offset="1" stop-color="#74E4BF"/>
-    </linearGradient>
-
-    <linearGradient id="chart" x1="850" y1="236" x2="1131" y2="70" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#4DA3FF"/>
-      <stop offset="1" stop-color="#74E4BF"/>
-    </linearGradient>
-
-    <filter id="shadow" x="0" y="0" width="1200" height="320" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#000000" flood-opacity="0.42"/>
-    </filter>
-  </defs>
-</svg>
+export default function Logo({ size = 34, showWordmark = true }) {
+  const w = Math.round((size * 112) / 120);
+  return (
+    <span className="logo">
+      <svg
+        className="logo__mark"
+        width={w}
+        height={size}
+        viewBox="0 0 112 120"
+        role="img"
+        aria-label="VolatilityForge"
+      >
+        {/* Schild — buitenrand (staal) */}
+        <path
+          d="M56 8 L98 22 V62 C98 88 79 107 56 114 C33 107 14 88 14 62 V22 Z"
+          fill="#AEB8C5"
+          stroke="#5B6675"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        {/* Schild — lichte bovenrand voor een subtiele bevel */}
+        <path
+          d="M56 8 L98 22 V30 L56 17 L14 30 V22 Z"
+          fill="#D7DEE7"
+        />
+        {/* Schild — donkere binnenkant */}
+        <path
+          d="M56 17 L90 28 V62 C90 84 74 100 56 106 C38 100 22 84 22 62 V28 Z"
+          fill="#141A24"
+        />
+        {/* De "V" in helder staal */}
+        <path
+          d="M36 40 L54 84 L72 40"
+          fill="none"
+          stroke="#E6EBF1"
+          strokeWidth="11"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {/* De stijgende pijl (chart-zigzag) */}
+        <path
+          d="M44 76 L56 60 L64 66 L84 32"
+          fill="none"
+          stroke="#4DA3FF"
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ filter: 'drop-shadow(0 0 2.5px rgba(77,163,255,0.55))' }}
+        />
+        {/* Pijlpunt */}
+        <path
+          d="M84 32 L74 33 M84 32 L83 43"
+          fill="none"
+          stroke="#4DA3FF"
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {/* Vonk op de top */}
+        <circle cx="84" cy="32" r="3.4" fill="#74E4BF" />
+      </svg>
+      {showWordmark && (
+        <span className="logo__word">
+          <span className="logo__word-a">Volatility</span>
+          <span className="logo__word-b">Forge</span>
+        </span>
+      )}
+    </span>
+  );
+}
