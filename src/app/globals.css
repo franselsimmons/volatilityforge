@@ -174,7 +174,7 @@ svg {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: clamp(118px, 15vw, 210px);
+  min-height: clamp(112px, 15vw, 198px);
   padding: clamp(10px, 1.7vw, 20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 24px;
@@ -187,9 +187,9 @@ svg {
 
 .logoBanner img {
   display: block;
-  width: min(820px, 100%);
+  width: min(760px, 100%);
   height: auto;
-  max-height: clamp(110px, 13vw, 190px);
+  max-height: clamp(92px, 13vw, 168px);
   object-fit: contain;
   object-position: center;
 }
@@ -1147,14 +1147,14 @@ p {
   }
 
   .logoBanner {
-    min-height: 90px;
-    padding: 9px;
+    min-height: 86px;
+    padding: 8px;
     border-radius: 18px;
   }
 
   .logoBanner img {
     width: 100%;
-    max-height: 82px;
+    max-height: 72px;
   }
 
   .langSwitch {
@@ -1215,12 +1215,12 @@ p {
   }
 
   .logoBanner {
-    min-height: 78px;
+    min-height: 74px;
     padding: 7px;
   }
 
   .logoBanner img {
-    max-height: 70px;
+    max-height: 62px;
   }
 
   .menuButton {
