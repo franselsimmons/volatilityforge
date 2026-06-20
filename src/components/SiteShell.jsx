@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const LOCALES = ['nl', 'en', 'de', 'es', 'fr'];
 
@@ -8,9 +11,9 @@ const NAV_ITEMS = [
     labels: {
       nl: 'Home',
       en: 'Home',
-      de: 'Home',
-      es: 'Home',
-      fr: 'Home'
+      de: 'Start',
+      es: 'Inicio',
+      fr: 'Accueil'
     }
   },
   {
@@ -19,7 +22,7 @@ const NAV_ITEMS = [
       nl: 'Performance',
       en: 'Performance',
       de: 'Performance',
-      es: 'Performance',
+      es: 'Rendimiento',
       fr: 'Performance'
     }
   },
@@ -29,8 +32,8 @@ const NAV_ITEMS = [
       nl: 'Systeem',
       en: 'System',
       de: 'System',
-      es: 'System',
-      fr: 'System'
+      es: 'Sistema',
+      fr: 'Système'
     }
   },
   {
@@ -39,8 +42,8 @@ const NAV_ITEMS = [
       nl: 'Signal Room',
       en: 'Signal Room',
       de: 'Signal Room',
-      es: 'Signal Room',
-      fr: 'Signal Room'
+      es: 'Sala de señales',
+      fr: 'Salle de signaux'
     }
   },
   {
@@ -48,9 +51,9 @@ const NAV_ITEMS = [
     labels: {
       nl: 'Pricing',
       en: 'Pricing',
-      de: 'Pricing',
-      es: 'Pricing',
-      fr: 'Pricing'
+      de: 'Preise',
+      es: 'Precios',
+      fr: 'Tarifs'
     }
   },
   {
@@ -87,34 +90,34 @@ const TEXT = {
     riskLink: 'Risk disclaimer'
   },
   de: {
-    menu: 'Menu',
-    privateFeed: 'Private feed',
-    language: 'Language',
-    apply: 'Request access',
-    footerTagline: 'Private LONG & SHORT crypto signal room.',
+    menu: 'Menü',
+    privateFeed: 'Private Feed',
+    language: 'Sprache',
+    apply: 'Zugang beantragen',
+    footerTagline: 'Private LONG & SHORT Krypto-Signalgruppe.',
     risk:
-      'No financial advice. Trading involves risk. Past performance, model calculations and example signals do not guarantee future results.',
-    riskLink: 'Risk disclaimer'
+      'Keine Finanzberatung. Trading ist mit Risiken verbunden. Vergangene Ergebnisse, Modellberechnungen und Beispielsignale garantieren keine zukünftigen Resultate.',
+    riskLink: 'Risikohinweis'
   },
   es: {
-    menu: 'Menu',
-    privateFeed: 'Private feed',
-    language: 'Language',
-    apply: 'Request access',
-    footerTagline: 'Private LONG & SHORT crypto signal room.',
+    menu: 'Menú',
+    privateFeed: 'Feed privado',
+    language: 'Idioma',
+    apply: 'Solicitar acceso',
+    footerTagline: 'Sala privada de señales cripto LONG & SHORT.',
     risk:
-      'No financial advice. Trading involves risk. Past performance, model calculations and example signals do not guarantee future results.',
-    riskLink: 'Risk disclaimer'
+      'No es asesoramiento financiero. El trading implica riesgo. Los resultados pasados, cálculos de modelo y señales de ejemplo no garantizan resultados futuros.',
+    riskLink: 'Aviso de riesgo'
   },
   fr: {
     menu: 'Menu',
-    privateFeed: 'Private feed',
-    language: 'Language',
-    apply: 'Request access',
-    footerTagline: 'Private LONG & SHORT crypto signal room.',
+    privateFeed: 'Flux privé',
+    language: 'Langue',
+    apply: 'Demander l’accès',
+    footerTagline: 'Salle privée de signaux crypto LONG & SHORT.',
     risk:
-      'No financial advice. Trading involves risk. Past performance, model calculations and example signals do not guarantee future results.',
-    riskLink: 'Risk disclaimer'
+      'Aucun conseil financier. Le trading comporte des risques. Les performances passées, calculs de modèle et exemples de signaux ne garantissent pas les résultats futurs.',
+    riskLink: 'Avertissement sur les risques'
   }
 };
 
@@ -130,7 +133,24 @@ function getHref(locale, slug = '') {
   return slug ? `/${locale}/${slug}` : `/${locale}`;
 }
 
+function getLocaleSwitchHref(targetLocale, currentPathname) {
+  if (!currentPathname || currentPathname === '/') {
+    return `/${targetLocale}`;
+  }
+
+  const parts = currentPathname.split('/').filter(Boolean);
+  const firstPart = parts[0];
+
+  if (LOCALES.includes(firstPart)) {
+    parts[0] = targetLocale;
+    return `/${parts.join('/')}`;
+  }
+
+  return `/${targetLocale}`;
+}
+
 export default function SiteShell({ locale = 'nl', children }) {
+  const pathname = usePathname();
   const safeLocale = LOCALES.includes(locale) ? locale : 'nl';
   const copy = getCopy(safeLocale);
 
@@ -147,8 +167,8 @@ export default function SiteShell({ locale = 'nl', children }) {
               <img
                 src="/volatilityforge-logo.svg"
                 alt="VolatilityForge"
-                width="1672"
-                height="941"
+                width="1551"
+                height="455"
                 loading="eager"
                 decoding="async"
               />
@@ -160,7 +180,7 @@ export default function SiteShell({ locale = 'nl', children }) {
               {LOCALES.map((item) => (
                 <Link
                   key={item}
-                  href={`/${item}`}
+                  href={getLocaleSwitchHref(item, pathname)}
                   className={item === safeLocale ? 'active' : undefined}
                   hrefLang={item}
                 >
@@ -199,7 +219,7 @@ export default function SiteShell({ locale = 'nl', children }) {
                     {LOCALES.map((item) => (
                       <Link
                         key={item}
-                        href={`/${item}`}
+                        href={getLocaleSwitchHref(item, pathname)}
                         className={item === safeLocale ? 'active' : undefined}
                         hrefLang={item}
                       >
