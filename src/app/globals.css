@@ -150,11 +150,11 @@ svg {
 .bannerShell {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 14px;
-  padding: 18px;
+  align-items: stretch;
+  gap: 18px;
+  padding: 16px 18px;
   border: 1px solid rgba(77, 163, 255, 0.26);
-  border-radius: 34px;
+  border-radius: 40px;
   background:
     radial-gradient(circle at 8% 0%, rgba(77, 163, 255, 0.18), transparent 22rem),
     radial-gradient(circle at 92% 18%, rgba(116, 228, 191, 0.1), transparent 20rem),
@@ -172,61 +172,28 @@ svg {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  min-height: clamp(56px, 7vw, 86px);
+  width: 100%;
+  min-height: 120px;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
-  overflow: visible;
+  overflow: hidden;
 }
 
-.logoBanner img {
+.logoBannerImage {
   display: block;
-  width: min(640px, 100%);
-  height: auto;
-  max-height: clamp(48px, 6vw, 76px);
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
   object-fit: contain;
   object-position: left center;
 }
 
-.headerActions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.langSwitch {
-  display: flex;
-  gap: 6px;
-  padding: 6px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.045);
-}
-
-.langSwitch a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 38px;
-  min-height: 34px;
-  padding: 0 9px;
-  border-radius: 999px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-}
-
-.langSwitch a:hover,
-.langSwitch a.active {
-  color: white;
-  background: rgba(77, 163, 255, 0.18);
-}
-
 .menuDrawer {
   position: relative;
+  align-self: center;
 }
 
 .menuDrawer summary {
@@ -241,10 +208,11 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
+  width: 112px;
+  min-width: 112px;
+  height: 112px;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 22px;
+  border-radius: 32px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
   color: white;
@@ -256,8 +224,8 @@ svg {
 
 .menuIcon {
   position: relative;
-  width: 25px;
-  height: 16px;
+  width: 38px;
+  height: 24px;
 }
 
 .menuIcon::before,
@@ -266,8 +234,8 @@ svg {
   content: "";
   position: absolute;
   left: 0;
-  width: 25px;
-  height: 3px;
+  width: 38px;
+  height: 5px;
   border-radius: 999px;
   background: white;
 }
@@ -277,7 +245,7 @@ svg {
 }
 
 .menuIcon span {
-  top: 6.5px;
+  top: 9px;
 }
 
 .menuIcon::after {
@@ -286,7 +254,7 @@ svg {
 
 .drawerPanel {
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 14px);
   right: 0;
   width: min(370px, calc(100vw - 32px));
   padding: 14px;
@@ -1140,36 +1108,41 @@ p {
   }
 
   .bannerShell {
-    gap: 10px;
+    gap: 12px;
     padding: 14px;
-    border-radius: 26px;
+    border-radius: 28px;
   }
 
   .logoBanner {
-    min-height: 52px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    box-shadow: none;
+    min-height: 84px;
   }
 
-  .logoBanner img {
-    width: 100%;
-    max-height: 44px;
-  }
-
-  .langSwitch {
-    display: none;
+  .logoBannerImage {
+    min-height: 84px;
+    object-position: left center;
   }
 
   .menuButton {
-    width: 56px;
-    height: 56px;
-    border-radius: 18px;
+    width: 84px;
+    min-width: 84px;
+    height: 84px;
+    border-radius: 24px;
   }
 
-  .drawerPanel {
-    right: -2px;
+  .menuIcon {
+    width: 30px;
+    height: 20px;
+  }
+
+  .menuIcon::before,
+  .menuIcon::after,
+  .menuIcon span {
+    width: 30px;
+    height: 4px;
+  }
+
+  .menuIcon span {
+    top: 8px;
   }
 
   h1 {
@@ -1212,23 +1185,40 @@ p {
 
 @media (max-width: 480px) {
   .bannerShell {
+    gap: 10px;
     padding: 12px;
     border-radius: 24px;
   }
 
   .logoBanner {
-    min-height: 46px;
-    padding: 0;
+    min-height: 68px;
   }
 
-  .logoBanner img {
-    max-height: 38px;
+  .logoBannerImage {
+    min-height: 68px;
   }
 
   .menuButton {
-    width: 50px;
-    height: 50px;
-    border-radius: 16px;
+    width: 68px;
+    min-width: 68px;
+    height: 68px;
+    border-radius: 20px;
+  }
+
+  .menuIcon {
+    width: 26px;
+    height: 18px;
+  }
+
+  .menuIcon::before,
+  .menuIcon::after,
+  .menuIcon span {
+    width: 26px;
+    height: 4px;
+  }
+
+  .menuIcon span {
+    top: 7px;
   }
 
   .heroPanel,
