@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import SiteShell from '@/components/SiteShell';
 
-const LOCALES = ['en', 'nl', 'de', 'es', 'fr'];
+const LOCALES = ['nl', 'en', 'de', 'es', 'fr'];
 
 const COPY = {
   nl: {
@@ -13,6 +13,11 @@ const COPY = {
 
     primaryCta: 'Bekijk pricing',
     secondaryCta: 'Bekijk performance',
+
+    applicationKicker: 'Aanvraag',
+    workflowKicker: 'Workflow',
+    includedKicker: 'Inbegrepen',
+    accessKicker: 'Toegang',
 
     formTitle: 'Aanvraagformulier',
     formText:
@@ -110,6 +115,11 @@ const COPY = {
     primaryCta: 'View pricing',
     secondaryCta: 'View performance',
 
+    applicationKicker: 'Application',
+    workflowKicker: 'Workflow',
+    includedKicker: 'Included',
+    accessKicker: 'Access',
+
     formTitle: 'Application form',
     formText:
       'Fill in your details. Once the backend integration is active, this form can automatically forward the request to your chosen workflow.',
@@ -195,40 +205,345 @@ const COPY = {
       ['View performance', 'performance'],
       ['View FAQ', 'faq']
     ]
+  },
+
+  de: {
+    badge: 'Zugangsanfrage',
+    title: 'Beantrage Zugang zum privaten VolatilityForge Signalraum.',
+    intro:
+      'Nutze dieses Formular, um deine Zugangsanfrage zu starten. Der Anfrageprozess ist so vorbereitet, dass er später einfach mit Stripe, Discord, Make, Zapier, Formspree oder deinem eigenen Backend verbunden werden kann.',
+
+    primaryCta: 'Preise ansehen',
+    secondaryCta: 'Performance ansehen',
+
+    applicationKicker: 'Anfrage',
+    workflowKicker: 'Workflow',
+    includedKicker: 'Enthalten',
+    accessKicker: 'Zugang',
+
+    formTitle: 'Anfrageformular',
+    formText:
+      'Fülle deine Daten aus. Sobald die Backend-Integration aktiv ist, kann dieses Formular die Anfrage automatisch an deinen gewählten Workflow weiterleiten.',
+
+    labels: {
+      name: 'Name',
+      email: 'E-Mail',
+      telegram: 'Telegram- oder Discord-Benutzername',
+      experience: 'Trading-Erfahrung',
+      plan: 'Gewünschte Mitgliedschaft',
+      goal: 'Warum möchtest du Zugang?',
+      risk: 'Risikobestätigung'
+    },
+
+    placeholders: {
+      name: 'Dein Name',
+      email: 'du@email.com',
+      telegram: '@benutzername oder Discord-Name',
+      goal: 'Beschreibe kurz, was du in einem privaten Signalraum suchst.'
+    },
+
+    experienceOptions: [
+      ['beginner', 'Anfänger'],
+      ['intermediate', 'Fortgeschritten'],
+      ['advanced', 'Erfahren'],
+      ['professional', 'Professionell']
+    ],
+
+    planOptions: [
+      ['monthly', 'Monatlich — €99 / Monat'],
+      ['six_months', '6 Monate — €449 / 6 Monate'],
+      ['annual', 'Jährlich — €799 / Jahr']
+    ],
+
+    riskConfirm:
+      'Ich verstehe, dass VolatilityForge keine Finanzberatung ist, dass Trading Risiken beinhaltet und dass Ergebnisse niemals garantiert sind.',
+
+    submit: 'Anfrage senden',
+    hint:
+      'Solange APPLICATION_WEBHOOK_URL noch nicht verbunden ist, kann die Anfrageroute lokal/logisch verarbeitet werden. Später kannst du diese Route mit deinem echten Workflow verbinden.',
+
+    sideTitle: 'Was passiert danach?',
+    sideText:
+      'Die Anfrage ist als sauberer Zwischenschritt gedacht, bevor jemand Zugang zum privaten Feed erhält. Später kannst du manuelle Freigabe, Stripe-Zahlung und Discord-Zugang verbinden.',
+    steps: [
+      {
+        title: '1. Anfrage erhalten',
+        text: 'Die eingereichten Daten gehen an die Anfrageroute in deiner Next.js App.'
+      },
+      {
+        title: '2. Prüfung oder Zahlung',
+        text: 'Du kannst später zwischen manueller Prüfung und direktem Stripe Checkout wählen.'
+      },
+      {
+        title: '3. Discord-Zugang',
+        text: 'Nach Freigabe oder Zahlung kann der Nutzer Zugang zum privaten Signalraum erhalten.'
+      },
+      {
+        title: '4. Member-Feed',
+        text: 'Das Mitglied erhält denselben LONG- und SHORT-Feed wie alle anderen Mitglieder.'
+      }
+    ],
+
+    includedTitle: 'Jede Mitgliedschaft enthält',
+    included: [
+      'Privater Discord-Signalraum',
+      'LONG- und SHORT-Krypto-Signale',
+      'Entry-Zone, Invalidierung und Targets',
+      'Signal-Updates, wenn sich ein Setup verändert',
+      'Kein Signal, wenn der Markt nicht gut genug ist',
+      'Derselbe Feed für alle Mitglieder'
+    ],
+
+    riskTitle: 'Wichtige Risikohinweise',
+    riskText:
+      'VolatilityForge ist keine Finanzberatung. Trading beinhaltet Risiko. Eine Zahlung oder Anfrage garantiert keinen Gewinn. Mitglieder bleiben selbst verantwortlich für Positionsgröße, Ausführung, Timing, Hebel und Risikomanagement.',
+
+    finalTitle: 'Möchtest du zuerst mehr Informationen ansehen?',
+    finalText:
+      'Sieh dir Preise, Performance oder die FAQ an, bevor du eine Anfrage sendest.',
+    finalLinks: [
+      ['Preise ansehen', 'pricing'],
+      ['Performance ansehen', 'performance'],
+      ['FAQ ansehen', 'faq']
+    ]
+  },
+
+  es: {
+    badge: 'Solicitud de acceso',
+    title: 'Solicita acceso a la sala privada de señales de VolatilityForge.',
+    intro:
+      'Usa este formulario para iniciar tu solicitud de acceso. El flujo de solicitud está preparado para conectarse más adelante con Stripe, Discord, Make, Zapier, Formspree o tu propio backend.',
+
+    primaryCta: 'Ver precios',
+    secondaryCta: 'Ver rendimiento',
+
+    applicationKicker: 'Solicitud',
+    workflowKicker: 'Flujo',
+    includedKicker: 'Incluido',
+    accessKicker: 'Acceso',
+
+    formTitle: 'Formulario de solicitud',
+    formText:
+      'Rellena tus datos. Cuando la integración backend esté activa, este formulario podrá enviar automáticamente la solicitud a tu flujo elegido.',
+
+    labels: {
+      name: 'Nombre',
+      email: 'Correo electrónico',
+      telegram: 'Usuario de Telegram o Discord',
+      experience: 'Experiencia en trading',
+      plan: 'Membresía preferida',
+      goal: '¿Por qué quieres acceso?',
+      risk: 'Confirmación de riesgo'
+    },
+
+    placeholders: {
+      name: 'Tu nombre',
+      email: 'tu@email.com',
+      telegram: '@usuario o nombre de Discord',
+      goal: 'Explica brevemente qué buscas en una sala privada de señales.'
+    },
+
+    experienceOptions: [
+      ['beginner', 'Principiante'],
+      ['intermediate', 'Intermedio'],
+      ['advanced', 'Avanzado'],
+      ['professional', 'Profesional']
+    ],
+
+    planOptions: [
+      ['monthly', 'Mensual — €99 / mes'],
+      ['six_months', '6 meses — €449 / 6 meses'],
+      ['annual', 'Anual — €799 / año']
+    ],
+
+    riskConfirm:
+      'Entiendo que VolatilityForge no es asesoramiento financiero, que el trading implica riesgo y que los resultados nunca están garantizados.',
+
+    submit: 'Enviar solicitud',
+    hint:
+      'Mientras APPLICATION_WEBHOOK_URL no esté conectado, la ruta de solicitud puede gestionarse de forma local/lógica. Más adelante puedes conectar esta ruta a tu flujo real.',
+
+    sideTitle: '¿Qué ocurre después?',
+    sideText:
+      'La solicitud está pensada como un paso ordenado antes de que alguien reciba acceso al feed privado. Más adelante puedes conectar aprobación manual, pago con Stripe y acceso a Discord.',
+    steps: [
+      {
+        title: '1. Solicitud recibida',
+        text: 'Los datos enviados van a la ruta de solicitud en tu app Next.js.'
+      },
+      {
+        title: '2. Revisión o pago',
+        text: 'Más adelante puedes elegir revisión manual o Stripe Checkout directo.'
+      },
+      {
+        title: '3. Acceso a Discord',
+        text: 'Después de la aprobación o el pago, el usuario puede recibir acceso a la sala privada de señales.'
+      },
+      {
+        title: '4. Feed de miembro',
+        text: 'El miembro recibe el mismo feed LONG y SHORT que todos los demás miembros.'
+      }
+    ],
+
+    includedTitle: 'Cada membresía incluye',
+    included: [
+      'Sala privada de señales en Discord',
+      'Señales cripto LONG y SHORT',
+      'Zona de entrada, invalidación y objetivos',
+      'Actualizaciones cuando un setup cambia',
+      'Sin señal cuando el mercado no es suficientemente bueno',
+      'El mismo feed para todos los miembros'
+    ],
+
+    riskTitle: 'Explicación importante de riesgo',
+    riskText:
+      'VolatilityForge no es asesoramiento financiero. El trading implica riesgo. Pagar o solicitar acceso no garantiza beneficios. Los miembros siguen siendo responsables del tamaño de posición, ejecución, timing, apalancamiento y gestión de riesgo.',
+
+    finalTitle: '¿Quieres revisar más información primero?',
+    finalText:
+      'Consulta los precios, el rendimiento o la FAQ antes de enviar una solicitud.',
+    finalLinks: [
+      ['Ver precios', 'pricing'],
+      ['Ver rendimiento', 'performance'],
+      ['Ver FAQ', 'faq']
+    ]
+  },
+
+  fr: {
+    badge: 'Demande d’accès',
+    title: 'Demande l’accès à la salle privée de signaux VolatilityForge.',
+    intro:
+      'Utilise ce formulaire pour démarrer ta demande d’accès. Le flux de demande est préparé pour être connecté plus tard à Stripe, Discord, Make, Zapier, Formspree ou ton propre backend.',
+
+    primaryCta: 'Voir les tarifs',
+    secondaryCta: 'Voir la performance',
+
+    applicationKicker: 'Demande',
+    workflowKicker: 'Workflow',
+    includedKicker: 'Inclus',
+    accessKicker: 'Accès',
+
+    formTitle: 'Formulaire de demande',
+    formText:
+      'Remplis tes informations. Une fois l’intégration backend active, ce formulaire pourra envoyer automatiquement la demande vers le workflow choisi.',
+
+    labels: {
+      name: 'Nom',
+      email: 'E-mail',
+      telegram: 'Nom d’utilisateur Telegram ou Discord',
+      experience: 'Expérience en trading',
+      plan: 'Abonnement souhaité',
+      goal: 'Pourquoi veux-tu accéder ?',
+      risk: 'Confirmation du risque'
+    },
+
+    placeholders: {
+      name: 'Ton nom',
+      email: 'toi@email.com',
+      telegram: '@utilisateur ou nom Discord',
+      goal: 'Explique brièvement ce que tu recherches dans une salle privée de signaux.'
+    },
+
+    experienceOptions: [
+      ['beginner', 'Débutant'],
+      ['intermediate', 'Intermédiaire'],
+      ['advanced', 'Avancé'],
+      ['professional', 'Professionnel']
+    ],
+
+    planOptions: [
+      ['monthly', 'Mensuel — €99 / mois'],
+      ['six_months', '6 mois — €449 / 6 mois'],
+      ['annual', 'Annuel — €799 / an']
+    ],
+
+    riskConfirm:
+      'Je comprends que VolatilityForge ne constitue pas un conseil financier, que le trading comporte des risques et que les résultats ne sont jamais garantis.',
+
+    submit: 'Envoyer la demande',
+    hint:
+      'Tant que APPLICATION_WEBHOOK_URL n’est pas connecté, la route de demande peut être traitée localement/logiquement. Plus tard, tu peux connecter cette route à ton vrai workflow.',
+
+    sideTitle: 'Que se passe-t-il ensuite ?',
+    sideText:
+      'La demande sert d’étape propre avant qu’une personne reçoive l’accès au feed privé. Tu peux ensuite connecter une approbation manuelle, un paiement Stripe et l’accès Discord.',
+    steps: [
+      {
+        title: '1. Demande reçue',
+        text: 'Les informations soumises vont vers la route de demande dans ton app Next.js.'
+      },
+      {
+        title: '2. Vérification ou paiement',
+        text: 'Tu peux ensuite choisir une vérification manuelle ou un Stripe Checkout direct.'
+      },
+      {
+        title: '3. Accès Discord',
+        text: 'Après approbation ou paiement, l’utilisateur peut recevoir l’accès à la salle privée de signaux.'
+      },
+      {
+        title: '4. Feed membre',
+        text: 'Le membre reçoit le même feed LONG et SHORT que tous les autres membres.'
+      }
+    ],
+
+    includedTitle: 'Chaque abonnement inclut',
+    included: [
+      'Salle privée de signaux Discord',
+      'Signaux crypto LONG et SHORT',
+      'Zone d’entrée, invalidation et objectifs',
+      'Mises à jour lorsqu’un setup change',
+      'Aucun signal lorsque le marché n’est pas assez bon',
+      'Le même feed pour tous les membres'
+    ],
+
+    riskTitle: 'Explication importante du risque',
+    riskText:
+      'VolatilityForge ne constitue pas un conseil financier. Le trading comporte des risques. Payer ou faire une demande ne garantit pas de profit. Les membres restent responsables de la taille de position, de l’exécution, du timing, du levier et de la gestion du risque.',
+
+    finalTitle: 'Tu veux d’abord consulter plus d’informations ?',
+    finalText:
+      'Consulte les tarifs, la performance ou la FAQ avant d’envoyer une demande.',
+    finalLinks: [
+      ['Voir les tarifs', 'pricing'],
+      ['Voir la performance', 'performance'],
+      ['Voir la FAQ', 'faq']
+    ]
   }
 };
 
-COPY.de = COPY.en;
-COPY.es = COPY.en;
-COPY.fr = COPY.en;
+function getCopy(locale) {
+  return COPY[locale] || COPY.nl;
+}
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
 
-export function generateMetadata({ params }) {
-  const locale = params.locale;
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale;
 
   if (!LOCALES.includes(locale)) {
     return {};
   }
 
-  const copy = COPY[locale] || COPY.en;
+  const copy = getCopy(locale);
 
   return {
-    title: locale === 'nl' ? 'Toegang aanvragen' : 'Request Access',
+    title: locale === 'nl' ? 'Toegang aanvragen' : copy.title,
     description: copy.intro
   };
 }
 
-export default function ApplyPage({ params }) {
-  const locale = params.locale;
+export default async function ApplyPage({ params }) {
+  const resolvedParams = await params;
+  const locale = resolvedParams?.locale;
 
   if (!LOCALES.includes(locale)) {
     notFound();
   }
 
-  const copy = COPY[locale] || COPY.en;
+  const copy = getCopy(locale);
 
   return (
     <SiteShell locale={locale}>
@@ -251,7 +566,7 @@ export default function ApplyPage({ params }) {
 
       <section className="section twoColumnGrid">
         <article className="formPanel">
-          <p className="kicker">Application</p>
+          <p className="kicker">{copy.applicationKicker}</p>
           <h2>{copy.formTitle}</h2>
           <p>{copy.formText}</p>
 
@@ -343,7 +658,7 @@ export default function ApplyPage({ params }) {
         </article>
 
         <aside className="panel">
-          <p className="kicker">Workflow</p>
+          <p className="kicker">{copy.workflowKicker}</p>
           <h2>{copy.sideTitle}</h2>
           <p className="lead">{copy.sideText}</p>
 
@@ -360,7 +675,7 @@ export default function ApplyPage({ params }) {
 
       <section className="section twoColumnGrid">
         <article className="panel">
-          <p className="kicker">Included</p>
+          <p className="kicker">{copy.includedKicker}</p>
           <h2>{copy.includedTitle}</h2>
 
           <ul className="checkList">
@@ -371,7 +686,7 @@ export default function ApplyPage({ params }) {
         </article>
 
         <article className="panel">
-          <p className="kicker">Access</p>
+          <p className="kicker">{copy.accessKicker}</p>
           <h2>{copy.finalTitle}</h2>
           <p className="lead">{copy.finalText}</p>
 
