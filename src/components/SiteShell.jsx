@@ -94,7 +94,7 @@ const TEXT = {
     privateFeed: 'Privater Feed',
     language: 'Sprache',
     apply: 'Zugang anfragen',
-    footerTagline: 'Private LONG & SHORT Crypto Signal Room.',
+    footerTagline: 'Private LONG & SHORT crypto signal room.',
     risk:
       'Keine Finanzberatung. Trading beinhaltet Risiko. Frühere Ergebnisse, Modellberechnungen und Beispielsignale garantieren keine zukünftigen Resultate.',
     riskLink: 'Risikohinweis'
@@ -164,72 +164,58 @@ export default function SiteShell({ locale = 'nl', children }) {
           >
             <div className="logoBanner">
               <img
+                className="logoBannerImage"
                 src="/volatilityforge-logo.svg"
                 alt="VolatilityForge"
-                width="1100"
-                height="180"
+                width="1400"
+                height="220"
                 loading="eager"
                 decoding="async"
               />
             </div>
           </Link>
 
-          <div className="headerActions">
-            <nav className="langSwitch" aria-label={copy.language}>
-              {LOCALES.map((item) => (
-                <Link
-                  key={item}
-                  href={getLocaleSwitchHref(item, pathname)}
-                  className={item === safeLocale ? 'active' : undefined}
-                  hrefLang={item}
-                >
-                  {item.toUpperCase()}
-                </Link>
-              ))}
-            </nav>
+          <details className="menuDrawer">
+            <summary className="menuButton" aria-label={copy.menu}>
+              <span className="menuIcon" aria-hidden="true">
+                <span />
+              </span>
+            </summary>
 
-            <details className="menuDrawer">
-              <summary className="menuButton" aria-label={copy.menu}>
-                <span className="menuIcon" aria-hidden="true">
-                  <span />
-                </span>
-              </summary>
+            <div className="drawerPanel">
+              <div className="drawerTitle">
+                <span>VolatilityForge</span>
+                <em>{copy.privateFeed}</em>
+              </div>
 
-              <div className="drawerPanel">
-                <div className="drawerTitle">
-                  <span>VolatilityForge</span>
-                  <em>{copy.privateFeed}</em>
-                </div>
+              <nav className="drawerNav" aria-label="Main navigation">
+                {NAV_ITEMS.map((item) => (
+                  <Link key={item.slug || 'home'} href={getHref(safeLocale, item.slug)}>
+                    {getNavLabel(item, safeLocale)}
+                  </Link>
+                ))}
 
-                <nav className="drawerNav" aria-label="Main navigation">
-                  {NAV_ITEMS.map((item) => (
-                    <Link key={item.slug || 'home'} href={getHref(safeLocale, item.slug)}>
-                      {getNavLabel(item, safeLocale)}
+                <Link href={`/${safeLocale}/apply`}>{copy.apply}</Link>
+              </nav>
+
+              <div className="drawerLanguages">
+                <span>{copy.language}</span>
+
+                <div className="drawerLanguageGrid">
+                  {LOCALES.map((item) => (
+                    <Link
+                      key={item}
+                      href={getLocaleSwitchHref(item, pathname)}
+                      className={item === safeLocale ? 'active' : undefined}
+                      hrefLang={item}
+                    >
+                      {item.toUpperCase()}
                     </Link>
                   ))}
-
-                  <Link href={`/${safeLocale}/apply`}>{copy.apply}</Link>
-                </nav>
-
-                <div className="drawerLanguages">
-                  <span>{copy.language}</span>
-
-                  <div className="drawerLanguageGrid">
-                    {LOCALES.map((item) => (
-                      <Link
-                        key={item}
-                        href={getLocaleSwitchHref(item, pathname)}
-                        className={item === safeLocale ? 'active' : undefined}
-                        hrefLang={item}
-                      >
-                        {item.toUpperCase()}
-                      </Link>
-                    ))}
-                  </div>
                 </div>
               </div>
-            </details>
-          </div>
+            </div>
+          </details>
         </div>
       </header>
 
