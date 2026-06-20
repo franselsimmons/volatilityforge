@@ -1,0 +1,40 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="16" fill="#03070D"/>
+  <rect x="4" y="4" width="56" height="56" rx="14" fill="url(#bg)" stroke="url(#stroke)" stroke-width="2"/>
+
+  <path
+    d="M15 18H22.2L27.8 40.2L34.4 23.5H40.1L46.7 40.2L51.4 18H58L50.8 46H43.8L37.2 29.5L30.6 46H23.6L15 18Z"
+    fill="url(#metal)"
+  />
+
+  <path
+    d="M10.5 43.5C17.8 35.4 24.6 31.6 32.5 31.6C39.8 31.6 43.2 35.1 53.5 22.5"
+    stroke="#4DA3FF"
+    stroke-width="3.2"
+    stroke-linecap="round"
+  />
+
+  <circle cx="53.5" cy="22.5" r="3.4" fill="#74E4BF"/>
+
+  <defs>
+    <linearGradient id="bg" x1="6" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111827"/>
+      <stop offset="0.5" stop-color="#07111D"/>
+      <stop offset="1" stop-color="#020617"/>
+    </linearGradient>
+
+    <linearGradient id="stroke" x1="6" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4DA3FF"/>
+      <stop offset="0.55" stop-color="#334155"/>
+      <stop offset="1" stop-color="#74E4BF"/>
+    </linearGradient>
+
+    <linearGradient id="metal" x1="15" y1="18" x2="58" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="0.28" stop-color="#94A3B8"/>
+      <stop offset="0.55" stop-color="#F8FAFC"/>
+      <stop offset="0.78" stop-color="#64748B"/>
+      <stop offset="1" stop-color="#E2E8F0"/>
+    </linearGradient>
+  </defs>
+</svg>
