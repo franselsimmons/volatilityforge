@@ -205,7 +205,7 @@ function drawLumeriqVisual(ctx, canvas, brand, headline, offset) {
   ctx.fillStyle = '#fff5ff';
   ctx.font = '900 44px system-ui';
   ctx.fillText(brand.footer.title, 118, 1072);
-  pill(ctx, 700, 996, 252, 46, brand.color, 'PUBLIC TRACK RECORD', '#1c1028', 16);
+  pill(ctx, 700, 996, 252, 46, brand.color, 'DISCORD SIGNALS', '#1c1028', 16);
   pill(ctx, 700, 1054, 218, 46, '#ffffff', 'JOIN VIA DISCORD', '#1c1028', 16);
 
   ctx.fillStyle = brand.color;
@@ -282,7 +282,7 @@ function drawNinetyValeVisual(ctx, canvas, brand, headline, offset) {
   roundedFill(ctx, 548, 874, 432, 214, 24, 'rgba(31,17,17,0.92)');
   ctx.fillStyle = '#b89289';
   ctx.font = '700 16px system-ui';
-  ctx.fillText('PUBLIC PHASE', 576, 920);
+  ctx.fillText('OFFICIAL DISCORD', 576, 920);
   pill(ctx, 576, 956, 214, 46, brand.color, 'OFFICIAL ACCESS', '#240f0d', 16);
   pill(ctx, 576, 1016, 252, 46, '#fff5f1', 'BEFORE KICK-OFF', '#240f0d', 16);
   ctx.fillStyle = '#d8b2a6';
