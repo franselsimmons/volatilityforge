@@ -5,6 +5,10 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
+const FIXED_DISCORD_LINKS = {
+  kryvant: 'https://discord.com/channels/1537804227915550740/1537805885194117150'
+};
+
 export default function BrandClient({ slug, brand }) {
   const [data, setData] = useState(null);
   const [offset, setOffset] = useState(0);
@@ -13,10 +17,17 @@ export default function BrandClient({ slug, brand }) {
   const [copied, setCopied] = useState('');
   const canvasRef = useRef(null);
 
+  const fixedDiscord = FIXED_DISCORD_LINKS[slug] || '';
+
   useEffect(() => {
+    if (fixedDiscord) {
+      setDiscord(fixedDiscord);
+      return;
+    }
+
     const stored = localStorage.getItem(`discord:${slug}`) || '';
     setDiscord(stored);
-  }, [slug]);
+  }, [slug, fixedDiscord]);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,6 +53,7 @@ export default function BrandClient({ slug, brand }) {
   }, [data, brand, offset]);
 
   function saveDiscord(value) {
+    if (fixedDiscord) return;
     setDiscord(value);
     localStorage.setItem(`discord:${slug}`, value);
   }
@@ -70,8 +82,17 @@ export default function BrandClient({ slug, brand }) {
 
       <section className="settings-card">
         <label>Discord invite link voor {brand.name}</label>
-        <input value={discord} onChange={(e) => saveDiscord(e.target.value)} placeholder="https://discord.gg/..." />
-        <small>Wordt alleen lokaal in jouw browser opgeslagen en automatisch onder het bericht gezet.</small>
+        <input
+          value={discord}
+          onChange={(e) => saveDiscord(e.target.value)}
+          placeholder="https://discord.gg/..."
+          readOnly={Boolean(fixedDiscord)}
+        />
+        <small>
+          {fixedDiscord
+            ? 'Vast ingesteld voor KRYVANT en automatisch toegevoegd aan het bericht.'
+            : 'Wordt alleen lokaal in jouw browser opgeslagen en automatisch onder het bericht gezet.'}
+        </small>
       </section>
 
       {loading && <section className="content-card"><p>Bericht maken…</p></section>}
