@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 const FIXED_DISCORD_LINKS = {
-  kryvant: 'https://discord.com/channels/1537804227915550740/1537805885194117150'
+  kryvant: 'https://discord.com/channels/1537804227915550740/1537805885194117150',
+  rangenest: 'https://discord.com/channels/1537833094722232352/1537834560174297108'
 };
 
 export default function BrandClient({ slug, brand }) {
@@ -90,7 +91,7 @@ export default function BrandClient({ slug, brand }) {
         />
         <small>
           {fixedDiscord
-            ? 'Vast ingesteld voor KRYVANT en automatisch toegevoegd aan het bericht.'
+            ? `Vast ingesteld voor ${brand.name} en automatisch toegevoegd aan het bericht.`
             : 'Wordt alleen lokaal in jouw browser opgeslagen en automatisch onder het bericht gezet.'}
         </small>
       </section>
