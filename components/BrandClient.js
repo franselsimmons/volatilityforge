@@ -6,8 +6,11 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 const FIXED_DISCORD_LINKS = {
-  kryvant: 'https://discord.com/channels/1537804227915550740/1537805885194117150',
-  rangenest: 'https://discord.com/channels/1537833094722232352/1537834560174297108'
+  kryvant: 'https://discord.gg/ycR5JhrKk',
+  lumeriq: 'https://discord.gg/d7dPFAnpk',
+  rangenest: 'https://discord.gg/8RbnxRnZs',
+  ninetyvale: 'https://discord.gg/377Yu7y2U',
+  arcynth: 'https://discord.gg/gYtazvejz'
 };
 
 export default function BrandClient({ slug, brand }) {
