@@ -19,6 +19,11 @@ export default function BrandClient({ slug, brand }) {
   const [discord, setDiscord] = useState('');
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState('');
+  const [customText, setCustomText] = useState('');
+  const [customResult, setCustomResult] = useState(null);
+  const [customLoading, setCustomLoading] = useState(false);
+  const [customError, setCustomError] = useState('');
+  const [visualPreview, setVisualPreview] = useState('');
   const canvasRef = useRef(null);
 
   const fixedDiscord = FIXED_DISCORD_LINKS[slug] || '';
@@ -32,6 +37,13 @@ export default function BrandClient({ slug, brand }) {
     const stored = localStorage.getItem(`discord:${slug}`) || '';
     setDiscord(stored);
   }, [slug, fixedDiscord]);
+
+  useEffect(() => {
+    setCustomText(localStorage.getItem(`custom-text:${slug}`) || '');
+    setCustomResult(null);
+    setCustomError('');
+    setVisualPreview('');
+  }, [slug]);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,11 +80,50 @@ export default function BrandClient({ slug, brand }) {
     setTimeout(() => setCopied(''), 1500);
   }
 
-  function downloadPng() {
-    const a = document.createElement('a');
-    a.download = `${brand.name.toLowerCase()}-${new Date().toISOString().slice(0, 10)}.png`;
-    a.href = canvasRef.current.toDataURL('image/png');
-    a.click();
+  function saveCustomText(value) {
+    setCustomText(value);
+    localStorage.setItem(`custom-text:${slug}`, value);
+  }
+
+  async function optimizeCustomText() {
+    const input = customText.trim();
+    if (!input || customLoading) return;
+
+    setCustomLoading(true);
+    setCustomError('');
+    setCustomResult(null);
+
+    try {
+      const response = await fetch('/api/optimize', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          brand: slug,
+          text: input,
+          discord
+        })
+      });
+      const json = await response.json();
+
+      if (!response.ok || !json?.ok) {
+        throw new Error(json?.error || 'OPTIMIZE_FAILED');
+      }
+
+      setCustomResult(json);
+    } catch (error) {
+      setCustomError(
+        error?.message === 'OPENAI_API_KEY_MISSING'
+          ? 'OPENAI_API_KEY ontbreekt in Vercel.'
+          : 'Optimaliseren is niet gelukt. Probeer het opnieuw.'
+      );
+    } finally {
+      setCustomLoading(false);
+    }
+  }
+
+  function openVisual() {
+    if (!canvasRef.current) return;
+    setVisualPreview(canvasRef.current.toDataURL('image/png'));
   }
 
   return (
@@ -99,6 +150,56 @@ export default function BrandClient({ slug, brand }) {
         </small>
       </section>
 
+      <section className="content-card custom-copy-card">
+        <div className="split-title">
+          <div>
+            <p className="eyebrow">EIGEN TEKST</p>
+            <h2>Nederlands → sterk Engels bericht</h2>
+          </div>
+          <span>max. 280 tekens incl. hashtags + Discord</span>
+        </div>
+
+        <textarea
+          className="custom-textarea"
+          value={customText}
+          onChange={(e) => saveCustomText(e.target.value)}
+          placeholder={`Typ hier jouw eigen tekst voor ${brand.name}. Nederlands is prima.`}
+          maxLength={3000}
+        />
+
+        <div className="buttons">
+          <button onClick={optimizeCustomText} disabled={!customText.trim() || customLoading}>
+            {customLoading ? 'Bezig…' : 'Vertaal + optimaliseer'}
+          </button>
+          {customText && (
+            <button className="secondary" onClick={() => {
+              saveCustomText('');
+              setCustomResult(null);
+              setCustomError('');
+            }}>
+              Wissen
+            </button>
+          )}
+        </div>
+
+        {customError && <p className="custom-error">{customError}</p>}
+
+        {customResult?.post && (
+          <div className="custom-result">
+            <div className="split-title">
+              <h2>Geoptimaliseerd Engels</h2>
+              <span>{customResult.characterCount}/280</span>
+            </div>
+            <pre className="postbox">{customResult.post}</pre>
+            <div className="buttons">
+              <button onClick={() => copy(customResult.post, 'custom')}>
+                {copied === 'custom' ? 'Gekopieerd ✓' : 'Kopieer bericht'}
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+
       {loading && <section className="content-card"><p>Bericht maken…</p></section>}
       {!loading && data?.ok && (
         <div className="content-grid">
@@ -114,9 +215,11 @@ export default function BrandClient({ slug, brand }) {
           </section>
 
           <section className="content-card">
-            <div className="split-title"><h2>Afbeelding</h2><span>1080 × 1350 PNG</span></div>
-            <canvas ref={canvasRef} width="1080" height="1350" className="visual" />
-            <div className="buttons"><button onClick={downloadPng}>Download afbeelding</button></div>
+            <div className="split-title"><h2>Afbeelding</h2><span>Klik om groot te openen</span></div>
+            <button className="visual-open" type="button" onClick={openVisual} aria-label="Afbeelding vergroten">
+              <canvas ref={canvasRef} width="1080" height="1350" className="visual" />
+            </button>
+            <small className="visual-hint">Tik op de afbeelding. Daarna kun je direct een screenshot maken.</small>
           </section>
 
           <section className="content-card promo-card">
@@ -124,6 +227,16 @@ export default function BrandClient({ slug, brand }) {
             <pre className="postbox">{data.promotion}</pre>
             <div className="buttons"><button onClick={() => copy(data.promotion, 'promo')}>{copied === 'promo' ? 'Gekopieerd ✓' : 'Kopieer promotiebericht'}</button></div>
           </section>
+        </div>
+      )}
+
+      {visualPreview && (
+        <div className="visual-modal" role="dialog" aria-modal="true" aria-label={`${brand.name} afbeelding groot`}>
+          <button className="visual-modal-backdrop" type="button" onClick={() => setVisualPreview('')} aria-label="Sluiten" />
+          <div className="visual-modal-content">
+            <button className="visual-modal-close" type="button" onClick={() => setVisualPreview('')}>Sluiten ×</button>
+            <img src={visualPreview} alt={`${brand.name} social afbeelding`} />
+          </div>
         </div>
       )}
     </main>
