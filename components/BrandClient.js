@@ -13,6 +13,42 @@ const FIXED_DISCORD_LINKS = {
   arcynth: 'https://discord.gg/gYtazvejz'
 };
 
+
+const VISUAL_TOPIC_RULES = {
+  kryvant: [
+    { terms: ['absorption'], topic: 'ABSORPTION', labels: ['PRESSURE', 'RESPONSE', 'CONFIRM'] },
+    { terms: ['cross-market', 'broader participation'], topic: 'CROSS-MARKET', labels: ['VENUES', 'FLOW', 'CONFIRM'] },
+    { terms: ['liquidity', 'depth'], topic: 'LIQUIDITY', labels: ['LIQUIDITY', 'DEPTH', 'RESPONSE'] },
+    { terms: ['breakout'], topic: 'BREAKOUT FILTER', labels: ['BREAKOUT', 'FLOW', 'FILTER'] },
+    { terms: ['participation'], topic: 'PARTICIPATION', labels: ['ACTIVITY', 'RESPONSE', 'QUALITY'] },
+    { terms: ['pressure', 'order flow'], topic: 'ORDER FLOW', labels: ['PRESSURE', 'PRICE', 'CONTEXT'] }
+  ],
+  lumeriq: [
+    { terms: ['regime'], topic: 'REGIME FIT', labels: ['REGIME', 'SETUP', 'FIT'] },
+    { terms: ['long', 'short'], topic: 'SIDE SELECTION', labels: ['LONG', 'SHORT', 'FILTER'] },
+    { terms: ['momentum', 'continuation', 'reversal'], topic: 'SETUP TYPE', labels: ['STYLE', 'REGIME', 'SELECT'] },
+    { terms: ['strategy', 'setup'], topic: 'STRATEGY FIT', labels: ['STRATEGY', 'MARKET', 'FIT'] }
+  ],
+  rangenest: [
+    { terms: ['no change', 'leave the bot alone', 'leave'], topic: 'HOLD DECISION', labels: ['HOLD', 'STABILITY', 'REVIEW'] },
+    { terms: ['volatility'], topic: 'VOLATILITY FIT', labels: ['VOLATILITY', 'RANGE', 'CONTEXT'] },
+    { terms: ['outer zone', 'range behaviour', 'range'], topic: 'RANGE FIT', labels: ['RANGE', 'STRUCTURE', 'FIT'] },
+    { terms: ['configuration', 'settings'], topic: 'CONFIGURATION', labels: ['SETTINGS', 'MARKET FIT', 'REVIEW'] }
+  ],
+  ninetyvale: [
+    { terms: ['no selection', 'no value'], topic: 'PASS DISCIPLINE', labels: ['NO EDGE', 'PASS', 'DISCIPLINE'] },
+    { terms: ['underdog'], topic: 'UNDERDOG VALUE', labels: ['UNDERDOG', 'PRICE', 'VALUE'] },
+    { terms: ['favourite'], topic: 'FAVOURITE PRICING', labels: ['FAVOURITE', 'ODDS', 'VALUE'] },
+    { terms: ['probability', 'price', 'value'], topic: 'PRICE VS PROBABILITY', labels: ['MODEL', 'PRICE', 'VALUE'] }
+  ],
+  arcynth: [
+    { terms: ['locked'], topic: 'LOCKED FORECAST', labels: ['LOCKED', 'PATH', 'REVIEW'] },
+    { terms: ['pullback', 'local decline', 'short rally'], topic: 'PHASE CONTEXT', labels: ['24H', '7D', '30D'] },
+    { terms: ['24h', '7d', '30d'], topic: 'HORIZON ALIGNMENT', labels: ['24H', '7D', '30D'] },
+    { terms: ['timeframe'], topic: 'TIMEFRAME CONTEXT', labels: ['24H', '7D', '30D'] }
+  ]
+};
+
 export default function BrandClient({ slug, brand }) {
   const [data, setData] = useState(null);
   const [offset, setOffset] = useState(0);
@@ -65,7 +101,7 @@ export default function BrandClient({ slug, brand }) {
 
   useEffect(() => {
     if (!data || !canvasRef.current) return;
-    drawVisual(canvasRef.current, brand, data.headline, offset);
+    drawVisual(canvasRef.current, brand, data.post, data.postVariant ?? offset);
   }, [data, brand, offset]);
 
   function saveDiscord(value) {
@@ -243,39 +279,109 @@ export default function BrandClient({ slug, brand }) {
   );
 }
 
-function drawVisual(canvas, brand, headline, offset = 0) {
+function drawVisual(canvas, brand, postText, variantSeed = 0) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
+  const visual = buildVisualModel(brand, postText, variantSeed);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   switch (brand.visualMode) {
     case 'kryvant':
-      drawKryvantVisual(ctx, canvas, brand, headline, offset);
+      drawKryvantVisual(ctx, canvas, brand, visual);
       break;
     case 'lumeriq':
-      drawLumeriqVisual(ctx, canvas, brand, headline, offset);
+      drawLumeriqVisual(ctx, canvas, brand, visual);
       break;
     case 'rangenest':
-      drawRangenestVisual(ctx, canvas, brand, headline, offset);
+      drawRangenestVisual(ctx, canvas, brand, visual);
       break;
     case 'ninetyvale':
-      drawNinetyValeVisual(ctx, canvas, brand, headline, offset);
+      drawNinetyValeVisual(ctx, canvas, brand, visual);
       break;
     case 'arcynth':
-      drawArcynthVisual(ctx, canvas, brand, headline, offset);
+      drawArcynthVisual(ctx, canvas, brand, visual);
       break;
     default:
-      drawKryvantVisual(ctx, canvas, brand, headline, offset);
+      drawKryvantVisual(ctx, canvas, brand, visual);
   }
 }
 
-function drawKryvantVisual(ctx, canvas, brand, headline, offset) {
+function buildVisualModel(brand, postText, variantSeed = 0) {
+  const body = cleanVisualPostBody(postText);
+  const sentences = body.match(/[^.!?]+[.!?]?/g)?.map((item) => item.trim()).filter(Boolean) || [];
+  const first = sentences[0] || brand.positioning;
+  const second = sentences[1] || pick(brand.visualSubtitles, variantSeed);
+  const third = sentences[2] || second;
+  const rule = findVisualTopicRule(brand.visualMode, body);
+  const textHash = hashText(body || brand.name);
+  const numericSeed = Number.isFinite(Number(variantSeed)) ? Number(variantSeed) : 0;
+  const seed = (textHash ^ Math.imul(numericSeed + 1, 2654435761)) >>> 0;
+
+  return {
+    seed,
+    variant: seed % 7,
+    topic: rule?.topic || String(brand.infoItems?.[0] || brand.system || 'SYSTEM').toUpperCase(),
+    labels: rule?.labels || (brand.infoItems || []).map((item) => String(item).toUpperCase()).slice(0, 3),
+    headline: clipVisualText(first, 64),
+    summary: clipVisualText(second, 150),
+    detail: clipVisualText(third, 170),
+    body
+  };
+}
+
+function cleanVisualPostBody(value) {
+  const lines = String(value || '')
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .filter((line) => !/^join\s*:/i.test(line))
+    .filter((line) => !/^#/.test(line));
+  return lines.join(' ').replace(/\s+/g, ' ').trim();
+}
+
+function findVisualTopicRule(mode, body) {
+  const normalized = String(body || '').toLowerCase();
+  const rules = VISUAL_TOPIC_RULES[mode] || [];
+  return rules.find((rule) => rule.terms.some((term) => normalized.includes(term))) || null;
+}
+
+function clipVisualText(value, maxLength) {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  if (text.length <= maxLength) return text;
+  const slice = text.slice(0, Math.max(1, maxLength - 1));
+  const split = slice.lastIndexOf(' ');
+  return `${(split > 24 ? slice.slice(0, split) : slice).trim()}…`;
+}
+
+function hashText(value) {
+  let hash = 2166136261;
+  const text = String(value || '');
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function seededUnit(seed, salt = 0) {
+  let value = (Number(seed) >>> 0) ^ Math.imul((salt + 1) >>> 0, 2246822519);
+  value ^= value >>> 15;
+  value = Math.imul(value, 3266489917);
+  value ^= value >>> 16;
+  return (value >>> 0) / 4294967295;
+}
+
+function visualLabel(visual, index, fallback) {
+  return String(visual.labels?.[index] || fallback || '').toUpperCase();
+}
+
+function drawKryvantVisual(ctx, canvas, brand, visual) {
   fillBackground(ctx, canvas, '#05080d');
   drawFineGrid(ctx, 72, 92, 936, 1156, 8, 10, 'rgba(255,255,255,0.045)');
-  drawTopStatusBar(ctx, 72, 66, 936, 34, ['FLOW DESK', 'MULTI-VENUE', 'INTRADAY CONTEXT'], '#97b8ff');
-  drawOrderChart(ctx, 720, 170, 250, 185, brand.color, offset);
-  drawMicroBars(ctx, 748, 392, 194, 165, brand.color, offset);
+  drawTopStatusBar(ctx, 72, 66, 936, 34, ['FLOW DESK', visual.topic, `VISUAL ${visual.variant + 1}`], '#97b8ff');
+  drawOrderChart(ctx, 720, 170, 250, 185, brand.color, visual.seed);
+  drawMicroBars(ctx, 748, 392, 194, 165, brand.color, visual.seed);
 
   ctx.fillStyle = brand.color;
   ctx.font = '800 26px ui-monospace, SFMono-Regular, Menlo, monospace';
@@ -285,16 +391,16 @@ function drawKryvantVisual(ctx, canvas, brand, headline, offset) {
   ctx.fillText(brand.positioning.toUpperCase(), 86, 188);
 
   ctx.fillStyle = '#f4f8ff';
-  ctx.font = '800 76px system-ui';
-  wrap(ctx, headline, 86, 328, 560, 82, 4);
+  ctx.font = '800 70px system-ui';
+  wrap(ctx, visual.headline, 86, 328, 560, 76, 4);
 
   ctx.fillStyle = '#99a7bb';
   ctx.font = '500 24px system-ui';
-  wrap(ctx, pick(brand.visualSubtitles, offset), 86, 620, 560, 34, 4);
+  wrap(ctx, visual.summary, 86, 620, 560, 34, 4);
 
-  drawDeskStat(ctx, 744, 614, 220, 112, 'FLOW BIAS', pick(['BALANCED', 'SHIFTING', 'BUILDING'], offset), brand.color);
-  drawDeskStat(ctx, 744, 756, 220, 112, 'LIQUIDITY', pick(['ACTIVE', 'THINNING', 'FIRM'], offset), brand.color);
-  drawDeskStat(ctx, 744, 898, 220, 112, 'CONFIRMATION', pick(['WAITING', 'MIXED', 'CLEAR'], offset), brand.color);
+  drawDeskStat(ctx, 744, 614, 220, 112, 'CONTENT FOCUS', visualLabel(visual, 0, 'FLOW'), brand.color);
+  drawDeskStat(ctx, 744, 756, 220, 112, 'SECOND LENS', visualLabel(visual, 1, 'LIQUIDITY'), brand.color);
+  drawDeskStat(ctx, 744, 898, 220, 112, 'DECISION LENS', visualLabel(visual, 2, 'CONFIRM'), brand.color);
 
   strokeBox(ctx, 72, 1118, 936, 86, 18, 'rgba(94,124,175,0.24)');
   ctx.fillStyle = '#90a0b8';
@@ -308,14 +414,16 @@ function drawKryvantVisual(ctx, canvas, brand, headline, offset) {
   ctx.fillRect(72, 1268, 936, 4);
 }
 
-function drawLumeriqVisual(ctx, canvas, brand, headline, offset) {
+function drawLumeriqVisual(ctx, canvas, brand, visual) {
+  const xShift = Math.round((seededUnit(visual.seed, 1) - 0.5) * 180);
+  const yShift = Math.round((seededUnit(visual.seed, 2) - 0.5) * 120);
   fillBackground(ctx, canvas, '#11071a');
-  drawGradientBlob(ctx, 820, 160, 460, brand.color, 0.32);
-  drawGradientBlob(ctx, 200, 1120, 300, '#ff69ff', 0.14);
-  drawDiagonalSlice(ctx, 0, 0, 1080, 180, 'rgba(255,255,255,0.03)');
-  drawDiagonalSlice(ctx, 0, 1040, 1080, 220, 'rgba(255,255,255,0.025)');
+  drawGradientBlob(ctx, 820 + xShift, 160 + yShift, 420 + Math.round(seededUnit(visual.seed, 3) * 100), brand.color, 0.32);
+  drawGradientBlob(ctx, 200 - Math.round(xShift / 2), 1120 - Math.round(yShift / 2), 260 + Math.round(seededUnit(visual.seed, 4) * 90), '#ff69ff', 0.14);
+  drawDiagonalSlice(ctx, 0, 0, 1080, 160 + visual.variant * 10, 'rgba(255,255,255,0.03)');
+  drawDiagonalSlice(ctx, 0, 1040, 1080, 190 + visual.variant * 8, 'rgba(255,255,255,0.025)');
 
-  sticker(ctx, 86, 90, 170, 46, brand.color, 'SIGNAL LAB');
+  sticker(ctx, 86, 90, 198, 46, brand.color, visual.topic);
   ctx.fillStyle = '#f3eaff';
   ctx.font = '800 30px system-ui';
   ctx.fillText(brand.name, 86, 184);
@@ -324,16 +432,16 @@ function drawLumeriqVisual(ctx, canvas, brand, headline, offset) {
   ctx.fillText(brand.positioning.toUpperCase(), 86, 214);
 
   ctx.fillStyle = '#fff4ff';
-  ctx.font = '900 92px system-ui';
-  wrap(ctx, headline, 86, 360, 820, 94, 4);
+  ctx.font = '900 82px system-ui';
+  wrap(ctx, visual.headline, 86, 360, 820, 86, 4);
 
   ctx.fillStyle = '#ceb8df';
-  ctx.font = '500 28px system-ui';
-  wrap(ctx, pick(brand.visualSubtitles, offset), 86, 690, 760, 38, 4);
+  ctx.font = '500 27px system-ui';
+  wrap(ctx, visual.summary, 86, 690, 760, 38, 4);
 
-  const labels = brand.infoItems || [];
-  labels.forEach((item, index) => {
-    sticker(ctx, 86 + index * 228, 828, 204, 58, '#241233', item.toUpperCase(), '#f5e6ff', 'stroke');
+  const labels = visual.labels?.length ? visual.labels : (brand.infoItems || []);
+  labels.slice(0, 3).forEach((item, index) => {
+    sticker(ctx, 86 + index * 228, 828, 204, 58, '#241233', String(item).toUpperCase(), '#f5e6ff', 'stroke');
   });
 
   roundedFill(ctx, 86, 952, 908, 172, 34, 'rgba(20,12,29,0.84)');
@@ -350,7 +458,7 @@ function drawLumeriqVisual(ctx, canvas, brand, headline, offset) {
   ctx.fillRect(86, 1248, 908, 8);
 }
 
-function drawRangenestVisual(ctx, canvas, brand, headline, offset) {
+function drawRangenestVisual(ctx, canvas, brand, visual) {
   fillBackground(ctx, canvas, '#081114');
   roundedFill(ctx, 54, 54, 972, 1242, 30, '#0b1519');
   ctx.fillStyle = '#122127';
@@ -358,23 +466,18 @@ function drawRangenestVisual(ctx, canvas, brand, headline, offset) {
   drawWindowDots(ctx, 86, 91, [brand.color, '#9ca3af', '#475569']);
   ctx.fillStyle = '#7b9187';
   ctx.font = '700 16px ui-monospace, SFMono-Regular, Menlo, monospace';
-  ctx.fillText('CONFIGURATION WORKSPACE', 160, 96);
+  ctx.fillText(`CONFIGURATION WORKSPACE · ${visual.topic}`, 160, 96);
 
-  drawPanel(ctx, 86, 160, 364, 292, 'PRIMARY ACTION', headline, '#edf7f1', brand.color, 60);
-  drawPanel(ctx, 476, 160, 518, 192, 'SYSTEM LOGIC', pick(brand.visualSubtitles, offset), '#d7ebe0', brand.color, 28, true);
-  drawMetricTile(ctx, 476, 384, 160, 128, 'RANGE', 'VALID', brand.color);
-  drawMetricTile(ctx, 654, 384, 160, 128, 'VOLATILITY', pick(['ELEVATED', 'STABLE', 'TRANSITION'], offset), brand.color);
-  drawMetricTile(ctx, 832, 384, 162, 128, 'ACTION', pick(['HOLD', 'REVIEW', 'KEEP'], offset), brand.color);
+  drawPanel(ctx, 86, 160, 364, 292, 'TODAY\'S IDEA', visual.topic, '#edf7f1', brand.color, 48);
+  drawPanel(ctx, 476, 160, 518, 192, 'POST MESSAGE', visual.headline, '#d7ebe0', brand.color, 27, true);
+  drawMetricTile(ctx, 476, 384, 160, 128, 'FOCUS', visualLabel(visual, 0, 'RANGE'), brand.color);
+  drawMetricTile(ctx, 654, 384, 160, 128, 'LENS', visualLabel(visual, 1, 'STRUCTURE'), brand.color);
+  drawMetricTile(ctx, 832, 384, 162, 128, 'RULE', visualLabel(visual, 2, 'FIT'), brand.color);
 
-  drawPanel(ctx, 86, 490, 364, 328, 'CONFIGURATION FIT', 'A useful bot configuration matches the market it is actually trading.', '#d2e6db', brand.color, 30, true);
-  drawChecklist(ctx, 476, 548, 518, 256, [
-    'Range still contains price effectively',
-    'Outer zones are not being stressed repeatedly',
-    'Structure does not justify a full rebuild',
-    'No unnecessary setting changes'
-  ], brand.color);
+  drawPanel(ctx, 86, 490, 364, 328, 'WHY THIS FITS', visual.summary, '#d2e6db', brand.color, 28, true);
+  drawChecklist(ctx, 476, 548, 518, 256, buildRangenestChecklist(visual), brand.color);
 
-  drawPanel(ctx, 86, 854, 908, 248, 'WHY THIS MATTERS', 'Optimization is not constant adjustment. It is knowing when the market has changed enough to justify a new configuration.', '#d6e7df', brand.color, 32, true);
+  drawPanel(ctx, 86, 854, 908, 248, 'TAKEAWAY', visual.detail, '#d6e7df', brand.color, 30, true);
 
   roundedFill(ctx, 86, 1138, 908, 114, 24, '#0f1b20');
   ctx.fillStyle = '#86a296';
@@ -385,7 +488,21 @@ function drawRangenestVisual(ctx, canvas, brand, headline, offset) {
   ctx.fillText(brand.footer.title, 116, 1230);
 }
 
-function drawNinetyValeVisual(ctx, canvas, brand, headline, offset) {
+function buildRangenestChecklist(visual) {
+  const topic = visual.topic;
+  if (topic.includes('VOLATILITY')) {
+    return ['Check volatility change', 'Compare with range behaviour', 'Separate noise from regime shift', 'Change only when justified'];
+  }
+  if (topic.includes('HOLD')) {
+    return ['Current settings remain useful', 'No forced weekly rebuild', 'Stability is a valid output', 'Review before changing'];
+  }
+  if (topic.includes('RANGE')) {
+    return ['Check active range behaviour', 'Watch stress near outer zones', 'Compare price with structure', 'Keep or rebuild with context'];
+  }
+  return ['Review configuration fit', 'Compare with market regime', 'Avoid isolated parameter changes', 'Adjust only with evidence'];
+}
+
+function drawNinetyValeVisual(ctx, canvas, brand, visual) {
   fillBackground(ctx, canvas, '#140b0b');
   drawPitchStripes(ctx, 70, 86, 940, 1170, 'rgba(255,255,255,0.03)');
   roundedStroke(ctx, 70, 86, 940, 1170, 28, 'rgba(238,138,120,0.18)');
@@ -398,24 +515,30 @@ function drawNinetyValeVisual(ctx, canvas, brand, headline, offset) {
   ctx.fillText(brand.positioning.toUpperCase(), 100, 174);
 
   roundedFill(ctx, 100, 214, 880, 148, 22, 'rgba(36,19,18,0.88)');
-  drawScoreHeader(ctx, 126, 244, ['MODEL VIEW', 'MARKET PRICE', 'VALUE CASE'], [pick(['58%', '56%', '61%'], offset), pick(['52%', '53%', '55%'], offset), pick(['+6%', '+3%', '+8%'], offset)], brand.color);
+  drawScoreHeader(
+    ctx,
+    126,
+    244,
+    ['CONTENT FOCUS', 'MARKET LENS', 'DECISION RULE'],
+    [visualLabel(visual, 0, 'MODEL'), visualLabel(visual, 1, 'PRICE'), visualLabel(visual, 2, 'VALUE')],
+    brand.color
+  );
 
   ctx.fillStyle = '#fff3ef';
-  ctx.font = '900 78px system-ui';
-  wrap(ctx, headline, 100, 510, 820, 82, 4);
+  ctx.font = '900 72px system-ui';
+  wrap(ctx, visual.headline, 100, 510, 820, 76, 4);
 
   ctx.fillStyle = '#d2aba0';
-  ctx.font = '500 28px system-ui';
-  wrap(ctx, pick(brand.visualSubtitles, offset), 100, 790, 790, 38, 4);
+  ctx.font = '500 27px system-ui';
+  wrap(ctx, visual.summary, 100, 790, 790, 38, 4);
 
   roundedFill(ctx, 100, 874, 420, 214, 24, 'rgba(31,17,17,0.92)');
   ctx.fillStyle = '#b89289';
   ctx.font = '700 16px system-ui';
-  ctx.fillText('SELECTION LOGIC', 128, 920);
+  ctx.fillText('POST TOPIC', 128, 920);
   ctx.fillStyle = '#fff5f1';
-  ctx.font = '800 46px system-ui';
-  ctx.fillText('PRICES', 128, 990);
-  ctx.fillText('NOT TEAMS', 128, 1048);
+  ctx.font = '800 38px system-ui';
+  wrap(ctx, visual.topic, 128, 986, 340, 42, 3);
 
   roundedFill(ctx, 548, 874, 432, 214, 24, 'rgba(31,17,17,0.92)');
   ctx.fillStyle = '#b89289';
@@ -431,11 +554,11 @@ function drawNinetyValeVisual(ctx, canvas, brand, headline, offset) {
   ctx.fillRect(100, 1146, 880, 6);
 }
 
-function drawArcynthVisual(ctx, canvas, brand, headline, offset) {
+function drawArcynthVisual(ctx, canvas, brand, visual) {
   fillBackground(ctx, canvas, '#061217');
   drawResearchGrid(ctx, canvas, brand.color);
-  drawOrbit(ctx, 825, 370, 170, brand.color);
-  drawForecastWave(ctx, 110, 700, 860, brand.color, offset);
+  drawOrbit(ctx, 825, 370, 170, brand.color, visual.seed);
+  drawForecastWave(ctx, 110, 700, 860, brand.color, visual.seed);
 
   ctx.fillStyle = brand.color;
   ctx.font = '800 28px system-ui';
@@ -450,16 +573,16 @@ function drawArcynthVisual(ctx, canvas, brand, headline, offset) {
   });
 
   ctx.fillStyle = '#f0fcff';
-  ctx.font = '900 82px system-ui';
-  wrap(ctx, headline, 90, 410, 560, 86, 4);
+  ctx.font = '900 72px system-ui';
+  wrap(ctx, visual.headline, 90, 410, 560, 76, 4);
 
   ctx.fillStyle = '#a8c1c7';
-  ctx.font = '500 27px system-ui';
-  wrap(ctx, pick(brand.visualSubtitles, offset), 90, 646, 600, 38, 4);
+  ctx.font = '500 26px system-ui';
+  wrap(ctx, visual.summary, 90, 646, 600, 36, 4);
 
-  drawForecastChip(ctx, 760, 624, 240, 94, 'NEXT PHASE', pick(['BUILDING', 'COOLING', 'SHIFTING'], offset), brand.color);
-  drawForecastChip(ctx, 760, 740, 240, 94, 'TURNING ZONE', pick(['AHEAD', 'ACTIVE', 'MONITORED'], offset), brand.color);
-  drawForecastChip(ctx, 760, 856, 240, 94, 'STATUS', 'LOCKED', brand.color);
+  drawForecastChip(ctx, 760, 624, 240, 94, 'CONTENT FOCUS', visualLabel(visual, 0, '24H'), brand.color);
+  drawForecastChip(ctx, 760, 740, 240, 94, 'SECOND LENS', visualLabel(visual, 1, '7D'), brand.color);
+  drawForecastChip(ctx, 760, 856, 240, 94, 'THIRD LENS', visualLabel(visual, 2, '30D'), brand.color);
 
   roundedFill(ctx, 90, 1010, 910, 166, 24, 'rgba(11,24,29,0.92)');
   ctx.fillStyle = '#93b2b8';
@@ -470,7 +593,7 @@ function drawArcynthVisual(ctx, canvas, brand, headline, offset) {
   ctx.fillText(brand.footer.title, 118, 1114);
   ctx.fillStyle = '#b0cbd0';
   ctx.font = '500 22px system-ui';
-  ctx.fillText('Locked outlooks connect short-, medium- and long-term direction.', 118, 1160);
+  wrap(ctx, visual.detail, 118, 1160, 790, 30, 2);
 
   ctx.fillStyle = brand.color;
   ctx.fillRect(90, 1222, 910, 6);
@@ -510,7 +633,7 @@ function drawTopStatusBar(ctx, x, y, w, h, labels, color) {
   });
 }
 
-function drawOrderChart(ctx, x, y, w, h, color, offset) {
+function drawOrderChart(ctx, x, y, w, h, color, seed) {
   roundedStroke(ctx, x, y, w, h, 18, 'rgba(102,153,255,0.22)');
   ctx.strokeStyle = 'rgba(255,255,255,0.05)';
   for (let i = 1; i < 5; i++) {
@@ -520,22 +643,25 @@ function drawOrderChart(ctx, x, y, w, h, color, offset) {
     ctx.lineTo(x + w - 16, dy);
     ctx.stroke();
   }
+
   ctx.strokeStyle = color;
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(x + 18, y + h - 40);
-  const points = [0, -18, -10, -32, -14, -54, -26, -46, -74, -58];
-  points.forEach((delta, idx) => {
-    ctx.lineTo(x + 18 + idx * 22, y + h - 40 + delta + ((offset % 2) ? 4 : -4));
-  });
+  let level = y + h * 0.66;
+  ctx.moveTo(x + 18, level);
+  for (let i = 1; i < 10; i++) {
+    level += (seededUnit(seed, 20 + i) - 0.48) * 48;
+    level = Math.max(y + 26, Math.min(y + h - 24, level));
+    ctx.lineTo(x + 18 + i * 22, level);
+  }
   ctx.stroke();
 }
 
-function drawMicroBars(ctx, x, y, w, h, color, offset) {
+function drawMicroBars(ctx, x, y, w, h, color, seed) {
   roundedStroke(ctx, x, y, w, h, 18, 'rgba(102,153,255,0.22)');
   for (let i = 0; i < 8; i++) {
     const bw = 12;
-    const bh = 38 + ((i + offset) % 5) * 18;
+    const bh = 34 + Math.round(seededUnit(seed, 40 + i) * 96);
     const bx = x + 20 + i * 20;
     const by = y + h - bh - 18;
     ctx.fillStyle = i % 2 === 0 ? color : 'rgba(255,255,255,0.15)';
@@ -657,11 +783,12 @@ function drawScoreHeader(ctx, x, y, labels, values, accent) {
   labels.forEach((label, index) => {
     const bx = x + index * 275;
     ctx.fillStyle = '#a88680';
-    ctx.font = '700 14px system-ui';
+    ctx.font = '700 13px system-ui';
     ctx.fillText(label, bx, y);
     ctx.fillStyle = accent;
-    ctx.font = '900 44px system-ui';
-    ctx.fillText(values[index], bx, y + 58);
+    const value = String(values[index] || '');
+    ctx.font = value.length > 9 ? '800 27px system-ui' : '900 36px system-ui';
+    wrap(ctx, value, bx, y + 54, 235, 30, 2);
   });
 }
 
@@ -684,7 +811,7 @@ function drawResearchGrid(ctx, canvas, accent) {
   roundedStroke(ctx, 72, 72, 936, 1206, 24, hexToRgba(accent, 0.16));
 }
 
-function drawOrbit(ctx, x, y, radius, accent) {
+function drawOrbit(ctx, x, y, radius, accent, seed = 0) {
   ctx.strokeStyle = 'rgba(255,255,255,0.08)';
   ctx.lineWidth = 1.5;
   [radius, radius - 34, radius - 68].forEach((r) => {
@@ -692,20 +819,25 @@ function drawOrbit(ctx, x, y, radius, accent) {
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.stroke();
   });
+  const angle = seededUnit(seed, 70) * Math.PI * 2;
   ctx.fillStyle = accent;
   ctx.beginPath();
-  ctx.arc(x + radius - 18, y - 22, 10, 0, Math.PI * 2);
+  ctx.arc(x + Math.cos(angle) * (radius - 18), y + Math.sin(angle) * (radius - 18), 10, 0, Math.PI * 2);
   ctx.fill();
 }
 
-function drawForecastWave(ctx, x, y, w, accent, offset) {
+function drawForecastWave(ctx, x, y, w, accent, seed) {
+  const a = (seededUnit(seed, 80) - 0.5) * 80;
+  const b = (seededUnit(seed, 81) - 0.5) * 100;
+  const c = (seededUnit(seed, 82) - 0.5) * 90;
+  const d = (seededUnit(seed, 83) - 0.5) * 70;
   ctx.strokeStyle = accent;
   ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.moveTo(x, y + 60);
-  ctx.bezierCurveTo(x + 140, y + 10, x + 230, y + 110, x + 340, y + 50 + (offset % 2 ? 18 : -12));
-  ctx.bezierCurveTo(x + 450, y - 10, x + 540, y + 110, x + 650, y + 52);
-  ctx.bezierCurveTo(x + 760, y + 10, x + 820, y + 80, x + w, y + 24);
+  ctx.moveTo(x, y + 60 + a * 0.25);
+  ctx.bezierCurveTo(x + 140, y + 10 + a, x + 230, y + 110 + b, x + 340, y + 50 + c);
+  ctx.bezierCurveTo(x + 450, y - 10 + b * 0.35, x + 540, y + 110 + d, x + 650, y + 52 - a * 0.25);
+  ctx.bezierCurveTo(x + 760, y + 10 + c * 0.3, x + 820, y + 80 - d * 0.2, x + w, y + 24 + b * 0.15);
   ctx.stroke();
 }
 
