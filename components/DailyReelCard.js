@@ -13,6 +13,42 @@ const EXPORT_FPS = 30;
 const EXPORT_VIDEO_BITRATE = 24_000_000;
 const EXPORT_AUDIO_BITRATE = 256_000;
 
+const REEL_MUSIC_LIBRARY = Object.freeze({
+  kryvant: Object.freeze([
+    '/music/kryvant/track-01.mp3',
+    '/music/kryvant/track-02.mp3',
+    '/music/kryvant/track-03.mp3'
+  ]),
+  lumeriq: Object.freeze([
+    '/music/lumeriq/track-01.mp3',
+    '/music/lumeriq/track-02.mp3',
+    '/music/lumeriq/track-03.mp3'
+  ]),
+  rangenest: Object.freeze([
+    '/music/rangenest/track-01.mp3',
+    '/music/rangenest/track-02.mp3',
+    '/music/rangenest/track-03.mp3'
+  ]),
+  ninetyvale: Object.freeze([
+    '/music/ninetyvale/track-01.mp3',
+    '/music/ninetyvale/track-02.mp3',
+    '/music/ninetyvale/track-03.mp3'
+  ]),
+  arcynth: Object.freeze([
+    '/music/arcynth/track-01.mp3',
+    '/music/arcynth/track-02.mp3',
+    '/music/arcynth/track-03.mp3'
+  ])
+});
+
+const REEL_MUSIC_VOLUME = Object.freeze({
+  kryvant: 0.72,
+  lumeriq: 0.70,
+  rangenest: 0.68,
+  ninetyvale: 0.76,
+  arcynth: 0.70
+});
+
 export default function DailyReelCard({ brand, data, copy, copied }) {
   const canvasRef = useRef(null);
   const [videoUrl, setVideoUrl] = useState('');
@@ -24,6 +60,10 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
   const [saveStatus, setSaveStatus] = useState('');
 
   const reel = useMemo(() => buildReelModel(brand, data), [brand, data]);
+  const selectedMusic = useMemo(
+    () => (reel ? selectDailyMusicTrack(brand, reel) : null),
+    [brand, reel]
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -214,7 +254,8 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
             <span className="reel-chip">{data.reelTopic}</span>
             <span className="reel-chip">1080 × 1920</span>
             <span className="reel-chip">30 FPS · CINEMATIC HQ</span>
-            <span className="reel-chip">MUSIC + SFX</span>
+            <span className="reel-chip">ORIGINAL MUSIC + SFX</span>
+            {selectedMusic?.label && <span className="reel-chip">{selectedMusic.label}</span>}
             <span className="reel-chip">{reel.durationSeconds}s</span>
             <span className="reel-chip">variant {data.reelVariantIndex}/{data.reelVariantTotal}</span>
           </div>
@@ -240,7 +281,7 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
                 <span style={{ width: `${progress}%` }} />
               </div>
               <p className="reel-status">
-                De Reel wordt lokaal in 1080×1920, 30 FPS, cinematic motion en eigen muziek + SFX opgebouwd. Houd dit scherm ongeveer {reel.durationSeconds} seconden open.
+                De Reel wordt lokaal in 1080×1920, 30 FPS, cinematic motion, een echte originele soundtrack en SFX opgebouwd. Houd dit scherm ongeveer {reel.durationSeconds} seconden open.
               </p>
             </>
           )}
@@ -423,38 +464,160 @@ async function createReelAudioTrack({ brand, reel, durationSeconds }) {
   }
 
   const destination = context.createMediaStreamDestination();
-  const master = context.createGain();
-  master.gain.value = 0.78;
-  master.connect(destination);
+  const compressor = context.createDynamicsCompressor();
+  compressor.threshold.value = -14;
+  compressor.knee.value = 12;
+  compressor.ratio.value = 3;
+  compressor.attack.value = 0.006;
+  compressor.release.value = 0.22;
+  compressor.connect(destination);
 
-  const buffer = buildReelAudioBuffer(context, brand, reel, durationSeconds);
-  const source = context.createBufferSource();
-  source.buffer = buffer;
+  const musicChoice = selectDailyMusicTrack(brand, reel);
+  const musicBuffer = await loadMusicBuffer(context, musicChoice?.src).catch(() => null);
 
-  const filter = context.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.value = 9000;
-  filter.Q.value = 0.25;
+  const musicSource = context.createBufferSource();
+  const musicGain = context.createGain();
+  const musicFilter = context.createBiquadFilter();
 
-  source.connect(filter);
-  filter.connect(master);
+  if (musicBuffer) {
+    musicSource.buffer = musicBuffer;
+    musicFilter.type = 'lowpass';
+    musicFilter.frequency.value = 15500;
+    musicFilter.Q.value = 0.15;
+
+    musicSource.connect(musicFilter);
+    musicFilter.connect(musicGain);
+    musicGain.connect(compressor);
+  }
+
+  const sfxBuffer = buildReelSfxBuffer(context, brand, reel, durationSeconds);
+  const sfxSource = context.createBufferSource();
+  const sfxGain = context.createGain();
+  sfxSource.buffer = sfxBuffer;
+  sfxGain.gain.value = 0.72;
+  sfxSource.connect(sfxGain);
+  sfxGain.connect(compressor);
+
+  let fallbackSource = null;
+  let fallbackGain = null;
+  if (!musicBuffer) {
+    fallbackSource = context.createBufferSource();
+    fallbackGain = context.createGain();
+    fallbackSource.buffer = buildReelAudioBuffer(context, brand, reel, durationSeconds);
+    fallbackGain.gain.value = 0.62;
+    fallbackSource.connect(fallbackGain);
+    fallbackGain.connect(compressor);
+  }
 
   const track = destination.stream.getAudioTracks()[0];
   let started = false;
 
   return {
     track,
+    musicChoice,
+    hasRealMusic: Boolean(musicBuffer),
     start() {
       if (started) return;
       started = true;
-      source.start(context.currentTime + 0.035);
+
+      const when = context.currentTime + 0.045;
+
+      if (musicBuffer) {
+        const maxStart = Math.max(0, musicBuffer.duration - durationSeconds - 0.18);
+        const safeOffset = Math.min(musicChoice?.offsetSeconds || 0, maxStart);
+        const volume = REEL_MUSIC_VOLUME[brand?.visualMode] ?? 0.70;
+
+        musicGain.gain.setValueAtTime(0.0001, when);
+        musicGain.gain.linearRampToValueAtTime(volume, when + 0.14);
+        musicGain.gain.setValueAtTime(volume, when + Math.max(0.2, durationSeconds - 0.55));
+        musicGain.gain.linearRampToValueAtTime(0.0001, when + Math.max(0.25, durationSeconds - 0.06));
+
+        musicSource.start(when, safeOffset);
+      } else {
+        fallbackSource?.start(when);
+      }
+
+      sfxSource.start(when);
     },
     async cleanup() {
-      try { source.stop(); } catch {}
+      try { musicSource.stop(); } catch {}
+      try { sfxSource.stop(); } catch {}
+      try { fallbackSource?.stop(); } catch {}
       try { track?.stop(); } catch {}
       try { await context.close(); } catch {}
     }
   };
+}
+
+function selectDailyMusicTrack(brand, reel) {
+  const mode = brand?.visualMode || 'arcynth';
+  const tracks = REEL_MUSIC_LIBRARY[mode] || REEL_MUSIC_LIBRARY.arcynth;
+  if (!tracks?.length) return null;
+
+  const seed = Number(reel?.seed) >>> 0;
+  const trackIndex = Math.floor(unit(seed, 1601) * tracks.length) % tracks.length;
+
+  const offsetSlots = [0, 3, 6, 9];
+  const offsetIndex = Math.floor(unit(seed, 1602) * offsetSlots.length) % offsetSlots.length;
+
+  return {
+    src: tracks[trackIndex],
+    trackIndex,
+    offsetSeconds: offsetSlots[offsetIndex],
+    label: `MUSIC ${String(trackIndex + 1).padStart(2, '0')} · ${offsetSlots[offsetIndex]}s`
+  };
+}
+
+async function loadMusicBuffer(context, src) {
+  if (!src) return null;
+
+  const response = await fetch(src, {
+    cache: 'force-cache',
+    headers: { accept: 'audio/mpeg,audio/*;q=0.9,*/*;q=0.1' }
+  });
+
+  if (!response.ok) {
+    throw new Error(`MUSIC_ASSET_${response.status}`);
+  }
+
+  const bytes = await response.arrayBuffer();
+  if (!bytes.byteLength) throw new Error('EMPTY_MUSIC_ASSET');
+
+  return await context.decodeAudioData(bytes.slice(0));
+}
+
+function buildReelSfxBuffer(context, brand, reel, durationSeconds) {
+  const sampleRate = context.sampleRate || 48000;
+  const frameCount = Math.ceil(durationSeconds * sampleRate);
+  const buffer = context.createBuffer(2, frameCount, sampleRate);
+  const left = buffer.getChannelData(0);
+  const right = buffer.getChannelData(1);
+  const profile = getBrandAudioProfile(brand?.visualMode);
+
+  [0.10, 2.15, 6.05, 9.05].forEach((time, index) => {
+    addTonalSweep({
+      left,
+      right,
+      sampleRate,
+      start: time,
+      duration: index === 0 ? 0.34 : 0.46,
+      fromHz: profile.sweepFrom + index * 22,
+      toHz: profile.sweepTo + index * 70,
+      gain: index === 0 ? 0.055 : 0.075,
+      pan: index % 2 === 0 ? -0.15 : 0.15
+    });
+
+    addKick({
+      left,
+      right,
+      sampleRate,
+      start: time + 0.03,
+      gain: index === 0 ? 0.10 : 0.14
+    });
+  });
+
+  masterAudio(left, right, sampleRate, durationSeconds);
+  return buffer;
 }
 
 function buildReelAudioBuffer(context, brand, reel, durationSeconds) {
