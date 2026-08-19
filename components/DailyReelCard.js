@@ -687,6 +687,104 @@ function getRetentionSoundProfile(mode) {
   return profiles[mode] || profiles.arcynth;
 }
 
+
+function midiToHz(midi) {
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+function addMusicalNote({
+  left,
+  right,
+  sampleRate,
+  start,
+  duration,
+  frequency,
+  gain,
+  pan = 0,
+  attack = 0.01,
+  release = 0.20,
+  tone = 'pad'
+}) {
+  const startIndex = Math.max(0, Math.floor(start * sampleRate));
+  const endIndex = Math.min(left.length, Math.ceil((start + duration) * sampleRate));
+  if (endIndex <= startIndex || !Number.isFinite(frequency) || frequency <= 0) return;
+
+  const panLeft = Math.sqrt((1 - clamp(pan, -1, 1)) * 0.5);
+  const panRight = Math.sqrt((1 + clamp(pan, -1, 1)) * 0.5);
+  const attackSafe = Math.max(0.001, attack);
+  const releaseSafe = Math.max(0.001, release);
+
+  for (let i = startIndex; i < endIndex; i++) {
+    const t = (i - startIndex) / sampleRate;
+    const remaining = duration - t;
+    const env = Math.max(0, Math.min(1, t / attackSafe, remaining / releaseSafe));
+    const phase = Math.PI * 2 * frequency * t;
+
+    let wave;
+    if (tone === 'bass') {
+      wave =
+        Math.sin(phase) * 0.88 +
+        Math.sin(phase * 2) * 0.09 +
+        Math.sin(phase * 0.5) * 0.03;
+    } else if (tone === 'pluck') {
+      const decay = Math.exp(-t * 7.0);
+      wave =
+        (Math.sin(phase) * 0.74 +
+          Math.sin(phase * 2) * 0.18 +
+          Math.sin(phase * 3) * 0.08) *
+        decay;
+    } else {
+      wave =
+        Math.sin(phase) * 0.66 +
+        Math.sin(phase * 0.5) * 0.18 +
+        Math.sin(phase * 2) * 0.10 +
+        Math.sin(phase * 3) * 0.06;
+    }
+
+    const sample = wave * env * gain;
+    left[i] += sample * panLeft;
+    right[i] += sample * panRight;
+  }
+}
+
+function addTonalSweep({
+  left,
+  right,
+  sampleRate,
+  start,
+  duration,
+  fromHz,
+  toHz,
+  gain,
+  pan = 0
+}) {
+  const startIndex = Math.max(0, Math.floor(start * sampleRate));
+  const endIndex = Math.min(left.length, Math.ceil((start + duration) * sampleRate));
+  const panLeft = Math.sqrt((1 - clamp(pan, -1, 1)) * 0.5);
+  const panRight = Math.sqrt((1 + clamp(pan, -1, 1)) * 0.5);
+  let phase = 0;
+
+  for (let i = startIndex; i < endIndex; i++) {
+    const t = (i - startIndex) / sampleRate;
+    const p = clamp(t / duration, 0, 1);
+    const freq = lerp(fromHz, toHz, easeInOut(p));
+    phase += (Math.PI * 2 * freq) / sampleRate;
+    const env = Math.sin(Math.PI * p);
+
+    const sample =
+      (
+        Math.sin(phase) * 0.78 +
+        Math.sin(phase * 2) * 0.14 +
+        Math.sin(phase * 0.5) * 0.08
+      ) *
+      env *
+      gain;
+
+    left[i] += sample * panLeft;
+    right[i] += sample * panRight;
+  }
+}
+
 function addSoftRetentionPulse({
   left,
   right,
