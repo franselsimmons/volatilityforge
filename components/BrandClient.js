@@ -4,6 +4,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import DailyReelCard from './DailyReelCard';
 
 const FIXED_DISCORD_LINKS = {
   kryvant: 'https://discord.gg/ycR5JhrKk',
@@ -275,6 +276,14 @@ export default function BrandClient({ slug, brand }) {
             </button>
             <small className="visual-hint">Tik op de afbeelding. Daarna kun je direct een screenshot maken.</small>
           </section>
+
+
+          <DailyReelCard
+            brand={brand}
+            data={data}
+            copy={copy}
+            copied={copied}
+          />
 
           <section className="content-card promo-card">
             <div className="split-title">
