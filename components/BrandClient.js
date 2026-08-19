@@ -61,6 +61,7 @@ export default function BrandClient({ slug, brand }) {
   const [customError, setCustomError] = useState('');
   const [visualPreview, setVisualPreview] = useState('');
   const canvasRef = useRef(null);
+  const promoCanvasRef = useRef(null);
 
   const fixedDiscord = FIXED_DISCORD_LINKS[slug] || '';
 
@@ -103,6 +104,18 @@ export default function BrandClient({ slug, brand }) {
     if (!data || !canvasRef.current) return;
     drawVisual(canvasRef.current, brand, data.post, data.postVariant ?? offset);
   }, [data, brand, offset]);
+
+  useEffect(() => {
+    if (!data?.promotion || !promoCanvasRef.current) return;
+    drawPromotionVisual(
+      promoCanvasRef.current,
+      brand,
+      data.promotion,
+      data.promotionHeadline,
+      data.promotionVisualSubtitle,
+      data.promotionCycleIndex ?? 0
+    );
+  }, [data, brand]);
 
   function saveDiscord(value) {
     if (fixedDiscord) return;
@@ -160,6 +173,11 @@ export default function BrandClient({ slug, brand }) {
   function openVisual() {
     if (!canvasRef.current) return;
     setVisualPreview(canvasRef.current.toDataURL('image/png'));
+  }
+
+  function openPromotionVisual() {
+    if (!promoCanvasRef.current) return;
+    setVisualPreview(promoCanvasRef.current.toDataURL('image/png'));
   }
 
   return (
@@ -259,9 +277,36 @@ export default function BrandClient({ slug, brand }) {
           </section>
 
           <section className="content-card promo-card">
-            <div className="split-title"><div><p className="eyebrow">BETAALDE PROMOTIE</p><h2>{data.promotionDue ? 'Vandaag promotiebericht gebruiken' : '14-daags hoofdbericht'}</h2></div><span>Volgende: {new Date(data.nextPromotionDate).toLocaleDateString('nl-NL')}</span></div>
+            <div className="split-title">
+              <div>
+                <p className="eyebrow">BETAALDE PROMOTIE</p>
+                <h2>{data.promotionDue ? 'Vandaag promotiebericht gebruiken' : '14-daags hoofdbericht'}</h2>
+              </div>
+              <span>Volgende: {new Date(data.nextPromotionDate).toLocaleDateString('nl-NL')}</span>
+            </div>
+
             <pre className="postbox">{data.promotion}</pre>
-            <div className="buttons"><button onClick={() => copy(data.promotion, 'promo')}>{copied === 'promo' ? 'Gekopieerd ✓' : 'Kopieer promotiebericht'}</button></div>
+            <div className="buttons">
+              <button onClick={() => copy(data.promotion, 'promo')}>
+                {copied === 'promo' ? 'Gekopieerd ✓' : 'Kopieer promotiebericht'}
+              </button>
+            </div>
+
+            <div className="split-title" style={{ marginTop: 18 }}>
+              <h2>14-daagse advertentie-afbeelding</h2>
+              <span>Wisselt automatisch met het bericht</span>
+            </div>
+            <button
+              className="visual-open"
+              type="button"
+              onClick={openPromotionVisual}
+              aria-label="14-daagse advertentie-afbeelding vergroten"
+            >
+              <canvas ref={promoCanvasRef} width="1080" height="1350" className="visual" />
+            </button>
+            <small className="visual-hint">
+              Speciaal voor de betaalde campagne. Geen “Paid Promotion”-tekst in de afbeelding.
+            </small>
           </section>
         </div>
       )}
@@ -277,6 +322,358 @@ export default function BrandClient({ slug, brand }) {
       )}
     </main>
   );
+}
+
+function drawPromotionVisual(canvas, brand, postText, suppliedHeadline, suppliedSubtitle, cycleIndex = 0) {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const visual = buildPromotionVisualModel(
+    brand,
+    postText,
+    suppliedHeadline,
+    suppliedSubtitle,
+    cycleIndex
+  );
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  switch (brand.visualMode) {
+    case 'kryvant':
+      drawKryvantPromotion(ctx, canvas, brand, visual);
+      break;
+    case 'lumeriq':
+      drawLumeriqPromotion(ctx, canvas, brand, visual);
+      break;
+    case 'rangenest':
+      drawRangenestPromotion(ctx, canvas, brand, visual);
+      break;
+    case 'ninetyvale':
+      drawNinetyValePromotion(ctx, canvas, brand, visual);
+      break;
+    case 'arcynth':
+      drawArcynthPromotion(ctx, canvas, brand, visual);
+      break;
+    default:
+      drawKryvantPromotion(ctx, canvas, brand, visual);
+  }
+}
+
+function buildPromotionVisualModel(brand, postText, suppliedHeadline, suppliedSubtitle, cycleIndex = 0) {
+  const body = cleanVisualPostBody(postText);
+  const rule = findVisualTopicRule(brand.visualMode, body);
+  const seed = (
+    hashText(body || brand.name) ^
+    Math.imul((Number(cycleIndex) || 0) + 101, 2654435761)
+  ) >>> 0;
+
+  return {
+    seed,
+    cycleIndex: Number(cycleIndex) || 0,
+    topic: rule?.topic || String(brand.infoItems?.[0] || brand.system || 'SYSTEM').toUpperCase(),
+    labels: rule?.labels || (brand.infoItems || []).map((item) => String(item).toUpperCase()).slice(0, 3),
+    headline: clipVisualText(suppliedHeadline || body || brand.positioning, 72),
+    summary: clipVisualText(suppliedSubtitle || body || pick(brand.visualSubtitles, cycleIndex), 178),
+    body
+  };
+}
+
+function drawPromotionBrandHeader(ctx, brand, x = 76, y = 108, align = 'left') {
+  ctx.textAlign = align;
+  ctx.fillStyle = '#f7fbff';
+  ctx.font = '900 34px system-ui';
+  ctx.fillText(brand.name, x, y);
+  ctx.fillStyle = hexToRgba(brand.color, 0.92);
+  ctx.font = '700 16px ui-monospace, SFMono-Regular, Menlo, monospace';
+  ctx.fillText(brand.positioning.toUpperCase(), x, y + 30);
+  ctx.textAlign = 'left';
+}
+
+function drawPromotionHeadline(ctx, visual, x, y, maxWidth, color = '#f8fbff', accent = null) {
+  ctx.fillStyle = color;
+  ctx.font = '900 70px system-ui';
+  wrap(ctx, visual.headline, x, y, maxWidth, 74, 4);
+
+  if (accent) {
+    ctx.fillStyle = accent;
+    ctx.fillRect(x, y + 14, Math.min(220, maxWidth * 0.28), 7);
+  }
+}
+
+function drawPromotionSummary(ctx, visual, x, y, maxWidth, color = '#aeb9ca') {
+  ctx.fillStyle = color;
+  ctx.font = '500 25px system-ui';
+  wrap(ctx, visual.summary, x, y, maxWidth, 35, 4);
+}
+
+function drawPromotionCta(ctx, brand, y = 1160) {
+  roundedFill(ctx, 150, y, 780, 112, 28, hexToRgba(brand.color, 0.96));
+  ctx.fillStyle = '#071015';
+  ctx.font = '900 42px system-ui';
+  ctx.fillText('JOIN THE DISCORD', 250, y + 70);
+
+  ctx.strokeStyle = '#071015';
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(820, y + 56);
+  ctx.lineTo(866, y + 56);
+  ctx.lineTo(844, y + 34);
+  ctx.moveTo(866, y + 56);
+  ctx.lineTo(844, y + 78);
+  ctx.stroke();
+}
+
+function drawPromoFeature(ctx, x, y, w, title, subtitle, accent) {
+  roundedFill(ctx, x, y, w, 112, 20, 'rgba(8,16,24,0.88)');
+  roundedStroke(ctx, x, y, w, 112, 20, hexToRgba(accent, 0.22));
+  ctx.fillStyle = accent;
+  ctx.font = '800 17px system-ui';
+  ctx.fillText(title, x + 20, y + 34);
+  ctx.fillStyle = '#9eacbd';
+  ctx.font = '500 16px system-ui';
+  wrap(ctx, subtitle, x + 20, y + 68, w - 40, 21, 2);
+}
+
+function drawKryvantPromotion(ctx, canvas, brand, visual) {
+  fillBackground(ctx, canvas, '#020711');
+  drawFineGrid(ctx, 52, 54, 976, 1238, 10, 12, 'rgba(255,255,255,0.035)');
+  drawGradientBlob(ctx, 225, 760, 360, '#ff4f5e', 0.16);
+  drawGradientBlob(ctx, 850, 760, 390, '#3b82f6', 0.22);
+
+  drawPromotionBrandHeader(ctx, brand);
+  drawPromotionHeadline(ctx, visual, 76, 274, 928, '#f8fbff', brand.color);
+  drawPromotionSummary(ctx, visual, 76, 516, 890);
+
+  const centerX = 540;
+  const centerY = 796;
+  for (let i = 0; i < 16; i++) {
+    const y = 660 + i * 18;
+    const bend = (seededUnit(visual.seed, 120 + i) - 0.5) * 80;
+
+    ctx.strokeStyle = `rgba(255,79,94,${0.22 + (i % 4) * 0.08})`;
+    ctx.lineWidth = 1.6 + (i % 3);
+    ctx.beginPath();
+    ctx.moveTo(68, y);
+    ctx.bezierCurveTo(240, y + bend, 380, centerY + bend * 0.3, centerX, centerY);
+    ctx.stroke();
+
+    ctx.strokeStyle = `rgba(59,130,246,${0.24 + (i % 4) * 0.08})`;
+    ctx.beginPath();
+    ctx.moveTo(1012, y + 8);
+    ctx.bezierCurveTo(850, y - bend, 700, centerY - bend * 0.3, centerX, centerY);
+    ctx.stroke();
+  }
+
+  const core = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 76);
+  core.addColorStop(0, '#ffffff');
+  core.addColorStop(0.18, brand.color);
+  core.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = core;
+  ctx.fillRect(centerX - 90, centerY - 90, 180, 180);
+  ctx.fillStyle = '#dceaff';
+  ctx.font = '800 16px ui-monospace, SFMono-Regular, Menlo, monospace';
+  ctx.fillText('LIQUIDITY CORE', 470, 914);
+
+  drawPromoFeature(ctx, 70, 964, 220, 'AGGRESSIVE ACTIVITY', 'Track intent behind the move.', '#ff6c79');
+  drawPromoFeature(ctx, 310, 964, 220, 'LIQUIDITY SHIFTS', 'See where depth changes.', brand.color);
+  drawPromoFeature(ctx, 550, 964, 220, 'ABSORPTION', 'Measure failed pressure.', '#8db3ff');
+  drawPromoFeature(ctx, 790, 964, 220, 'CONFIRMATION', 'Filter before signal.', brand.color);
+  drawPromotionCta(ctx, brand);
+}
+
+function drawLumeriqPromotion(ctx, canvas, brand, visual) {
+  fillBackground(ctx, canvas, '#090313');
+  drawGradientBlob(ctx, 820, 700, 520, brand.color, 0.28);
+  drawGradientBlob(ctx, 310, 1120, 320, '#6d28d9', 0.16);
+  drawPromotionBrandHeader(ctx, brand);
+  drawPromotionHeadline(ctx, visual, 76, 280, 900, '#fff8ff', brand.color);
+  drawPromotionSummary(ctx, visual, 76, 532, 830, '#cdbde0');
+
+  const targetX = 840;
+  const targetY = 830;
+  for (let row = 0; row < 15; row++) {
+    const sourceY = 650 + row * 30;
+    for (let col = 0; col < 4; col++) {
+      const sourceX = 90 + col * 105;
+      const dot = 3 + ((row + col) % 3);
+      ctx.fillStyle = col % 2 ? '#8b5cf6' : brand.color;
+      ctx.beginPath();
+      ctx.arc(sourceX, sourceY, dot, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = col % 2 ? 'rgba(139,92,246,0.34)' : hexToRgba(brand.color, 0.34);
+      ctx.lineWidth = 1.1;
+      ctx.beginPath();
+      ctx.moveTo(sourceX + 8, sourceY);
+      ctx.bezierCurveTo(520, sourceY, 650, targetY + (sourceY - targetY) * 0.2, targetX, targetY);
+      ctx.stroke();
+    }
+  }
+
+  ctx.strokeStyle = hexToRgba(brand.color, 0.7);
+  ctx.lineWidth = 3;
+  [126, 96, 66].forEach((radius) => {
+    ctx.beginPath();
+    ctx.arc(targetX, targetY, radius, 0, Math.PI * 2);
+    ctx.stroke();
+  });
+  ctx.fillStyle = '#f8edff';
+  ctx.beginPath();
+  ctx.arc(targetX, targetY, 24, 0, Math.PI * 2);
+  ctx.fill();
+
+  drawPromoFeature(ctx, 70, 970, 220, 'FILTERS MANY', 'Many strategies compete.', brand.color);
+  drawPromoFeature(ctx, 310, 970, 220, 'REGIME AWARE', 'Conditions change selection.', '#a78bfa');
+  drawPromoFeature(ctx, 550, 970, 220, 'LONG + SHORT', 'Sides judged independently.', '#c084fc');
+  drawPromoFeature(ctx, 790, 970, 220, 'ONE SIGNAL', 'Clarity after filtering.', brand.color);
+  drawPromotionCta(ctx, brand);
+}
+
+function drawRangenestPromotion(ctx, canvas, brand, visual) {
+  fillBackground(ctx, canvas, '#06110e');
+  drawFineGrid(ctx, 54, 54, 972, 1238, 9, 12, 'rgba(130,255,207,0.035)');
+  drawGradientBlob(ctx, 850, 740, 460, brand.color, 0.18);
+  drawPromotionBrandHeader(ctx, brand);
+  drawPromotionHeadline(ctx, visual, 76, 284, 900, '#f3fff9', brand.color);
+  drawPromotionSummary(ctx, visual, 76, 526, 860, '#a8c5b8');
+
+  const chartX = 88;
+  const chartY = 690;
+  const chartW = 904;
+  const chartH = 340;
+  roundedFill(ctx, chartX, chartY, chartW, chartH, 28, 'rgba(8,24,20,0.92)');
+  roundedStroke(ctx, chartX, chartY, chartW, chartH, 28, hexToRgba(brand.color, 0.26));
+
+  const bands = [
+    { y: chartY + 38, h: 82, label: 'UPPER RANGE', alpha: 0.15 },
+    { y: chartY + 130, h: 82, label: 'CORE RANGE', alpha: 0.08 },
+    { y: chartY + 222, h: 82, label: 'LOWER RANGE', alpha: 0.12 }
+  ];
+  bands.forEach((band) => {
+    ctx.fillStyle = hexToRgba(brand.color, band.alpha);
+    ctx.fillRect(chartX + 26, band.y, chartW - 52, band.h);
+    ctx.strokeStyle = hexToRgba(brand.color, 0.34);
+    ctx.setLineDash([10, 8]);
+    ctx.beginPath();
+    ctx.moveTo(chartX + 26, band.y);
+    ctx.lineTo(chartX + chartW - 26, band.y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#8fd8b8';
+    ctx.font = '700 14px ui-monospace, SFMono-Regular, Menlo, monospace';
+    ctx.fillText(band.label, chartX + 42, band.y + 28);
+  });
+
+  let py = chartY + 245;
+  ctx.strokeStyle = brand.color;
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(chartX + 42, py);
+  for (let i = 1; i <= 15; i++) {
+    py += (seededUnit(visual.seed, 200 + i) - 0.46) * 70;
+    py = Math.max(chartY + 70, Math.min(chartY + chartH - 40, py));
+    ctx.lineTo(chartX + 42 + i * 54, py);
+  }
+  ctx.stroke();
+
+  drawPromoFeature(ctx, 88, 1052, 210, 'VOLATILITY', 'Range must fit movement.', brand.color);
+  drawPromoFeature(ctx, 316, 1052, 210, 'STRUCTURE', 'Context before settings.', '#7dd3aa');
+  drawPromoFeature(ctx, 544, 1052, 210, 'RANGE FIT', 'Optimize the operating zone.', brand.color);
+  drawPromoFeature(ctx, 772, 1052, 220, 'CONTROL', 'Change only with evidence.', '#99f6d3');
+  drawPromotionCta(ctx, brand, 1190);
+}
+
+function drawNinetyValePromotion(ctx, canvas, brand, visual) {
+  fillBackground(ctx, canvas, '#070b13');
+  drawPitchStripes(ctx, 54, 54, 972, 1240, 'rgba(255,255,255,0.02)');
+  drawGradientBlob(ctx, 900, 520, 450, '#2563eb', 0.16);
+  drawPromotionBrandHeader(ctx, brand);
+  drawPromotionHeadline(ctx, visual, 76, 278, 900, '#fffaf7', '#3b82f6');
+  drawPromotionSummary(ctx, visual, 76, 520, 850, '#bdc6d6');
+
+  roundedFill(ctx, 82, 690, 916, 344, 30, 'rgba(10,16,27,0.94)');
+  roundedStroke(ctx, 82, 690, 916, 344, 30, 'rgba(59,130,246,0.24)');
+  ctx.fillStyle = '#6799ff';
+  ctx.font = '800 16px ui-monospace, SFMono-Regular, Menlo, monospace';
+  ctx.fillText('NINETYVALE ANALYTICS', 116, 734);
+
+  const cols = [
+    { label: 'MODEL', value: '52.4%' },
+    { label: 'MARKET', value: '47.6%' },
+    { label: 'EDGE', value: '+4.8%' }
+  ];
+  cols.forEach((item, i) => {
+    const x = 116 + i * 274;
+    ctx.fillStyle = '#7c899c';
+    ctx.font = '700 15px system-ui';
+    ctx.fillText(item.label, x, 792);
+    ctx.fillStyle = i === 2 ? '#f4b860' : '#f7f9fc';
+    ctx.font = '900 44px system-ui';
+    ctx.fillText(item.value, x, 850);
+  });
+
+  ctx.strokeStyle = '#315fba';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(116, 920);
+  for (let i = 0; i < 8; i++) {
+    const x = 116 + i * 102;
+    const y = 950 - seededUnit(visual.seed, 260 + i) * 80;
+    ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  drawPromoFeature(ctx, 82, 1054, 210, 'DATA DRIVEN', 'Probability before opinion.', '#3b82f6');
+  drawPromoFeature(ctx, 310, 1054, 210, 'PRICE FOCUSED', 'Odds change the decision.', '#f4b860');
+  drawPromoFeature(ctx, 538, 1054, 210, 'DISCIPLINED', 'No edge means no pick.', '#3b82f6');
+  drawPromoFeature(ctx, 766, 1054, 232, 'BEFORE KICK-OFF', 'Selections to Discord.', '#f4b860');
+  drawPromotionCta(ctx, { ...brand, color: '#3b82f6' }, 1190);
+}
+
+function drawArcynthPromotion(ctx, canvas, brand, visual) {
+  fillBackground(ctx, canvas, '#031119');
+  drawResearchGrid(ctx, canvas, brand.color);
+  drawGradientBlob(ctx, 840, 590, 490, brand.color, 0.18);
+  drawPromotionBrandHeader(ctx, brand);
+  drawPromotionHeadline(ctx, visual, 76, 286, 900, '#f2fdff', brand.color);
+  drawPromotionSummary(ctx, visual, 76, 528, 830, '#aac5cb');
+
+  const originX = 150;
+  const originY = 930;
+  const horizons = [
+    { label: '24H', color: '#74a9ff', lift: 80, salt: 320 },
+    { label: '7D', color: '#55d6e6', lift: 160, salt: 340 },
+    { label: '30D', color: brand.color, lift: 250, salt: 360 }
+  ];
+
+  horizons.forEach((horizon, index) => {
+    ctx.strokeStyle = horizon.color;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(originX, originY);
+    let px = originX;
+    let py = originY;
+    for (let i = 1; i <= 10; i++) {
+      px = originX + i * 76;
+      const progress = i / 10;
+      const noise = (seededUnit(visual.seed, horizon.salt + i) - 0.5) * 46;
+      py = originY - horizon.lift * progress + noise;
+      ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    roundedFill(ctx, 890, 772 - index * 112, 112, 64, 16, 'rgba(8,28,37,0.94)');
+    roundedStroke(ctx, 890, 772 - index * 112, 112, 64, 16, hexToRgba(horizon.color, 0.4));
+    ctx.fillStyle = horizon.color;
+    ctx.font = '900 24px system-ui';
+    ctx.fillText(horizon.label, 916, 812 - index * 112);
+  });
+
+  drawPromoFeature(ctx, 82, 1038, 210, 'ONE STORY', 'Connected market narrative.', brand.color);
+  drawPromoFeature(ctx, 310, 1038, 210, 'THREE HORIZONS', '24H · 7D · 30D.', '#55d6e6');
+  drawPromoFeature(ctx, 538, 1038, 210, 'LOCKED ROUTES', 'Judge forecast vs outcome.', '#74a9ff');
+  drawPromoFeature(ctx, 766, 1038, 232, 'FIVE ASSETS', 'BTC · ETH · SOL · XRP · ADA.', brand.color);
+  drawPromotionCta(ctx, brand, 1180);
 }
 
 function drawVisual(canvas, brand, postText, variantSeed = 0) {
