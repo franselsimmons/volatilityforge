@@ -2,7 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import { BRANDS } from '../../../lib/brands';
-import { getVariant, getPromotionVariant, promotionDue, nextPromotionDate } from '../../../lib/content';
+import { getVariant, getReelVariant, getPromotionVariant, promotionDue, nextPromotionDate } from '../../../lib/content';
 
 export const dynamic = 'force-dynamic';
 
@@ -105,6 +105,9 @@ export async function GET(request) {
   const live = slug === 'ninetyvale' ? [] : await cryptoTrending();
   const hashtagPool = mergeHashtags(brand.hashtags, live);
   const daily = buildXPost(variant.text, hashtagPool, discord);
+  const reelVariant = getReelVariant(slug);
+  const reelHashtagPool = mergeHashtags(brand.hashtags, []);
+  const reelCaption = buildXPost(reelVariant?.caption || '', reelHashtagPool, discord);
   const promotionVariant = getPromotionVariant(slug);
   const promotion = buildXPost(promotionVariant.text, hashtagPool, discord);
 
@@ -119,6 +122,18 @@ export async function GET(request) {
     postVariantTotal: variant.total,
     hashtags: daily.hashtags,
     trendSource: live.length ? 'CoinGecko live + curated' : 'curated',
+    reelCaption: reelCaption.post,
+    reelCharacterCount: reelCaption.characterCount,
+    reelHook: reelVariant?.hook || '',
+    reelInsight: reelVariant?.insight || '',
+    reelPayoff: reelVariant?.payoff || '',
+    reelTopic: reelVariant?.topic || brand.system,
+    reelVariant: reelVariant?.variant ?? 0,
+    reelVariantIndex: (reelVariant?.index ?? 0) + 1,
+    reelVariantTotal: reelVariant?.total ?? 366,
+    reelSeed: reelVariant?.seed ?? 0,
+    reelDateKey: reelVariant?.dateKey || new Date().toISOString().slice(0, 10),
+    reelDurationSeconds: reelVariant?.durationSeconds || 12,
     promotion: promotion.post,
     promotionCharacterCount: promotion.characterCount,
     promotionHeadline: promotionVariant.headline,
