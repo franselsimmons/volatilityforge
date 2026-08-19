@@ -6,10 +6,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 const REEL_WIDTH = 1080;
 const REEL_HEIGHT = 1920;
-const PREVIEW_WIDTH = 540;
-const PREVIEW_HEIGHT = 960;
-const PREVIEW_FPS = 20;
+const PREVIEW_WIDTH = 720;
+const PREVIEW_HEIGHT = 1280;
+const PREVIEW_FPS = 30;
 const EXPORT_FPS = 30;
+const EXPORT_VIDEO_BITRATE = 16_000_000;
+const EXPORT_AUDIO_BITRATE = 192_000;
 
 export default function DailyReelCard({ brand, data, copy, copied }) {
   const canvasRef = useRef(null);
@@ -27,6 +29,7 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
     const canvas = canvasRef.current;
     if (!canvas || !reel) return undefined;
 
+    const staticLayer = createReelStaticLayer(brand, reel);
     let active = true;
     let rafId = 0;
     let lastDraw = 0;
@@ -34,15 +37,18 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
 
     const loop = (now) => {
       if (!active) return;
-      if (now - lastDraw >= 1000 / PREVIEW_FPS) {
+
+      const frameInterval = 1000 / PREVIEW_FPS;
+      if (now - lastDraw >= frameInterval) {
         const seconds = ((now - startedAt) / 1000) % reel.durationSeconds;
-        drawReelFrame(canvas, brand, reel, seconds);
-        lastDraw = now;
+        drawReelFrame(canvas, brand, reel, seconds, staticLayer);
+        lastDraw = now - ((now - lastDraw) % frameInterval);
       }
+
       rafId = requestAnimationFrame(loop);
     };
 
-    drawReelFrame(canvas, brand, reel, 0);
+    drawReelFrame(canvas, brand, reel, 0, staticLayer);
     rafId = requestAnimationFrame(loop);
 
     return () => {
@@ -207,6 +213,8 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
           <div className="reel-meta">
             <span className="reel-chip">{data.reelTopic}</span>
             <span className="reel-chip">1080 × 1920</span>
+            <span className="reel-chip">30 FPS · HQ</span>
+            <span className="reel-chip">Sound ON</span>
             <span className="reel-chip">{reel.durationSeconds}s</span>
             <span className="reel-chip">variant {data.reelVariantIndex}/{data.reelVariantTotal}</span>
           </div>
@@ -232,7 +240,7 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
                 <span style={{ width: `${progress}%` }} />
               </div>
               <p className="reel-status">
-                De Reel wordt lokaal in je browser opgenomen. Houd dit scherm ongeveer {reel.durationSeconds} seconden open.
+                De Reel wordt lokaal in 1080×1920, 30 FPS en met eigen sound design opgebouwd. Houd dit scherm ongeveer {reel.durationSeconds} seconden open.
               </p>
             </>
           )}
@@ -297,15 +305,34 @@ async function recordReelVideo({ brand, reel, onProgress }) {
     throw new Error('CANVAS_CAPTURE_NOT_SUPPORTED');
   }
 
-  const stream = canvas.captureStream(EXPORT_FPS);
-  const mimeType = preferredMimeType();
+  const staticLayer = createReelStaticLayer(brand, reel);
+  const videoStream = canvas.captureStream(EXPORT_FPS);
+  const videoTrack = videoStream.getVideoTracks()[0];
+
+  const audio = await createReelAudioTrack({
+    brand,
+    reel,
+    durationSeconds: reel.durationSeconds
+  });
+
+  const tracks = [
+    ...videoStream.getVideoTracks(),
+    ...(audio?.track ? [audio.track] : [])
+  ];
+  const stream = new MediaStream(tracks);
+
+  const mimeType = preferredMimeType(Boolean(audio?.track));
   const chunks = [];
   let recorder;
 
+  const recorderOptions = {
+    videoBitsPerSecond: EXPORT_VIDEO_BITRATE,
+    audioBitsPerSecond: EXPORT_AUDIO_BITRATE
+  };
+  if (mimeType) recorderOptions.mimeType = mimeType;
+
   try {
-    recorder = mimeType
-      ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8_000_000 })
-      : new MediaRecorder(stream, { videoBitsPerSecond: 8_000_000 });
+    recorder = new MediaRecorder(stream, recorderOptions);
   } catch {
     recorder = new MediaRecorder(stream);
   }
@@ -320,75 +347,245 @@ async function recordReelVideo({ brand, reel, onProgress }) {
 
   const recordingAsMp4 = isMp4Mime(recorder.mimeType || mimeType);
   if (recordingAsMp4) recorder.start();
-  else recorder.start(400);
+  else recorder.start(500);
 
+  // Audio starts only after MediaRecorder is active so the resulting file stays in sync.
+  audio?.start?.();
+
+  const totalFrames = Math.max(1, Math.round(reel.durationSeconds * EXPORT_FPS));
+  const frameDurationMs = 1000 / EXPORT_FPS;
   const startedAt = performance.now();
-  let lastProgressUpdate = 0;
 
-  await new Promise((resolve) => {
-    const render = (now) => {
-      const elapsed = Math.min(reel.durationSeconds, (now - startedAt) / 1000);
-      drawReelFrame(canvas, brand, reel, elapsed);
+  for (let frame = 0; frame <= totalFrames; frame++) {
+    const seconds = Math.min(reel.durationSeconds, frame / EXPORT_FPS);
+    drawReelFrame(canvas, brand, reel, seconds, staticLayer);
 
-      if (now - lastProgressUpdate > 180 || elapsed >= reel.durationSeconds) {
-        onProgress?.(Math.min(100, (elapsed / reel.durationSeconds) * 100));
-        lastProgressUpdate = now;
+    // captureStream(0) is not reliable on every iPhone build. When requestFrame exists,
+    // explicitly tell the track a fresh full-resolution frame is ready.
+    if (typeof videoTrack?.requestFrame === 'function') {
+      try {
+        videoTrack.requestFrame();
+      } catch {}
+    }
+
+    if (frame % 3 === 0 || frame === totalFrames) {
+      onProgress?.((frame / totalFrames) * 100);
+    }
+
+    if (frame < totalFrames) {
+      const target = startedAt + (frame + 1) * frameDurationMs;
+      const delay = target - performance.now();
+
+      if (delay > 1) {
+        await wait(delay);
+      } else {
+        // Yield back to WebKit even when rendering took longer than the ideal frame budget.
+        await nextAnimationFrame();
       }
+    }
+  }
 
-      if (elapsed >= reel.durationSeconds) {
-        setTimeout(() => {
-          if (recorder.state !== 'inactive') recorder.stop();
-          resolve();
-        }, 160);
-        return;
-      }
+  // Keep the final frame visible briefly so the encoder receives the end frame cleanly.
+  await wait(120);
 
-      requestAnimationFrame(render);
-    };
-
-    requestAnimationFrame(render);
-  });
-
+  if (recorder.state !== 'inactive') recorder.stop();
   await finished;
-  stream.getTracks().forEach((track) => track.stop());
+
+  stream.getTracks().forEach((track) => {
+    try { track.stop(); } catch {}
+  });
+  await audio?.cleanup?.();
 
   const rawMimeType = recorder.mimeType || mimeType || chunks[0]?.type || 'video/webm';
   const actualMimeType = isMp4Mime(rawMimeType) ? 'video/mp4' : 'video/webm';
   const blob = new Blob(chunks, { type: actualMimeType });
+
   if (!blob.size) throw new Error('EMPTY_VIDEO');
 
   onProgress?.(100);
-  return { blob, mimeType: actualMimeType };
+  return {
+    blob,
+    mimeType: actualMimeType,
+    hasAudio: Boolean(audio?.track)
+  };
+}
+
+async function createReelAudioTrack({ brand, reel, durationSeconds }) {
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) return null;
+
+  let context;
+  try {
+    context = new AudioCtx({ latencyHint: 'playback' });
+    if (context.state === 'suspended') await context.resume();
+  } catch {
+    return null;
+  }
+
+  const destination = context.createMediaStreamDestination();
+  const master = context.createGain();
+  master.gain.value = 0.78;
+  master.connect(destination);
+
+  const buffer = buildReelAudioBuffer(context, brand, reel, durationSeconds);
+  const source = context.createBufferSource();
+  source.buffer = buffer;
+
+  const filter = context.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 9000;
+  filter.Q.value = 0.25;
+
+  source.connect(filter);
+  filter.connect(master);
+
+  const track = destination.stream.getAudioTracks()[0];
+  let started = false;
+
+  return {
+    track,
+    start() {
+      if (started) return;
+      started = true;
+      source.start(context.currentTime + 0.035);
+    },
+    async cleanup() {
+      try { source.stop(); } catch {}
+      try { track?.stop(); } catch {}
+      try { await context.close(); } catch {}
+    }
+  };
+}
+
+function buildReelAudioBuffer(context, brand, reel, durationSeconds) {
+  const sampleRate = context.sampleRate || 48000;
+  const frameCount = Math.ceil(durationSeconds * sampleRate);
+  const buffer = context.createBuffer(2, frameCount, sampleRate);
+
+  const audioProfile = getBrandAudioProfile(brand?.visualMode);
+  const beatSeconds = 60 / audioProfile.bpm;
+  const transitionTimes = [0.15, 2.2, 6.25, 9.2];
+  const seed = Number(reel.seed) >>> 0;
+
+  for (let channel = 0; channel < 2; channel++) {
+    const data = buffer.getChannelData(channel);
+    const stereoPhase = channel === 0 ? 0 : Math.PI * 0.44;
+
+    for (let i = 0; i < frameCount; i++) {
+      const t = i / sampleRate;
+      const fadeIn = clamp(t / 0.35, 0, 1);
+      const fadeOut = clamp((durationSeconds - t) / 0.55, 0, 1);
+      const envelope = Math.min(fadeIn, fadeOut);
+
+      // Soft electronic bed.
+      const pad =
+        Math.sin(Math.PI * 2 * audioProfile.root * t + stereoPhase) * 0.040 +
+        Math.sin(Math.PI * 2 * audioProfile.root * 1.5 * t + stereoPhase * 0.6) * 0.020 +
+        Math.sin(Math.PI * 2 * audioProfile.root * 2 * t + stereoPhase * 0.25) * 0.013;
+
+      // Light pulse gives the Reel rhythm without turning it into copyrighted music.
+      const beatPhase = (t % beatSeconds) / beatSeconds;
+      const pulseEnv = Math.exp(-beatPhase * 10.0);
+      const pulse =
+        Math.sin(Math.PI * 2 * audioProfile.pulse * t) *
+        pulseEnv *
+        0.032;
+
+      // Small deterministic shimmer so every day's sound is subtly different.
+      const noiseIndex = Math.floor(t * 180);
+      const shimmerNoise = (unit(seed, 900 + noiseIndex + channel * 17) - 0.5) * 2;
+      const shimmer =
+        shimmerNoise *
+        Math.sin(Math.PI * 2 * audioProfile.shimmer * t + stereoPhase) *
+        0.006;
+
+      // Scene transition whooshes / impacts.
+      let transitions = 0;
+      for (let k = 0; k < transitionTimes.length; k++) {
+        const dt = t - transitionTimes[k];
+        if (dt >= 0 && dt < 0.34) {
+          const e = Math.exp(-dt * 12);
+          const sweep = audioProfile.transition + k * 34;
+          transitions += Math.sin(Math.PI * 2 * sweep * dt + stereoPhase) * e * 0.040;
+        }
+      }
+
+      const sample = (pad + pulse + shimmer + transitions) * envelope;
+      data[i] = Math.max(-0.22, Math.min(0.22, sample));
+    }
+  }
+
+  return buffer;
+}
+
+function getBrandAudioProfile(mode) {
+  const map = {
+    kryvant: { root: 110.0, pulse: 220.0, shimmer: 1760, transition: 155, bpm: 92 },
+    lumeriq: { root: 146.83, pulse: 293.66, shimmer: 2349, transition: 205, bpm: 98 },
+    rangenest: { root: 98.0, pulse: 196.0, shimmer: 1568, transition: 138, bpm: 86 },
+    ninetyvale: { root: 130.81, pulse: 261.63, shimmer: 2093, transition: 184, bpm: 104 },
+    arcynth: { root: 164.81, pulse: 329.63, shimmer: 2637, transition: 232, bpm: 94 }
+  };
+  return map[mode] || map.arcynth;
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, Math.max(0, ms)));
+}
+
+function nextAnimationFrame() {
+  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
 }
 
 function isMp4Mime(value) {
   return String(value || '').toLowerCase().includes('mp4');
 }
 
-function preferredMimeType() {
-  const candidates = [
-    'video/mp4;codecs=avc1.42E01E',
-    'video/mp4;codecs=avc1',
-    'video/mp4',
-    'video/webm;codecs=vp9',
-    'video/webm;codecs=vp8',
-    'video/webm'
-  ];
+function preferredMimeType(withAudio = true) {
+  const candidates = withAudio
+    ? [
+        'video/mp4;codecs="avc1.640028,mp4a.40.2"',
+        'video/mp4;codecs="avc1.4D401F,mp4a.40.2"',
+        'video/mp4;codecs="avc1.42E01E,mp4a.40.2"',
+        'video/mp4',
+        'video/webm;codecs=vp9,opus',
+        'video/webm;codecs=vp8,opus',
+        'video/webm'
+      ]
+    : [
+        'video/mp4;codecs=avc1.640028',
+        'video/mp4;codecs=avc1.4D401F',
+        'video/mp4;codecs=avc1.42E01E',
+        'video/mp4',
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm'
+      ];
 
   if (typeof MediaRecorder?.isTypeSupported !== 'function') return '';
   return candidates.find((type) => MediaRecorder.isTypeSupported(type)) || '';
 }
 
-function drawReelFrame(canvas, brand, reel, seconds) {
-  const ctx = canvas.getContext('2d');
+function drawReelFrame(canvas, brand, reel, seconds, staticLayer = null) {
+  const ctx = canvas.getContext('2d', { alpha: false });
   if (!ctx) return;
 
   const scaleX = canvas.width / REEL_WIDTH;
   const scaleY = canvas.height / REEL_HEIGHT;
+
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.imageSmoothingEnabled = true;
+  if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
+
   ctx.save();
   ctx.scale(scaleX, scaleY);
+
+  if (staticLayer) {
+    ctx.drawImage(staticLayer, 0, 0, REEL_WIDTH, REEL_HEIGHT);
+  } else {
+    drawReelStaticLayer(ctx, brand, reel);
+  }
 
   switch (brand.visualMode) {
     case 'kryvant':
@@ -413,12 +610,60 @@ function drawReelFrame(canvas, brand, reel, seconds) {
   ctx.restore();
 }
 
+function createReelStaticLayer(brand, reel) {
+  const layer = document.createElement('canvas');
+  layer.width = REEL_WIDTH;
+  layer.height = REEL_HEIGHT;
+  const ctx = layer.getContext('2d', { alpha: false });
+  if (!ctx) return layer;
+
+  ctx.imageSmoothingEnabled = true;
+  if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
+  drawReelStaticLayer(ctx, brand, reel);
+  return layer;
+}
+
+function drawReelStaticLayer(ctx, brand, reel) {
+  switch (brand.visualMode) {
+    case 'kryvant':
+      fillFrame(ctx, '#020711');
+      drawGrid(ctx, 'rgba(255,255,255,0.035)', 92, 116);
+      glow(ctx, 170, 1020, 440, '#ff4964', 0.16);
+      glow(ctx, 910, 1020, 500, brand.color, 0.24);
+      drawPersistentBrand(ctx, brand, reel, '#9fb9dc');
+      break;
+    case 'lumeriq':
+      fillFrame(ctx, '#090313');
+      glow(ctx, 820, 950, 620, brand.color, 0.24);
+      glow(ctx, 220, 1600, 390, '#7c3aed', 0.18);
+      drawPersistentBrand(ctx, brand, reel, '#c9b8dd');
+      break;
+    case 'rangenest':
+      fillFrame(ctx, '#06110e');
+      drawGrid(ctx, 'rgba(96,211,157,0.035)', 108, 108);
+      glow(ctx, 820, 1040, 520, brand.color, 0.18);
+      drawPersistentBrand(ctx, brand, reel, '#a7c7b8');
+      break;
+    case 'ninetyvale':
+      fillFrame(ctx, '#050913');
+      drawFootballPitch(ctx);
+      glow(ctx, 850, 980, 520, '#2563eb', 0.16);
+      glow(ctx, 220, 1320, 420, '#d6a354', 0.10);
+      drawPersistentBrand(ctx, brand, reel, '#c7cfdd');
+      break;
+    case 'arcynth':
+      fillFrame(ctx, '#031119');
+      drawGrid(ctx, 'rgba(255,255,255,0.035)', 90, 112);
+      glow(ctx, 850, 1020, 560, brand.color, 0.18);
+      drawPersistentBrand(ctx, brand, reel, '#a7c5cb');
+      break;
+    default:
+      fillFrame(ctx, '#020711');
+      drawPersistentBrand(ctx, brand, reel, '#9fb9dc');
+  }
+}
+
 function drawKryvantReel(ctx, brand, reel, t) {
-  fillFrame(ctx, '#020711');
-  drawGrid(ctx, 'rgba(255,255,255,0.035)', 92, 116);
-  glow(ctx, 170, 1020, 440, '#ff4964', 0.16);
-  glow(ctx, 910, 1020, 500, brand.color, 0.24);
-  drawPersistentBrand(ctx, brand, reel, '#9fb9dc');
 
   withAlpha(ctx, sceneAlpha(t, 0, 2.8), () => {
     drawHeroText(ctx, reel.hook, 78, 380, 920, brand.color);
@@ -473,10 +718,6 @@ function drawKryvantFlow(ctx, brand, seed, progress) {
 }
 
 function drawLumeriqReel(ctx, brand, reel, t) {
-  fillFrame(ctx, '#090313');
-  glow(ctx, 820, 950, 620, brand.color, 0.24);
-  glow(ctx, 220, 1600, 390, '#7c3aed', 0.18);
-  drawPersistentBrand(ctx, brand, reel, '#c9b8dd');
 
   withAlpha(ctx, sceneAlpha(t, 0, 2.8), () => {
     drawHeroText(ctx, reel.hook, 78, 390, 920, brand.color);
@@ -535,10 +776,6 @@ function drawLumeriqNodes(ctx, brand, seed, progress) {
 }
 
 function drawRangenestReel(ctx, brand, reel, t) {
-  fillFrame(ctx, '#06110e');
-  drawGrid(ctx, 'rgba(96,211,157,0.035)', 108, 108);
-  glow(ctx, 820, 1040, 520, brand.color, 0.18);
-  drawPersistentBrand(ctx, brand, reel, '#a7c7b8');
 
   withAlpha(ctx, sceneAlpha(t, 0, 2.8), () => {
     drawHeroText(ctx, reel.hook, 78, 390, 920, brand.color);
@@ -582,17 +819,16 @@ function drawRangeEngine(ctx, brand, seed, progress) {
 
   ctx.strokeStyle = brand.color;
   ctx.lineWidth = 5;
-  ctx.beginPath();
+  const rangePoints = [{ x: x + 44, y: y + h * 0.67 }];
   let py = y + h * 0.67;
-  ctx.moveTo(x + 44, py);
   const points = 16;
   for (let i = 1; i <= points; i++) {
     const px = x + 44 + (w - 88) * (i / points);
     const target = y + 70 + unit(seed, 200 + i) * (h - 140);
     py = lerp(py, target, 0.58);
-    if (i / points <= progress) ctx.lineTo(px, py);
+    rangePoints.push({ x: px, y: py });
   }
-  ctx.stroke();
+  drawProgressivePath(ctx, rangePoints, progress);
 
   const rangeWidth = 220 + progress * 520;
   ctx.strokeStyle = hexToRgba(brand.color, 0.8);
@@ -603,11 +839,6 @@ function drawRangeEngine(ctx, brand, seed, progress) {
 }
 
 function drawNinetyValeReel(ctx, brand, reel, t) {
-  fillFrame(ctx, '#050913');
-  drawFootballPitch(ctx);
-  glow(ctx, 850, 980, 520, '#2563eb', 0.16);
-  glow(ctx, 220, 1320, 420, '#d6a354', 0.10);
-  drawPersistentBrand(ctx, brand, reel, '#c7cfdd');
 
   withAlpha(ctx, sceneAlpha(t, 0, 2.8), () => {
     drawHeroText(ctx, reel.hook, 78, 390, 920, '#4f8cff');
@@ -666,10 +897,6 @@ function drawNinetyValeModel(ctx, seed, progress) {
 }
 
 function drawArcynthReel(ctx, brand, reel, t) {
-  fillFrame(ctx, '#031119');
-  drawGrid(ctx, 'rgba(255,255,255,0.035)', 90, 112);
-  glow(ctx, 850, 1020, 560, brand.color, 0.18);
-  drawPersistentBrand(ctx, brand, reel, '#a7c5cb');
 
   withAlpha(ctx, sceneAlpha(t, 0, 2.8), () => {
     drawHeroText(ctx, reel.hook, 78, 390, 920, brand.color);
@@ -703,19 +930,19 @@ function drawForecastRoutes(ctx, brand, seed, progress) {
   lines.forEach((line, index) => {
     ctx.strokeStyle = line.color;
     ctx.lineWidth = 4;
-    ctx.beginPath();
-    let lastY = y + index * 90;
-    ctx.moveTo(x, lastY);
+
+    const routePoints = [{ x, y: y + index * 90 }];
     const points = 18;
     for (let i = 1; i <= points; i++) {
-      if (i / points > progress) break;
       const px = x + w * (i / points);
       const trend = -line.lift * (i / points);
       const noise = (unit(seed, line.salt + i) - 0.5) * 80;
-      lastY = y + index * 90 + trend + noise;
-      ctx.lineTo(px, lastY);
+      routePoints.push({
+        x: px,
+        y: y + index * 90 + trend + noise
+      });
     }
-    ctx.stroke();
+    drawProgressivePath(ctx, routePoints, progress);
 
     roundFill(ctx, 828, 690 + index * 108, 150, 66, 18, '#081e27');
     roundStroke(ctx, 828, 690 + index * 108, 150, 66, 18, hexToRgba(line.color, 0.4));
@@ -723,6 +950,34 @@ function drawForecastRoutes(ctx, brand, seed, progress) {
     ctx.font = '900 27px system-ui';
     ctx.fillText(line.label, 870, 732 + index * 108);
   });
+}
+
+function drawProgressivePath(ctx, points, progress) {
+  if (!Array.isArray(points) || points.length < 2) return;
+
+  const p = clamp(progress, 0, 1);
+  const segmentCount = points.length - 1;
+  const exact = p * segmentCount;
+  const completed = Math.floor(exact);
+  const partial = exact - completed;
+
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+
+  for (let i = 1; i <= completed && i < points.length; i++) {
+    ctx.lineTo(points[i].x, points[i].y);
+  }
+
+  if (completed < segmentCount) {
+    const from = points[completed];
+    const to = points[completed + 1];
+    ctx.lineTo(
+      lerp(from.x, to.x, partial),
+      lerp(from.y, to.y, partial)
+    );
+  }
+
+  ctx.stroke();
 }
 
 function drawPersistentBrand(ctx, brand, reel, muted) {
