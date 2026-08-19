@@ -19,6 +19,7 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
   const [rendering, setRendering] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
+  const [saveStatus, setSaveStatus] = useState('');
 
   const reel = useMemo(() => buildReelModel(brand, data), [brand, data]);
 
@@ -53,6 +54,7 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
   useEffect(() => {
     setProgress(0);
     setError('');
+    setSaveStatus('');
     setVideoMime('');
     setVideoBlob(null);
     setVideoUrl((previous) => {
@@ -73,6 +75,7 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
     setRendering(true);
     setProgress(0);
     setError('');
+    setSaveStatus('');
 
     try {
       const result = await recordReelVideo({
@@ -94,15 +97,62 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
     }
   }
 
-  function downloadVideo() {
+  function getVideoFile() {
+    if (!videoBlob || typeof File === 'undefined') return null;
+
+    const isMp4 = isMp4Mime(videoMime || videoBlob.type);
+    const extension = isMp4 ? 'mp4' : 'webm';
+    const safeMime = isMp4 ? 'video/mp4' : 'video/webm';
+
+    return new File(
+      [videoBlob],
+      `${brand.name.toLowerCase()}-daily-reel-${data.reelDateKey}.${extension}`,
+      { type: safeMime }
+    );
+  }
+
+  function forceBrowserDownload() {
     if (!videoUrl) return;
-    const extension = videoMime.includes('mp4') ? 'mp4' : 'webm';
+
+    const extension = isMp4Mime(videoMime) ? 'mp4' : 'webm';
     const anchor = document.createElement('a');
     anchor.href = videoUrl;
     anchor.download = `${brand.name.toLowerCase()}-daily-reel-${data.reelDateKey}.${extension}`;
+    anchor.rel = 'noopener';
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
+  }
+
+  async function saveVideo() {
+    const file = getVideoFile();
+    if (!file) return;
+
+    setError('');
+    setSaveStatus('');
+
+    const canNativeShare =
+      typeof navigator !== 'undefined' &&
+      typeof navigator.share === 'function' &&
+      (typeof navigator.canShare !== 'function' || navigator.canShare({ files: [file] }));
+
+    if (canNativeShare) {
+      try {
+        // On iPhone/iPad this opens the native share sheet. Choose “Bewaar video” / “Save Video”.
+        // Do not attach caption text here: keeping this file-only makes iOS treat it as a video asset.
+        await navigator.share({
+          files: [file],
+          title: `${brand.name} Daily Reel`
+        });
+        setSaveStatus('Deelmenu voltooid. Kies op iPhone “Bewaar video” om hem in Foto’s te zetten.');
+        return;
+      } catch (shareError) {
+        if (shareError?.name === 'AbortError') return;
+      }
+    }
+
+    forceBrowserDownload();
+    setSaveStatus('Download gestart.');
   }
 
   function openVideo() {
@@ -111,22 +161,18 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
   }
 
   async function shareVideo() {
-    if (!videoBlob || typeof navigator?.share !== 'function' || typeof File === 'undefined') return;
+    const file = getVideoFile();
+    if (!file || typeof navigator?.share !== 'function') return;
 
-    const extension = videoMime.includes('mp4') ? 'mp4' : 'webm';
-    const file = new File(
-      [videoBlob],
-      `${brand.name.toLowerCase()}-daily-reel-${data.reelDateKey}.${extension}`,
-      { type: videoMime || videoBlob.type || 'video/webm' }
-    );
-
-    if (typeof navigator.canShare === 'function' && !navigator.canShare({ files: [file] })) return;
+    if (typeof navigator.canShare === 'function' && !navigator.canShare({ files: [file] })) {
+      setError('DELEN_NIET_ONDERSTEUND');
+      return;
+    }
 
     try {
       await navigator.share({
         files: [file],
-        title: `${brand.name} Daily Reel`,
-        text: data.reelCaption
+        title: `${brand.name} Daily Reel`
       });
     } catch (shareError) {
       if (shareError?.name !== 'AbortError') setError('DELEN_MISLUKT');
@@ -205,14 +251,15 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
               </div>
               <video className="reel-video" src={videoUrl} controls playsInline preload="metadata" />
               <div className="buttons">
-                <button onClick={downloadVideo}>Opslaan video</button>
+                <button onClick={saveVideo}>Bewaar video op iPhone</button>
                 {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
-                  <button className="secondary" onClick={shareVideo}>Deel video</button>
+                  <button className="secondary" onClick={shareVideo}>Deel / post video</button>
                 )}
                 <button className="secondary" onClick={openVideo}>Open video</button>
               </div>
+              {saveStatus && <p className="reel-save-status">{saveStatus}</p>}
               <small className="reel-save-note">
-                Op iPhone kun je na “Open video” ook de deelknop gebruiken om de video in Foto’s/Bestanden te bewaren.
+                iPhone: tik op “Bewaar video op iPhone” en kies daarna “Bewaar video” in het iOS-deelmenu. De Reel wordt als videobestand doorgegeven, niet als webpagina.
               </small>
             </div>
           )}
@@ -271,7 +318,9 @@ async function recordReelVideo({ brand, reel, onProgress }) {
     recorder.onstop = () => resolve();
   });
 
-  recorder.start(400);
+  const recordingAsMp4 = isMp4Mime(recorder.mimeType || mimeType);
+  if (recordingAsMp4) recorder.start();
+  else recorder.start(400);
 
   const startedAt = performance.now();
   let lastProgressUpdate = 0;
@@ -303,7 +352,8 @@ async function recordReelVideo({ brand, reel, onProgress }) {
   await finished;
   stream.getTracks().forEach((track) => track.stop());
 
-  const actualMimeType = recorder.mimeType || mimeType || chunks[0]?.type || 'video/webm';
+  const rawMimeType = recorder.mimeType || mimeType || chunks[0]?.type || 'video/webm';
+  const actualMimeType = isMp4Mime(rawMimeType) ? 'video/mp4' : 'video/webm';
   const blob = new Blob(chunks, { type: actualMimeType });
   if (!blob.size) throw new Error('EMPTY_VIDEO');
 
@@ -311,9 +361,14 @@ async function recordReelVideo({ brand, reel, onProgress }) {
   return { blob, mimeType: actualMimeType };
 }
 
+function isMp4Mime(value) {
+  return String(value || '').toLowerCase().includes('mp4');
+}
+
 function preferredMimeType() {
   const candidates = [
     'video/mp4;codecs=avc1.42E01E',
+    'video/mp4;codecs=avc1',
     'video/mp4',
     'video/webm;codecs=vp9',
     'video/webm;codecs=vp8',
