@@ -1,6 +1,8 @@
+//file: app/api/content/route.js
+
 import { NextResponse } from 'next/server';
 import { BRANDS } from '../../../lib/brands';
-import { getVariant, getPromotion, promotionDue, nextPromotionDate } from '../../../lib/content';
+import { getVariant, getPromotionVariant, promotionDue, nextPromotionDate } from '../../../lib/content';
 
 export const dynamic = 'force-dynamic';
 
@@ -103,7 +105,8 @@ export async function GET(request) {
   const live = slug === 'ninetyvale' ? [] : await cryptoTrending();
   const hashtagPool = mergeHashtags(brand.hashtags, live);
   const daily = buildXPost(variant.text, hashtagPool, discord);
-  const promotion = buildXPost(getPromotion(slug), hashtagPool, discord);
+  const promotionVariant = getPromotionVariant(slug);
+  const promotion = buildXPost(promotionVariant.text, hashtagPool, discord);
 
   return NextResponse.json({
     ok: true,
@@ -118,6 +121,9 @@ export async function GET(request) {
     trendSource: live.length ? 'CoinGecko live + curated' : 'curated',
     promotion: promotion.post,
     promotionCharacterCount: promotion.characterCount,
+    promotionHeadline: promotionVariant.headline,
+    promotionVisualSubtitle: promotionVariant.visualSubtitle,
+    promotionCycleIndex: promotionVariant.cycleIndex,
     promotionDue: promotionDue(),
     nextPromotionDate: nextPromotionDate().toISOString(),
     generatedAt: new Date().toISOString()
