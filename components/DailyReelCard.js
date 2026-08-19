@@ -10,8 +10,8 @@ const PREVIEW_WIDTH = 720;
 const PREVIEW_HEIGHT = 1280;
 const PREVIEW_FPS = 30;
 const EXPORT_FPS = 30;
-const EXPORT_VIDEO_BITRATE = 16_000_000;
-const EXPORT_AUDIO_BITRATE = 192_000;
+const EXPORT_VIDEO_BITRATE = 24_000_000;
+const EXPORT_AUDIO_BITRATE = 256_000;
 
 export default function DailyReelCard({ brand, data, copy, copied }) {
   const canvasRef = useRef(null);
@@ -213,8 +213,8 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
           <div className="reel-meta">
             <span className="reel-chip">{data.reelTopic}</span>
             <span className="reel-chip">1080 × 1920</span>
-            <span className="reel-chip">30 FPS · HQ</span>
-            <span className="reel-chip">Sound ON</span>
+            <span className="reel-chip">30 FPS · CINEMATIC HQ</span>
+            <span className="reel-chip">MUSIC + SFX</span>
             <span className="reel-chip">{reel.durationSeconds}s</span>
             <span className="reel-chip">variant {data.reelVariantIndex}/{data.reelVariantTotal}</span>
           </div>
@@ -240,7 +240,7 @@ export default function DailyReelCard({ brand, data, copy, copied }) {
                 <span style={{ width: `${progress}%` }} />
               </div>
               <p className="reel-status">
-                De Reel wordt lokaal in 1080×1920, 30 FPS en met eigen sound design opgebouwd. Houd dit scherm ongeveer {reel.durationSeconds} seconden open.
+                De Reel wordt lokaal in 1080×1920, 30 FPS, cinematic motion en eigen muziek + SFX opgebouwd. Houd dit scherm ongeveer {reel.durationSeconds} seconden open.
               </p>
             </>
           )}
@@ -461,72 +461,341 @@ function buildReelAudioBuffer(context, brand, reel, durationSeconds) {
   const sampleRate = context.sampleRate || 48000;
   const frameCount = Math.ceil(durationSeconds * sampleRate);
   const buffer = context.createBuffer(2, frameCount, sampleRate);
+  const left = buffer.getChannelData(0);
+  const right = buffer.getChannelData(1);
 
-  const audioProfile = getBrandAudioProfile(brand?.visualMode);
-  const beatSeconds = 60 / audioProfile.bpm;
-  const transitionTimes = [0.15, 2.2, 6.25, 9.2];
+  const profile = getBrandAudioProfile(brand?.visualMode);
   const seed = Number(reel.seed) >>> 0;
+  const beat = 60 / profile.bpm;
+  const totalBeats = Math.ceil(durationSeconds / beat);
+  const variant = (Number(reel.variant) || 0) % 4;
+  const progression = profile.progressions[variant] || profile.progressions[0];
 
-  for (let channel = 0; channel < 2; channel++) {
-    const data = buffer.getChannelData(channel);
-    const stereoPhase = channel === 0 ? 0 : Math.PI * 0.44;
+  // Clean cinematic pad: no random/noise layer, so there is no crackling texture.
+  for (let bar = 0; bar < Math.ceil(totalBeats / 4); bar++) {
+    const chordOffset = progression[bar % progression.length];
+    const chordStart = bar * beat * 4;
+    const chordDuration = Math.min(beat * 4.35, durationSeconds - chordStart + 0.25);
+    if (chordDuration <= 0) continue;
 
-    for (let i = 0; i < frameCount; i++) {
-      const t = i / sampleRate;
-      const fadeIn = clamp(t / 0.35, 0, 1);
-      const fadeOut = clamp((durationSeconds - t) / 0.55, 0, 1);
-      const envelope = Math.min(fadeIn, fadeOut);
+    const chord = profile.chord.map((interval) => profile.rootMidi + chordOffset + interval);
+    chord.forEach((midi, voiceIndex) => {
+      addMusicalNote({
+        left,
+        right,
+        sampleRate,
+        start: chordStart,
+        duration: chordDuration,
+        frequency: midiToHz(midi),
+        gain: 0.030 - voiceIndex * 0.003,
+        pan: voiceIndex === 0 ? -0.30 : voiceIndex === 1 ? 0.28 : 0,
+        attack: 0.16,
+        release: 0.58,
+        tone: 'pad'
+      });
+    });
+  }
 
-      // Soft electronic bed.
-      const pad =
-        Math.sin(Math.PI * 2 * audioProfile.root * t + stereoPhase) * 0.040 +
-        Math.sin(Math.PI * 2 * audioProfile.root * 1.5 * t + stereoPhase * 0.6) * 0.020 +
-        Math.sin(Math.PI * 2 * audioProfile.root * 2 * t + stereoPhase * 0.25) * 0.013;
+  // Bass + clean pulse.
+  for (let b = 0; b < totalBeats; b++) {
+    const time = b * beat;
+    const bar = Math.floor(b / 4);
+    const chordOffset = progression[bar % progression.length];
+    const root = profile.rootMidi + chordOffset - 12;
 
-      // Light pulse gives the Reel rhythm without turning it into copyrighted music.
-      const beatPhase = (t % beatSeconds) / beatSeconds;
-      const pulseEnv = Math.exp(-beatPhase * 10.0);
-      const pulse =
-        Math.sin(Math.PI * 2 * audioProfile.pulse * t) *
-        pulseEnv *
-        0.032;
+    addKick({
+      left,
+      right,
+      sampleRate,
+      start: time,
+      gain: b % 4 === 0 ? 0.34 : 0.24
+    });
 
-      // Small deterministic shimmer so every day's sound is subtly different.
-      const noiseIndex = Math.floor(t * 180);
-      const shimmerNoise = (unit(seed, 900 + noiseIndex + channel * 17) - 0.5) * 2;
-      const shimmer =
-        shimmerNoise *
-        Math.sin(Math.PI * 2 * audioProfile.shimmer * t + stereoPhase) *
-        0.006;
+    addMusicalNote({
+      left,
+      right,
+      sampleRate,
+      start: time + 0.02,
+      duration: beat * 0.72,
+      frequency: midiToHz(root),
+      gain: 0.080,
+      pan: 0,
+      attack: 0.008,
+      release: 0.24,
+      tone: 'bass'
+    });
 
-      // Scene transition whooshes / impacts.
-      let transitions = 0;
-      for (let k = 0; k < transitionTimes.length; k++) {
-        const dt = t - transitionTimes[k];
-        if (dt >= 0 && dt < 0.34) {
-          const e = Math.exp(-dt * 12);
-          const sweep = audioProfile.transition + k * 34;
-          transitions += Math.sin(Math.PI * 2 * sweep * dt + stereoPhase) * e * 0.040;
-        }
-      }
+    // Clean melodic plucks. Daily seed rotates note order without changing brand identity.
+    const arp = profile.arp[(b + Math.floor(unit(seed, 701) * profile.arp.length)) % profile.arp.length];
+    addMusicalNote({
+      left,
+      right,
+      sampleRate,
+      start: time + beat * 0.50,
+      duration: beat * 0.42,
+      frequency: midiToHz(profile.rootMidi + chordOffset + arp + 12),
+      gain: 0.048,
+      pan: b % 2 === 0 ? -0.42 : 0.42,
+      attack: 0.005,
+      release: 0.20,
+      tone: 'pluck'
+    });
 
-      const sample = (pad + pulse + shimmer + transitions) * envelope;
-      data[i] = Math.max(-0.22, Math.min(0.22, sample));
+    if (b % 2 === 1) {
+      addSoftAccent({
+        left,
+        right,
+        sampleRate,
+        start: time,
+        frequency: midiToHz(profile.rootMidi + chordOffset + 19),
+        gain: 0.026,
+        pan: b % 4 === 1 ? -0.55 : 0.55
+      });
     }
   }
 
+  // Scene transitions: tonal sweeps instead of noise-based whooshes.
+  [0.10, 2.15, 6.20, 9.15].forEach((time, index) => {
+    addTonalSweep({
+      left,
+      right,
+      sampleRate,
+      start: time,
+      duration: index === 0 ? 0.42 : 0.52,
+      fromHz: profile.sweepFrom + index * 18,
+      toHz: profile.sweepTo + index * 60,
+      gain: index === 0 ? 0.070 : 0.095,
+      pan: index % 2 === 0 ? -0.18 : 0.18
+    });
+  });
+
+  // Final CTA lift.
+  addMusicalNote({
+    left,
+    right,
+    sampleRate,
+    start: Math.max(0, durationSeconds - 2.75),
+    duration: 2.45,
+    frequency: midiToHz(profile.rootMidi + 24),
+    gain: 0.045,
+    pan: -0.35,
+    attack: 0.08,
+    release: 0.58,
+    tone: 'pad'
+  });
+  addMusicalNote({
+    left,
+    right,
+    sampleRate,
+    start: Math.max(0, durationSeconds - 2.75),
+    duration: 2.45,
+    frequency: midiToHz(profile.rootMidi + 31),
+    gain: 0.040,
+    pan: 0.35,
+    attack: 0.08,
+    release: 0.58,
+    tone: 'pad'
+  });
+
+  masterAudio(left, right, sampleRate, durationSeconds);
   return buffer;
 }
 
 function getBrandAudioProfile(mode) {
   const map = {
-    kryvant: { root: 110.0, pulse: 220.0, shimmer: 1760, transition: 155, bpm: 92 },
-    lumeriq: { root: 146.83, pulse: 293.66, shimmer: 2349, transition: 205, bpm: 98 },
-    rangenest: { root: 98.0, pulse: 196.0, shimmer: 1568, transition: 138, bpm: 86 },
-    ninetyvale: { root: 130.81, pulse: 261.63, shimmer: 2093, transition: 184, bpm: 104 },
-    arcynth: { root: 164.81, pulse: 329.63, shimmer: 2637, transition: 232, bpm: 94 }
+    kryvant: {
+      bpm: 104,
+      rootMidi: 38,
+      chord: [0, 3, 7],
+      arp: [0, 7, 10, 15, 7, 19],
+      sweepFrom: 105,
+      sweepTo: 520,
+      progressions: [[0, -2, -5, -7], [0, -5, -2, -7], [0, 3, -2, -5], [0, -7, -5, -2]]
+    },
+    lumeriq: {
+      bpm: 112,
+      rootMidi: 41,
+      chord: [0, 3, 7],
+      arp: [0, 7, 12, 15, 19, 12],
+      sweepFrom: 135,
+      sweepTo: 720,
+      progressions: [[0, 3, -2, 5], [0, -2, 3, 7], [0, 5, 3, -2], [0, 7, 5, 3]]
+    },
+    rangenest: {
+      bpm: 98,
+      rootMidi: 45,
+      chord: [0, 3, 7],
+      arp: [0, 7, 10, 12, 7, 15],
+      sweepFrom: 95,
+      sweepTo: 480,
+      progressions: [[0, -5, -3, -7], [0, -3, -5, -7], [0, 2, -3, -5], [0, -7, -3, -5]]
+    },
+    ninetyvale: {
+      bpm: 118,
+      rootMidi: 48,
+      chord: [0, 3, 7],
+      arp: [0, 7, 12, 19, 12, 15],
+      sweepFrom: 145,
+      sweepTo: 820,
+      progressions: [[0, 5, 3, 7], [0, 3, 5, 10], [0, 7, 5, 3], [0, 10, 7, 5]]
+    },
+    arcynth: {
+      bpm: 108,
+      rootMidi: 40,
+      chord: [0, 4, 7],
+      arp: [0, 7, 11, 14, 19, 11],
+      sweepFrom: 125,
+      sweepTo: 680,
+      progressions: [[0, 5, 7, 3], [0, 7, 5, 10], [0, 3, 5, 7], [0, 10, 7, 5]]
+    }
   };
   return map[mode] || map.arcynth;
+}
+
+function midiToHz(midi) {
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+function addMusicalNote({
+  left,
+  right,
+  sampleRate,
+  start,
+  duration,
+  frequency,
+  gain,
+  pan = 0,
+  attack = 0.01,
+  release = 0.20,
+  tone = 'pad'
+}) {
+  const startIndex = Math.max(0, Math.floor(start * sampleRate));
+  const endIndex = Math.min(left.length, Math.ceil((start + duration) * sampleRate));
+  if (endIndex <= startIndex || !Number.isFinite(frequency) || frequency <= 0) return;
+
+  const panLeft = Math.sqrt((1 - clamp(pan, -1, 1)) * 0.5);
+  const panRight = Math.sqrt((1 + clamp(pan, -1, 1)) * 0.5);
+  const attackSafe = Math.max(0.001, attack);
+  const releaseSafe = Math.max(0.001, release);
+
+  for (let i = startIndex; i < endIndex; i++) {
+    const t = (i - startIndex) / sampleRate;
+    const remaining = duration - t;
+    const env = Math.min(1, t / attackSafe, remaining / releaseSafe);
+    const phase = Math.PI * 2 * frequency * t;
+
+    let wave;
+    if (tone === 'bass') {
+      wave =
+        Math.sin(phase) * 0.88 +
+        Math.sin(phase * 2) * 0.09 +
+        Math.sin(phase * 0.5) * 0.03;
+    } else if (tone === 'pluck') {
+      const decay = Math.exp(-t * 7.0);
+      wave =
+        (Math.sin(phase) * 0.74 +
+          Math.sin(phase * 2) * 0.18 +
+          Math.sin(phase * 3) * 0.08) *
+        decay;
+    } else {
+      wave =
+        Math.sin(phase) * 0.66 +
+        Math.sin(phase * 0.5) * 0.18 +
+        Math.sin(phase * 2) * 0.10 +
+        Math.sin(phase * 3) * 0.06;
+    }
+
+    const sample = wave * env * gain;
+    left[i] += sample * panLeft;
+    right[i] += sample * panRight;
+  }
+}
+
+function addKick({ left, right, sampleRate, start, gain }) {
+  const duration = 0.28;
+  const startIndex = Math.max(0, Math.floor(start * sampleRate));
+  const endIndex = Math.min(left.length, Math.ceil((start + duration) * sampleRate));
+
+  let phase = 0;
+  for (let i = startIndex; i < endIndex; i++) {
+    const t = (i - startIndex) / sampleRate;
+    const env = Math.exp(-t * 15);
+    const freq = 118 * Math.exp(-t * 9) + 46;
+    phase += (Math.PI * 2 * freq) / sampleRate;
+    const click = Math.sin(Math.PI * 2 * 1450 * t) * Math.exp(-t * 65) * 0.08;
+    const sample = (Math.sin(phase) * 0.92 + click) * env * gain;
+    left[i] += sample * 0.707;
+    right[i] += sample * 0.707;
+  }
+}
+
+function addSoftAccent({ left, right, sampleRate, start, frequency, gain, pan = 0 }) {
+  addMusicalNote({
+    left,
+    right,
+    sampleRate,
+    start,
+    duration: 0.16,
+    frequency,
+    gain,
+    pan,
+    attack: 0.004,
+    release: 0.14,
+    tone: 'pluck'
+  });
+}
+
+function addTonalSweep({
+  left,
+  right,
+  sampleRate,
+  start,
+  duration,
+  fromHz,
+  toHz,
+  gain,
+  pan = 0
+}) {
+  const startIndex = Math.max(0, Math.floor(start * sampleRate));
+  const endIndex = Math.min(left.length, Math.ceil((start + duration) * sampleRate));
+  const panLeft = Math.sqrt((1 - clamp(pan, -1, 1)) * 0.5);
+  const panRight = Math.sqrt((1 + clamp(pan, -1, 1)) * 0.5);
+  let phase = 0;
+
+  for (let i = startIndex; i < endIndex; i++) {
+    const t = (i - startIndex) / sampleRate;
+    const p = clamp(t / duration, 0, 1);
+    const freq = lerp(fromHz, toHz, easeInOut(p));
+    phase += (Math.PI * 2 * freq) / sampleRate;
+    const env = Math.sin(Math.PI * p);
+    const sample =
+      (Math.sin(phase) * 0.78 + Math.sin(phase * 2) * 0.14 + Math.sin(phase * 0.5) * 0.08) *
+      env *
+      gain;
+    left[i] += sample * panLeft;
+    right[i] += sample * panRight;
+  }
+}
+
+function masterAudio(left, right, sampleRate, durationSeconds) {
+  let peak = 0;
+  for (let i = 0; i < left.length; i++) {
+    peak = Math.max(peak, Math.abs(left[i]), Math.abs(right[i]));
+  }
+
+  const normalization = peak > 0 ? Math.min(1.0, 0.86 / peak) : 1;
+  const fadeSamples = Math.max(1, Math.floor(sampleRate * 0.12));
+  const tailSamples = Math.max(1, Math.floor(sampleRate * 0.42));
+
+  for (let i = 0; i < left.length; i++) {
+    const fadeIn = i < fadeSamples ? i / fadeSamples : 1;
+    const remaining = left.length - 1 - i;
+    const fadeOut = remaining < tailSamples ? remaining / tailSamples : 1;
+    const envelope = Math.min(fadeIn, fadeOut);
+
+    left[i] = Math.tanh(left[i] * normalization * 1.05) * envelope;
+    right[i] = Math.tanh(right[i] * normalization * 1.05) * envelope;
+  }
 }
 
 function wait(ms) {
@@ -587,6 +856,8 @@ function drawReelFrame(canvas, brand, reel, seconds, staticLayer = null) {
     drawReelStaticLayer(ctx, brand, reel);
   }
 
+  drawCinematicAtmosphere(ctx, brand, reel, seconds);
+
   switch (brand.visualMode) {
     case 'kryvant':
       drawKryvantReel(ctx, brand, reel, seconds);
@@ -607,6 +878,7 @@ function drawReelFrame(canvas, brand, reel, seconds, staticLayer = null) {
       drawKryvantReel(ctx, brand, reel, seconds);
   }
 
+  drawCinematicTransitions(ctx, brand, reel, seconds);
   ctx.restore();
 }
 
@@ -664,25 +936,26 @@ function drawReelStaticLayer(ctx, brand, reel) {
 }
 
 function drawKryvantReel(ctx, brand, reel, t) {
-
-  withAlpha(ctx, sceneAlpha(t, 0, 2.8), () => {
-    drawHeroText(ctx, reel.hook, 78, 380, 920, brand.color);
-    smallCaps(ctx, 'READ BELOW THE CANDLE', 80, 730, brand.color);
+  const intro = sceneAlpha(t, 0, 2.45, 0.28);
+  withAlpha(ctx, intro, () => {
+    drawKineticHero(ctx, reel.hook, 78, 390, 920, brand.color, localProgress(t, 0, 2.05), reel.variant);
+    drawAnimatedKicker(ctx, 'READ BELOW THE CANDLE', 80, 760, brand.color, localProgress(t, 0.35, 1.45));
   });
 
-  const flowAlpha = sceneAlpha(t, 2.2, 7.0);
-  withAlpha(ctx, flowAlpha, () => {
-    const p = ease(localProgress(t, 2.2, 6.7));
+  withAlpha(ctx, sceneAlpha(t, 1.85, 6.75, 0.34), () => {
+    const p = easeInOut(localProgress(t, 1.85, 6.45));
     drawKryvantFlow(ctx, brand, reel.seed, p);
-    drawBodyText(ctx, reel.insight, 80, 1310, 920, '#aab8ca');
+    drawLiveMeter(ctx, 78, 1240, 924, 'FLOW PRESSURE', p, brand.color, '#ff4964');
+    drawBodyTextAnimated(ctx, reel.insight, 80, 1390, 900, '#aab8ca', localProgress(t, 2.35, 4.05));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 6.2, 9.8), () => {
-    drawPills(ctx, ['FLOW', 'LIQUIDITY', 'RESPONSE'], 80, 1290, brand.color, '#07111c');
-    drawPayoff(ctx, reel.payoff, 80, 1490, 920, '#f4f8ff');
+  withAlpha(ctx, sceneAlpha(t, 5.95, 9.50, 0.30), () => {
+    drawImpactPanel(ctx, reel.payoff, ['FLOW', 'LIQUIDITY', 'RESPONSE'], brand.color, '#07111c', localProgress(t, 6.05, 7.30));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 9.2, 12.01, 0.5), () => drawFinalCta(ctx, brand, reel, brand.color, '#06101a'));
+  withAlpha(ctx, sceneAlpha(t, 8.85, 12.01, 0.34), () => {
+    drawFinalCtaAnimated(ctx, brand, reel, brand.color, '#06101a', t, null);
+  });
 }
 
 function drawKryvantFlow(ctx, brand, seed, progress) {
@@ -718,24 +991,25 @@ function drawKryvantFlow(ctx, brand, seed, progress) {
 }
 
 function drawLumeriqReel(ctx, brand, reel, t) {
-
-  withAlpha(ctx, sceneAlpha(t, 0, 2.8), () => {
-    drawHeroText(ctx, reel.hook, 78, 390, 920, brand.color);
-    smallCaps(ctx, 'ADAPTIVE STRATEGY SELECTION', 80, 760, '#c084fc');
+  withAlpha(ctx, sceneAlpha(t, 0, 2.45, 0.28), () => {
+    drawKineticHero(ctx, reel.hook, 78, 390, 920, brand.color, localProgress(t, 0, 2.05), reel.variant);
+    drawAnimatedKicker(ctx, '75 MICRO-FAMILIES · ADAPTIVE SELECTION', 80, 760, '#c084fc', localProgress(t, 0.35, 1.45));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 2.1, 7.1), () => {
-    const p = ease(localProgress(t, 2.1, 6.8));
+  withAlpha(ctx, sceneAlpha(t, 1.85, 6.75, 0.34), () => {
+    const p = easeInOut(localProgress(t, 1.85, 6.45));
     drawLumeriqNodes(ctx, brand, reel.seed, p);
-    drawBodyText(ctx, reel.insight, 80, 1365, 900, '#cdbde0');
+    drawSelectionBeam(ctx, 770, 1040, p, brand.color);
+    drawBodyTextAnimated(ctx, reel.insight, 80, 1390, 900, '#cdbde0', localProgress(t, 2.35, 4.05));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 6.3, 9.8), () => {
-    drawPills(ctx, ['REGIME', 'SETUP', 'SELECT'], 80, 1310, brand.color, '#160923');
-    drawPayoff(ctx, reel.payoff, 80, 1510, 900, '#fff8ff');
+  withAlpha(ctx, sceneAlpha(t, 5.95, 9.50, 0.30), () => {
+    drawImpactPanel(ctx, reel.payoff, ['REGIME', 'SETUP', 'SELECT'], brand.color, '#160923', localProgress(t, 6.05, 7.30));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 9.2, 12.01, 0.5), () => drawFinalCta(ctx, brand, reel, brand.color, '#160923'));
+  withAlpha(ctx, sceneAlpha(t, 8.85, 12.01, 0.34), () => {
+    drawFinalCtaAnimated(ctx, brand, reel, brand.color, '#160923', t, '#f0abfc');
+  });
 }
 
 function drawLumeriqNodes(ctx, brand, seed, progress) {
@@ -776,24 +1050,25 @@ function drawLumeriqNodes(ctx, brand, seed, progress) {
 }
 
 function drawRangenestReel(ctx, brand, reel, t) {
-
-  withAlpha(ctx, sceneAlpha(t, 0, 2.8), () => {
-    drawHeroText(ctx, reel.hook, 78, 390, 920, brand.color);
-    smallCaps(ctx, 'WEEKLY CONFIGURATION INTELLIGENCE', 80, 760, brand.color);
+  withAlpha(ctx, sceneAlpha(t, 0, 2.45, 0.28), () => {
+    drawKineticHero(ctx, reel.hook, 78, 390, 920, brand.color, localProgress(t, 0, 2.05), reel.variant);
+    drawAnimatedKicker(ctx, 'WEEKLY CONFIGURATION INTELLIGENCE', 80, 760, brand.color, localProgress(t, 0.35, 1.45));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 2.0, 7.2), () => {
-    const p = ease(localProgress(t, 2.0, 6.9));
+  withAlpha(ctx, sceneAlpha(t, 1.85, 6.75, 0.34), () => {
+    const p = easeInOut(localProgress(t, 1.85, 6.45));
     drawRangeEngine(ctx, brand, reel.seed, p);
-    drawBodyText(ctx, reel.insight, 80, 1380, 900, '#accabd');
+    drawRangeStatus(ctx, 80, 1288, 920, p, brand.color);
+    drawBodyTextAnimated(ctx, reel.insight, 80, 1400, 900, '#accabd', localProgress(t, 2.35, 4.05));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 6.3, 9.8), () => {
-    drawPills(ctx, ['RANGE', 'VOLATILITY', 'STRUCTURE'], 80, 1320, brand.color, '#071812');
-    drawPayoff(ctx, reel.payoff, 80, 1515, 900, '#f3fff8');
+  withAlpha(ctx, sceneAlpha(t, 5.95, 9.50, 0.30), () => {
+    drawImpactPanel(ctx, reel.payoff, ['RANGE', 'VOLATILITY', 'STRUCTURE'], brand.color, '#071812', localProgress(t, 6.05, 7.30));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 9.2, 12.01, 0.5), () => drawFinalCta(ctx, brand, reel, brand.color, '#071812'));
+  withAlpha(ctx, sceneAlpha(t, 8.85, 12.01, 0.34), () => {
+    drawFinalCtaAnimated(ctx, brand, reel, brand.color, '#071812', t, '#9cf5cb');
+  });
 }
 
 function drawRangeEngine(ctx, brand, seed, progress) {
@@ -839,24 +1114,25 @@ function drawRangeEngine(ctx, brand, seed, progress) {
 }
 
 function drawNinetyValeReel(ctx, brand, reel, t) {
-
-  withAlpha(ctx, sceneAlpha(t, 0, 2.8), () => {
-    drawHeroText(ctx, reel.hook, 78, 390, 920, '#4f8cff');
-    smallCaps(ctx, 'FOOTBALL VALUE INTELLIGENCE', 80, 760, '#d7aa62');
+  withAlpha(ctx, sceneAlpha(t, 0, 2.45, 0.28), () => {
+    drawKineticHero(ctx, reel.hook, 78, 390, 920, '#4f8cff', localProgress(t, 0, 2.05), reel.variant);
+    drawAnimatedKicker(ctx, 'FOOTBALL VALUE INTELLIGENCE', 80, 760, '#d7aa62', localProgress(t, 0.35, 1.45));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 2.0, 7.2), () => {
-    const p = ease(localProgress(t, 2.0, 6.9));
+  withAlpha(ctx, sceneAlpha(t, 1.85, 6.75, 0.34), () => {
+    const p = easeInOut(localProgress(t, 1.85, 6.45));
     drawNinetyValeModel(ctx, reel.seed, p);
-    drawBodyText(ctx, reel.insight, 80, 1390, 900, '#b9c3d2');
+    drawValueDecisionBadge(ctx, 540, 1280, p, '#4f8cff', '#d7aa62');
+    drawBodyTextAnimated(ctx, reel.insight, 80, 1410, 900, '#b9c3d2', localProgress(t, 2.35, 4.05));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 6.3, 9.8), () => {
-    drawPills(ctx, ['MODEL', 'MARKET', 'VALUE'], 80, 1320, '#4f8cff', '#07101e', '#d7aa62');
-    drawPayoff(ctx, reel.payoff, 80, 1515, 900, '#fffaf2');
+  withAlpha(ctx, sceneAlpha(t, 5.95, 9.50, 0.30), () => {
+    drawImpactPanel(ctx, reel.payoff, ['MODEL', 'MARKET', 'VALUE'], '#4f8cff', '#07101e', localProgress(t, 6.05, 7.30), '#d7aa62');
   });
 
-  withAlpha(ctx, sceneAlpha(t, 9.2, 12.01, 0.5), () => drawFinalCta(ctx, brand, reel, '#4f8cff', '#07101e', '#d7aa62'));
+  withAlpha(ctx, sceneAlpha(t, 8.85, 12.01, 0.34), () => {
+    drawFinalCtaAnimated(ctx, brand, reel, '#4f8cff', '#07101e', t, '#d7aa62');
+  });
 }
 
 function drawFootballPitch(ctx) {
@@ -897,24 +1173,25 @@ function drawNinetyValeModel(ctx, seed, progress) {
 }
 
 function drawArcynthReel(ctx, brand, reel, t) {
-
-  withAlpha(ctx, sceneAlpha(t, 0, 2.8), () => {
-    drawHeroText(ctx, reel.hook, 78, 390, 920, brand.color);
-    smallCaps(ctx, 'MULTI-HORIZON FORECAST INTELLIGENCE', 80, 760, brand.color);
+  withAlpha(ctx, sceneAlpha(t, 0, 2.45, 0.28), () => {
+    drawKineticHero(ctx, reel.hook, 78, 390, 920, brand.color, localProgress(t, 0, 2.05), reel.variant);
+    drawAnimatedKicker(ctx, 'MULTI-HORIZON FORECAST INTELLIGENCE', 80, 760, brand.color, localProgress(t, 0.35, 1.45));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 2.0, 7.2), () => {
-    const p = ease(localProgress(t, 2.0, 6.9));
+  withAlpha(ctx, sceneAlpha(t, 1.85, 6.75, 0.34), () => {
+    const p = easeInOut(localProgress(t, 1.85, 6.45));
     drawForecastRoutes(ctx, brand, reel.seed, p);
-    drawBodyText(ctx, reel.insight, 80, 1400, 900, '#aac5cb');
+    drawForecastScanner(ctx, 96, 770, 860, 450, p, brand.color);
+    drawBodyTextAnimated(ctx, reel.insight, 80, 1410, 900, '#aac5cb', localProgress(t, 2.35, 4.05));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 6.3, 9.8), () => {
-    drawPills(ctx, ['24H', '7D', '30D'], 80, 1320, brand.color, '#071921');
-    drawPayoff(ctx, reel.payoff, 80, 1515, 900, '#f2fdff');
+  withAlpha(ctx, sceneAlpha(t, 5.95, 9.50, 0.30), () => {
+    drawImpactPanel(ctx, reel.payoff, ['24H', '7D', '30D'], brand.color, '#071921', localProgress(t, 6.05, 7.30));
   });
 
-  withAlpha(ctx, sceneAlpha(t, 9.2, 12.01, 0.5), () => drawFinalCta(ctx, brand, reel, brand.color, '#071921'));
+  withAlpha(ctx, sceneAlpha(t, 8.85, 12.01, 0.34), () => {
+    drawFinalCtaAnimated(ctx, brand, reel, brand.color, '#071921', t, '#7ba8ff');
+  });
 }
 
 function drawForecastRoutes(ctx, brand, seed, progress) {
@@ -978,6 +1255,316 @@ function drawProgressivePath(ctx, points, progress) {
   }
 
   ctx.stroke();
+}
+
+function drawCinematicAtmosphere(ctx, brand, reel, t) {
+  const accent = brand.visualMode === 'ninetyvale' ? '#4f8cff' : brand.color;
+  const variant = (Number(reel.variant) || 0) % 4;
+  const pulse = 0.5 + 0.5 * Math.sin(t * (0.9 + variant * 0.08));
+
+  // Slow moving light beam.
+  const sweepX = -260 + ((t * 95 + variant * 170) % 1600);
+  const gradient = ctx.createLinearGradient(sweepX - 180, 0, sweepX + 180, 0);
+  gradient.addColorStop(0, 'rgba(255,255,255,0)');
+  gradient.addColorStop(0.5, hexToRgba(accent, 0.045 + pulse * 0.025));
+  gradient.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, REEL_WIDTH, REEL_HEIGHT);
+
+  // Deterministic floating particles.
+  for (let i = 0; i < 26; i++) {
+    const baseX = unit(reel.seed, 1200 + i * 3) * REEL_WIDTH;
+    const baseY = unit(reel.seed, 1201 + i * 3) * REEL_HEIGHT;
+    const speed = 10 + unit(reel.seed, 1202 + i * 3) * 26;
+    const y = (baseY - t * speed + REEL_HEIGHT + 80) % (REEL_HEIGHT + 160) - 80;
+    const x = baseX + Math.sin(t * 0.55 + i) * (8 + variant * 3);
+    const radius = 1.5 + unit(reel.seed, 1300 + i) * 3.5;
+    ctx.fillStyle = hexToRgba(accent, 0.10 + unit(reel.seed, 1400 + i) * 0.18);
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Very subtle top/bottom cinematic vignette.
+  const top = ctx.createLinearGradient(0, 0, 0, 300);
+  top.addColorStop(0, 'rgba(0,0,0,0.38)');
+  top.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = top;
+  ctx.fillRect(0, 0, REEL_WIDTH, 300);
+
+  const bottom = ctx.createLinearGradient(0, REEL_HEIGHT - 360, 0, REEL_HEIGHT);
+  bottom.addColorStop(0, 'rgba(0,0,0,0)');
+  bottom.addColorStop(1, 'rgba(0,0,0,0.46)');
+  ctx.fillStyle = bottom;
+  ctx.fillRect(0, REEL_HEIGHT - 360, REEL_WIDTH, 360);
+}
+
+function drawCinematicTransitions(ctx, brand, reel, t) {
+  const accent = brand.visualMode === 'ninetyvale' ? '#4f8cff' : brand.color;
+  [2.15, 6.05, 9.05].forEach((time, index) => {
+    const distance = Math.abs(t - time);
+    if (distance > 0.24) return;
+
+    const p = 1 - distance / 0.24;
+    const width = 190 + p * 760;
+    const x = index % 2 === 0 ? -width + p * (REEL_WIDTH + width) : REEL_WIDTH - p * (REEL_WIDTH + width);
+    const gradient = ctx.createLinearGradient(x, 0, x + width, 0);
+    gradient.addColorStop(0, 'rgba(255,255,255,0)');
+    gradient.addColorStop(0.45, hexToRgba(accent, 0.11 * p));
+    gradient.addColorStop(0.58, `rgba(255,255,255,${0.13 * p})`);
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, REEL_WIDTH, REEL_HEIGHT);
+  });
+}
+
+function drawKineticHero(ctx, text, x, y, maxWidth, accent, progress, variant = 0) {
+  const p = easeOutBack(clamp(progress, 0, 1));
+  const direction = variant % 2 === 0 ? 1 : -1;
+  const offsetX = direction * (1 - p) * 110;
+  const offsetY = (1 - p) * 70;
+  const scale = 0.91 + p * 0.09;
+
+  ctx.save();
+  ctx.translate(x + offsetX, y + offsetY);
+  ctx.scale(scale, scale);
+  ctx.fillStyle = '#f8fbff';
+  ctx.font = '900 82px system-ui';
+  wrap(ctx, text, 0, 0, maxWidth, 88, 5);
+
+  const lineProgress = easeInOut(clamp((progress - 0.22) / 0.60, 0, 1));
+  ctx.fillStyle = accent;
+  ctx.fillRect(0, 42, Math.max(2, 320 * lineProgress), 9);
+  ctx.restore();
+
+  // Accent frame snaps in behind the hook.
+  const frameP = easeInOut(clamp((progress - 0.35) / 0.55, 0, 1));
+  ctx.strokeStyle = hexToRgba(accent, 0.16 * frameP);
+  ctx.lineWidth = 2;
+  roundStroke(ctx, x - 18, y - 118, maxWidth + 36, 500, 34, hexToRgba(accent, 0.16 * frameP));
+}
+
+function drawAnimatedKicker(ctx, text, x, y, color, progress) {
+  const p = easeInOut(clamp(progress, 0, 1));
+  ctx.save();
+  ctx.translate(x, y + (1 - p) * 24);
+  ctx.globalAlpha *= p;
+  ctx.fillStyle = color;
+  ctx.font = '900 20px ui-monospace, SFMono-Regular, Menlo, monospace';
+  ctx.fillText(text, 0, 0);
+  ctx.restore();
+}
+
+function drawBodyTextAnimated(ctx, text, x, y, maxWidth, color, progress) {
+  const p = easeInOut(clamp(progress, 0, 1));
+  ctx.save();
+  ctx.globalAlpha *= p;
+  ctx.translate(0, (1 - p) * 34);
+  ctx.fillStyle = color;
+  ctx.font = '520 28px system-ui';
+  wrap(ctx, text, x, y, maxWidth, 40, 5);
+  ctx.restore();
+}
+
+function drawImpactPanel(ctx, payoff, labels, accent, dark, progress, alternate = null) {
+  const p = easeOutBack(clamp(progress, 0, 1));
+  const panelY = 1120 - (1 - p) * 110;
+
+  glow(ctx, 540, 1320, 470, accent, 0.12 * p);
+  roundFill(ctx, 70, panelY, 940, 500, 38, 'rgba(5,11,18,0.90)');
+  roundStroke(ctx, 70, panelY, 940, 500, 38, hexToRgba(accent, 0.28));
+
+  ctx.fillStyle = alternate || accent;
+  ctx.font = '900 18px ui-monospace, SFMono-Regular, Menlo, monospace';
+  ctx.fillText('THE DECISION', 108, panelY + 62);
+
+  ctx.fillStyle = '#f8fbff';
+  ctx.font = '900 62px system-ui';
+  wrap(ctx, payoff, 108, panelY + 150, 850, 70, 4);
+
+  labels.forEach((label, index) => {
+    const chipP = clamp((progress - index * 0.08) / 0.72, 0, 1);
+    const chipX = 108 + index * 280;
+    const chipWidth = 242 * chipP;
+    if (chipWidth > 4) {
+      roundFill(
+        ctx,
+        chipX,
+        panelY + 370,
+        chipWidth,
+        68,
+        Math.min(34, chipWidth / 2),
+        index === 1 && alternate ? alternate : accent
+      );
+    }
+    if (chipP > 0.62) {
+      ctx.fillStyle = dark;
+      ctx.font = '900 18px system-ui';
+      ctx.fillText(label, chipX + 26, panelY + 413);
+    }
+  });
+}
+
+function drawFinalCtaAnimated(ctx, brand, reel, accent, dark, t, alternate = null) {
+  const p = easeOutBack(localProgress(t, 8.85, 10.15));
+  const breathe = 1 + Math.sin(t * 3.4) * 0.018;
+  const ring = localProgress(t, 9.25, 11.85);
+
+  ctx.save();
+  ctx.translate(540, 870);
+  ctx.scale(breathe, breathe);
+  glow(ctx, 0, 0, 560, accent, 0.22);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#f8fbff';
+  ctx.font = '900 94px system-ui';
+  ctx.globalAlpha *= p;
+  ctx.fillText(brand.name, 0, -170);
+
+  ctx.fillStyle = alternate || accent;
+  ctx.font = '900 24px ui-monospace, SFMono-Regular, Menlo, monospace';
+  ctx.fillText(reel.topic, 0, -112);
+
+  ctx.strokeStyle = hexToRgba(alternate || accent, 0.55);
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(0, 30, 180 + ring * 48, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * ring);
+  ctx.stroke();
+
+  ctx.fillStyle = '#c2ccd8';
+  ctx.font = '650 30px system-ui';
+  ctx.fillText('DAILY INTELLIGENCE', 0, -36);
+  ctx.restore();
+
+  const buttonP = easeOutBack(localProgress(t, 9.45, 10.45));
+  const buttonWidth = 780 * buttonP;
+  const buttonX = 540 - buttonWidth / 2;
+  if (buttonWidth > 6) {
+    roundFill(ctx, buttonX, 1010, buttonWidth, 132, Math.min(36, buttonWidth / 2), accent);
+  }
+
+  if (buttonP > 0.72) {
+    ctx.fillStyle = dark;
+    ctx.font = '900 44px system-ui';
+    ctx.fillText('JOIN THE DISCORD', 260, 1092);
+    drawArrow(ctx, 820, 1076, dark, 1);
+  }
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#8391a5';
+  ctx.font = '650 20px system-ui';
+  ctx.fillText('NEW REEL · EVERY DAY', 540, 1218);
+  ctx.textAlign = 'left';
+}
+
+function drawLiveMeter(ctx, x, y, w, label, progress, accent, alternate) {
+  const p = easeInOut(clamp(progress, 0, 1));
+  ctx.fillStyle = '#7e8b9f';
+  ctx.font = '800 16px ui-monospace, SFMono-Regular, Menlo, monospace';
+  ctx.fillText(label, x, y);
+  roundFill(ctx, x, y + 26, w, 44, 22, 'rgba(255,255,255,0.055)');
+
+  const split = 0.58 + Math.sin(progress * Math.PI * 1.2) * 0.08;
+  roundFill(ctx, x, y + 26, w * split * p, 44, 22, accent);
+  if (p > 0.35) {
+    roundFill(ctx, x + w * split * p, y + 26, w * (1 - split) * p, 44, 22, alternate);
+  }
+}
+
+function drawSelectionBeam(ctx, x, y, progress, accent) {
+  const p = easeInOut(clamp((progress - 0.45) / 0.55, 0, 1));
+  if (p <= 0) return;
+  const gradient = ctx.createRadialGradient(x, y, 0, x, y, 230 * p);
+  gradient.addColorStop(0, 'rgba(255,255,255,0.22)');
+  gradient.addColorStop(0.24, hexToRgba(accent, 0.30));
+  gradient.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(x - 260, y - 260, 520, 520);
+
+  roundFill(ctx, x - 190, y + 180, 380 * p, 84, 24, hexToRgba(accent, 0.94));
+  if (p > 0.65) {
+    ctx.fillStyle = '#13081e';
+    ctx.font = '900 26px system-ui';
+    ctx.fillText('1 SELECTED SIGNAL', x - 152, y + 232);
+  }
+}
+
+function drawRangeStatus(ctx, x, y, w, progress, accent) {
+  const p = easeInOut(clamp(progress, 0, 1));
+  const labels = ['SCAN', 'FIT', 'CONFIGURE'];
+  labels.forEach((label, index) => {
+    const itemP = clamp(p * 1.25 - index * 0.12, 0, 1);
+    const itemX = x + index * 310;
+    roundFill(ctx, itemX, y, 282, 76, 24, itemP > 0.82 ? hexToRgba(accent, 0.96) : 'rgba(255,255,255,0.055)');
+    ctx.fillStyle = itemP > 0.82 ? '#06110e' : '#88a899';
+    ctx.font = '900 18px ui-monospace, SFMono-Regular, Menlo, monospace';
+    ctx.fillText(label, itemX + 26, y + 47);
+  });
+}
+
+function drawValueDecisionBadge(ctx, x, y, progress, accent, gold) {
+  const p = easeOutBack(clamp((progress - 0.56) / 0.44, 0, 1));
+  if (p <= 0) return;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(p, p);
+  glow(ctx, 0, 0, 260, accent, 0.16);
+  roundFill(ctx, -300, -54, 600, 108, 30, 'rgba(7,16,30,0.95)');
+  roundStroke(ctx, -300, -54, 600, 108, 30, hexToRgba(gold, 0.38));
+  ctx.textAlign = 'center';
+  ctx.fillStyle = gold;
+  ctx.font = '900 26px ui-monospace, SFMono-Regular, Menlo, monospace';
+  ctx.fillText('PRICE VS PROBABILITY', 0, -4);
+  ctx.fillStyle = '#f8fbff';
+  ctx.font = '900 38px system-ui';
+  ctx.fillText('VALUE CHECK COMPLETE', 0, 38);
+  ctx.textAlign = 'left';
+  ctx.restore();
+}
+
+function drawForecastScanner(ctx, x, y, w, h, progress, accent) {
+  const p = easeInOut(clamp(progress, 0, 1));
+  const scanX = x + w * p;
+  const gradient = ctx.createLinearGradient(scanX - 80, 0, scanX + 20, 0);
+  gradient.addColorStop(0, 'rgba(255,255,255,0)');
+  gradient.addColorStop(1, hexToRgba(accent, 0.42));
+  ctx.fillStyle = gradient;
+  ctx.fillRect(scanX - 80, y, 100, h);
+
+  ctx.strokeStyle = hexToRgba(accent, 0.62);
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(scanX, y);
+  ctx.lineTo(scanX, y + h);
+  ctx.stroke();
+}
+
+function drawArrow(ctx, x, y, color, scale = 1) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 6 * scale;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x - 34 * scale, y);
+  ctx.lineTo(x + 30 * scale, y);
+  ctx.lineTo(x + 6 * scale, y - 22 * scale);
+  ctx.moveTo(x + 30 * scale, y);
+  ctx.lineTo(x + 6 * scale, y + 22 * scale);
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+}
+
+function easeInOut(value) {
+  const x = clamp(value, 0, 1);
+  return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+}
+
+function easeOutBack(value) {
+  const x = clamp(value, 0, 1);
+  const c1 = 1.70158;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
 }
 
 function drawPersistentBrand(ctx, brand, reel, muted) {
